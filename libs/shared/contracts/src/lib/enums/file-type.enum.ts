@@ -1,0 +1,15 @@
+export enum FileType {
+  TS = 'ts',
+  JS = 'js',
+  HTML = 'html',
+  CSS = 'css',
+  JSON = 'json',
+  MD = 'md',
+  TXT = 'txt',
+  PNG = 'png',
+  JPG = 'jpg',
+  SVG = 'svg',
+  PDF = 'pdf',
+  OTHER = 'other',
+  DIRECTORY = 'directory',
+}

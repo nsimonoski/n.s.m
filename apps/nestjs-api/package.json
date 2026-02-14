@@ -64,7 +64,8 @@
         ],
         "options": {
           "buildTarget": "@org/nestjs-api:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "watch": true
         },
         "configurations": {
           "development": {
