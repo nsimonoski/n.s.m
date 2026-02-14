@@ -2,12 +2,5 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": [
-    {
-      "path": "./apps/react-ide"
-    },
-    {
-      "path": "./apps/nestjs-api"
-    }
-  ]
+  "references": []
 }

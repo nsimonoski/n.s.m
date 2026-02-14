@@ -1,0 +1,9 @@
+{
+  "name": "react-file-explorer",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/react/features/file-exporer/src",
+  "projectType": "library",
+  "tags": ["scope:react", "type:feature"],
+  "// targets": "to see all targets run: nx show project react-file-explorer --web",
+  "targets": {}
+}
