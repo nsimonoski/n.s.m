@@ -1,0 +1,90 @@
+.tree-node {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  cursor: pointer;
+  user-select: none;
+  height: 22px;
+  font-size: 13px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  &:hover {
+    background-color: rgba(90, 93, 94, 0.31);
+  }
+
+  &.selected {
+    background-color: #04395e;
+  }
+
+  &.selected:hover {
+    background-color: #04395e;
+  }
+}
+
+.indent-guide {
+  display: inline-block;
+  width: 20px;
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .tree-node:hover &::before {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.expand-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 2px;
+  color: #c5c5c5;
+  flex-shrink: 0;
+  border-radius: 2px;
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.expand-spacer {
+  width: 16px;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
+.file-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 16px;
+  }
+}
+
+.name {
+  font-size: 13px;
+  color: #cccccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}

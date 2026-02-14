@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": []
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts"],
   "exclude": [
@@ -11,5 +13,10 @@
     "jest.config.ts",
     "jest.config.cts",
     "src/test-setup.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/angular/features/file-explorer"
+    }
   ]
 }

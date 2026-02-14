@@ -1,0 +1,17 @@
+<div class="file-explorer">
+  @if (store.loading()) {
+    <div class="loading">Loading...</div>
+  }
+
+  @if (store.directory()) {
+    <app-file-tree
+      [rootDirectory]="store.directory()!"
+      (handleDelete)="handleDelete($event)"
+      (handleNewFile)="handleNewFile($event)"
+      (handleNewFolder)="handleNewFolder($event)"
+      (handleOpen)="handleOpen($event)"
+      (handleRename)="handleRename($event)"
+      (handleExpand)="handleExpandDirectory($event)"
+    />
+  }
+</div>
