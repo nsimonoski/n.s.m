@@ -5,6 +5,7 @@ const extensionMap: Record<string, FileType> = {
   js: FileType.JS,
   html: FileType.HTML,
   css: FileType.CSS,
+  scss: FileType.SCSS,
   json: FileType.JSON,
   md: FileType.MD,
   txt: FileType.TXT,

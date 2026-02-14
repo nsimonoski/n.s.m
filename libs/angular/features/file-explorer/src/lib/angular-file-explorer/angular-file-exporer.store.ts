@@ -9,8 +9,14 @@ import {
   withState,
 } from '@ngrx/signals';
 
-import { DirectoryResponseDto, FileResponseDto, FileType, RenameFileRequestDto } from '@org/shared/contracts';
+import {
+  DirectoryResponseDto,
+  FileResponseDto,
+  FileType,
+  RenameFileRequestDto,
+} from '@org/shared/contracts';
 import { FileExplorerService } from '../data-access/services/file-explorer.service';
+import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
 import { pipe, switchMap, tap } from 'rxjs';
 
 interface FileExplorerComponentState {
@@ -32,9 +38,7 @@ function mergeDirectoryIntoTree(
 
   return {
     ...root,
-    directories: root.directories.map((dir) =>
-      mergeDirectoryIntoTree(dir, targetPath, fetched),
-    ),
+    directories: root.directories.map((dir) => mergeDirectoryIntoTree(dir, targetPath, fetched)),
   };
 }
 
@@ -49,9 +53,7 @@ function refreshDirectoryInTree(
 
   return {
     ...root,
-    directories: root.directories.map((dir) =>
-      refreshDirectoryInTree(dir, parentPath, fetched),
-    ),
+    directories: root.directories.map((dir) => refreshDirectoryInTree(dir, parentPath, fetched)),
   };
 }
 
@@ -61,15 +63,22 @@ export const AngularFileExplorerStore = signalStore(
     file: null,
     loading: false,
   }),
-  withProps(() => ({ service: inject(FileExplorerService) })),
+  withProps(() => ({
+    service: inject(FileExplorerService),
+    wsService: inject(FileExplorerWsService),
+  })),
   withMethods((state) => {
     const refreshParentDirectory = (childPath: string) => {
       const parentPath = childPath.substring(0, childPath.lastIndexOf('/'));
       const targetPath = parentPath || state.directory()?.path;
-      if (!targetPath || !state.directory()) return;
+      if (!targetPath || !state.directory()) {
+        return;
+      }
 
       state.service.readDirectory(targetPath).subscribe((fetched) => {
-        if (!fetched || !state.directory()) return;
+        if (!fetched || !state.directory()) {
+          return;
+        }
         patchState(state, {
           directory: refreshDirectoryInTree(state.directory()!, targetPath, fetched),
         });
@@ -77,6 +86,7 @@ export const AngularFileExplorerStore = signalStore(
     };
 
     return {
+      refreshParentDirectory,
       getDirectory: rxMethod<string>(
         pipe(
           switchMap((path: string) => state.service.readDirectory(path)),
@@ -94,7 +104,9 @@ export const AngularFileExplorerStore = signalStore(
         pipe(
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((fetched) => {
-            if (!fetched || !state.directory()) return;
+            if (!fetched || !state.directory()) {
+              return;
+            }
 
             patchState(state, {
               directory: mergeDirectoryIntoTree(state.directory()!, fetched.path, fetched),
@@ -177,11 +189,23 @@ export const AngularFileExplorerStore = signalStore(
           }),
         ),
       ),
+      listenToFileChanges: rxMethod<void>(
+        pipe(
+          switchMap(() => state.wsService.fileChanges$),
+          tap((event) => {
+            console.log('File change detected:', event);
+            refreshParentDirectory(event.path);
+          }),
+        ),
+      ),
     };
   }),
   withHooks({
     onInit(state) {
       state.getDirectory(ROOT_PATH);
+      state.wsService.watchPath(ROOT_PATH);
+
+      state.listenToFileChanges();
     },
   }),
 );

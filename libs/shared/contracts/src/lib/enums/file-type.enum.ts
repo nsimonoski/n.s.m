@@ -3,6 +3,7 @@ export enum FileType {
   JS = 'js',
   HTML = 'html',
   CSS = 'css',
+  SCSS = 'scss',
   JSON = 'json',
   MD = 'md',
   TXT = 'txt',

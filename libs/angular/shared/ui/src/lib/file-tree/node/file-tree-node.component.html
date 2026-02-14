@@ -1,36 +1,31 @@
 <div
   class="tree-node"
   [class.selected]="isSelected()"
+  [class.grayed]="isGrayed()"
   (click)="onNodeClick()"
   (contextmenu)="onContextMenu($event)"
 >
-  <!-- Indent Guides -->
   @for (guide of indentGuides(); track $index) {
     <span class="indent-guide"></span>
   }
 
-  <!-- Expand/Collapse Icon -->
   @if (isDirectory()) {
     <span class="expand-icon">
       <i [class]="'codicon ' + expandIcon()"></i>
     </span>
   }
 
-  <!-- Spacer -->
   @if (!isDirectory()) {
     <span class="expand-spacer"></span>
   }
 
-  <!-- File/Folder Icon -->
   <span class="file-icon" [style.color]="fileIcon().color">
     <i [class]="'codicon ' + fileIcon().iconClass"></i>
   </span>
 
-  <!-- Name -->
   <span class="name">{{ node().name }}</span>
 </div>
 
-<!-- Recursive Children -->
 @if (isDirectory() && isExpanded() && hasChildren()) {
   @for (child of children(); track child.path) {
     <app-file-tree-node

@@ -9,6 +9,7 @@ export interface DirectoryResponseDto {
   files: FileResponseDto[];
   directories: DirectoryResponseDto[];
   updatedAt: string;
+  gitIgnored?: boolean;
 }
 
 export interface DirectoryCreateRequestDto {

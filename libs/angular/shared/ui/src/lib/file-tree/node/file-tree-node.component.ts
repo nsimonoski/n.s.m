@@ -43,6 +43,7 @@ export class FileTreeNodeComponent {
     return [...dir.directories, ...dir.files];
   });
 
+  isGrayed = computed(() => this.node().gitIgnored === true);
   indentGuides = computed(() => Array(this.level()).fill(0));
   fileIcon = computed(() => getFileIcon(this.node().type, this.isExpanded()));
   expandIcon = computed(() => getExpandIcon(this.isExpanded()));

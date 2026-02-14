@@ -26,6 +26,10 @@ const FILE_ICON_MAP: Record<FileType, FileIconConfig> = {
     iconClass: 'codicon-symbol-color',
     color: '#563d7c',
   },
+  [FileType.SCSS]: {
+    iconClass: 'codicon-symbol-color',
+    color: '#563d7c',
+  },
   [FileType.JSON]: {
     iconClass: 'codicon-json',
     color: '#89e051',

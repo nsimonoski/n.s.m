@@ -20,11 +20,15 @@
   &.selected:hover {
     background-color: #04395e;
   }
+
+  &.grayed {
+    opacity: 0.5;
+  }
 }
 
 .indent-guide {
   display: inline-block;
-  width: 20px;
+  width: 10px;
   height: 100%;
   position: relative;
   flex-shrink: 0;

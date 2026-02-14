@@ -9,6 +9,7 @@ export interface FileResponseDto {
   createdAt?: string;
   type: FileType;
   extension?: string;
+  gitIgnored?: boolean;
 }
 
 export interface FileUpdateRequestDto {

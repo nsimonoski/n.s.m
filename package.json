@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "api:start": "npx nx serve nestjs-api --configuration=development ",
+    "api:start": "nx serve nestjs-api",
     "angular-ide:start": "nx serve angular-ide",
     "react-ide:start": "nx serve react-ide"
   },
@@ -102,9 +102,11 @@
     "@ngrx/signals": "^21.0.1",
     "@vscode/codicons": "^0.0.44",
     "axios": "^1.6.0",
+    "chokidar": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.3"
   }
 }

@@ -1,10 +1,14 @@
 import { FileSystemProvider } from '../domain/file-system.provider';
 import { promises as fs } from 'fs';
 import * as path from 'path';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import { FileResponseDto, DirectoryResponseDto, FileType } from '@org/shared/contracts';
 import { getFileTypeFromExtension } from '@org/shared/utils';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { FileSystemErrorMapper } from '../domain/file-system-error.mapper';
+
+const execFileAsync = promisify(execFile);
 
 @Injectable()
 export class LocalFileSystemProvider extends FileSystemProvider {
@@ -26,12 +30,13 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
     if (stat.isDirectory()) {
       const entries = await fs.readdir(dirPath, { withFileTypes: true });
+      const fullPaths = entries.map((e) => path.join(dirPath, e.name));
+      const ignoredPaths = await this.getGitIgnoredPaths(dirPath, fullPaths);
 
       for (const entry of entries) {
-        if (entry.name.startsWith('.')) continue;
-
         const fullPath = path.join(dirPath, entry.name);
         const entryStat = await fs.stat(fullPath);
+        const gitIgnored = ignoredPaths.has(fullPath);
 
         if (entry.isFile()) {
           const ext = path.extname(entry.name).slice(1);
@@ -42,6 +47,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             updatedAt: entryStat.mtime.toISOString(),
             extension: ext || undefined,
             type: getFileTypeFromExtension(ext),
+            gitIgnored,
           });
         } else if (entry.isDirectory()) {
           node.directories.push({
@@ -52,6 +58,7 @@ export class LocalFileSystemProvider extends FileSystemProvider {
             files: [],
             directories: [],
             updatedAt: entryStat.mtime.toISOString(),
+            gitIgnored,
           });
         }
       }
@@ -183,6 +190,19 @@ export class LocalFileSystemProvider extends FileSystemProvider {
       };
     } catch (error) {
       throw this.errorMapper.mapFsError(error);
+    }
+  }
+
+  private async getGitIgnoredPaths(dirPath: string, paths: string[]): Promise<Set<string>> {
+    if (paths.length === 0) {
+      return new Set();
+    }
+
+    try {
+      const { stdout } = await execFileAsync('git', ['check-ignore', ...paths], { cwd: dirPath });
+      return new Set(stdout.trim().split('\n').filter(Boolean));
+    } catch {
+      return new Set();
     }
   }
 }
