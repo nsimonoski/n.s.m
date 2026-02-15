@@ -1,2 +1,1 @@
-export * from './lib/file-type.utils';
-export * from './lib/file-icon.utils';
+export * as FileUtils from './lib/file-utils/index';

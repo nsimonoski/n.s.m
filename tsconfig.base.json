@@ -14,7 +14,8 @@
       "@org/shared/utils": ["libs/shared/utils/src/index.ts"],
       "@org/angular-file-explorer": ["libs/angular/features/file-explorer/src/index.ts"],
       "@org/react-file-explorer": ["libs/react/features/file-exporer/src/index.ts"],
-      "@org/angular/ui": ["libs/angular/shared/ui/src/index.ts"]
+      "@org/angular/ui": ["libs/angular/shared/ui/src/index.ts"],
+      "@org/angular-utils": ["libs/angular/shared/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

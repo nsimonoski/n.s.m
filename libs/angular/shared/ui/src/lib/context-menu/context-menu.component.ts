@@ -1,5 +1,5 @@
 import { Component, output, input } from '@angular/core';
-import { DirectoryResponseDto, FileResponseDto, FileType } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { CONTEXT_MENU_ITEMS, ContextMenuAction, ContextMenuItem } from './context-menu.dto';
 
 @Component({
@@ -22,7 +22,7 @@ export class ContextMenuComponent {
 
   get menuItems(): ContextMenuItem[] {
     const node = this.node();
-    const isDirectory = node?.type === FileType.DIRECTORY;
+    const isDirectory = node?.type === Enums.FileType.DIRECTORY;
 
     if (!node) {
       return [CONTEXT_MENU_ITEMS.NEW_FILE, CONTEXT_MENU_ITEMS.NEW_FOLDER];

@@ -1,78 +1,78 @@
-import { FileType } from '@org/shared/contracts';
+import { Enums } from '@org/shared/contracts';
 
 export interface FileIconConfig {
   iconClass: string;
   color: string;
 }
 
-const FILE_ICON_MAP: Record<FileType, FileIconConfig> = {
-  [FileType.DIRECTORY]: {
+const FILE_ICON_MAP: Record<Enums.FileType, FileIconConfig> = {
+  [Enums.FileType.DIRECTORY]: {
     iconClass: 'codicon-folder',
     color: '#dcb67a',
   },
-  [FileType.TS]: {
+  [Enums.FileType.TS]: {
     iconClass: 'codicon-symbol-method',
     color: '#3178c6',
   },
-  [FileType.JS]: {
+  [Enums.FileType.JS]: {
     iconClass: 'codicon-symbol-method',
     color: '#f1dd3f',
   },
-  [FileType.HTML]: {
+  [Enums.FileType.HTML]: {
     iconClass: 'codicon-code',
     color: '#e34c26',
   },
-  [FileType.CSS]: {
+  [Enums.FileType.CSS]: {
     iconClass: 'codicon-symbol-color',
     color: '#563d7c',
   },
-  [FileType.SCSS]: {
+  [Enums.FileType.SCSS]: {
     iconClass: 'codicon-symbol-color',
     color: '#563d7c',
   },
-  [FileType.JSON]: {
+  [Enums.FileType.JSON]: {
     iconClass: 'codicon-json',
     color: '#89e051',
   },
-  [FileType.MD]: {
+  [Enums.FileType.MD]: {
     iconClass: 'codicon-markdown',
     color: '#519aba',
   },
-  [FileType.TXT]: {
+  [Enums.FileType.TXT]: {
     iconClass: 'codicon-file',
     color: '#c5c5c5',
   },
-  [FileType.PNG]: {
+  [Enums.FileType.PNG]: {
     iconClass: 'codicon-file-media',
     color: '#a074c4',
   },
-  [FileType.JPG]: {
+  [Enums.FileType.JPG]: {
     iconClass: 'codicon-file-media',
     color: '#a074c4',
   },
-  [FileType.SVG]: {
+  [Enums.FileType.SVG]: {
     iconClass: 'codicon-symbol-color',
     color: '#ffb13b',
   },
-  [FileType.PDF]: {
+  [Enums.FileType.PDF]: {
     iconClass: 'codicon-file-pdf',
     color: '#e53935',
   },
-  [FileType.OTHER]: {
+  [Enums.FileType.OTHER]: {
     iconClass: 'codicon-file',
     color: '#c5c5c5',
   },
 };
 
-export const getFileIcon = (fileType: FileType, isExpanded?: boolean): FileIconConfig => {
-  if (fileType === FileType.DIRECTORY) {
+export const getFileIcon = (fileType: Enums.FileType, isExpanded?: boolean): FileIconConfig => {
+  if (fileType === Enums.FileType.DIRECTORY) {
     return {
       iconClass: isExpanded ? 'codicon-folder-opened' : 'codicon-folder',
       color: '#dcb67a',
     };
   }
 
-  return FILE_ICON_MAP[fileType] || FILE_ICON_MAP[FileType.OTHER];
+  return FILE_ICON_MAP[fileType] || FILE_ICON_MAP[Enums.FileType.OTHER];
 };
 
 export const getExpandIcon = (isExpanded: boolean): string => {

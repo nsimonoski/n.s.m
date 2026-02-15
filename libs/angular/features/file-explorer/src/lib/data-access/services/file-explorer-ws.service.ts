@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { Observable } from 'rxjs';
+
 import { FILE_CHANGE_EVENT, FILE_WATCH_EVENT, FileChangeEvent } from '@org/shared/contracts';
 
 @Injectable({ providedIn: 'root' })

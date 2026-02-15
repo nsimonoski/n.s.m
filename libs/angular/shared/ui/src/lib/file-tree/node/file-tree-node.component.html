@@ -10,9 +10,7 @@
   }
 
   @if (isDirectory()) {
-    <span class="expand-icon">
-      <i [class]="'codicon ' + expandIcon()"></i>
-    </span>
+    <span class="expand-icon"><i [class]="'codicon ' + expandIcon()"></i></span>
   }
 
   @if (!isDirectory()) {

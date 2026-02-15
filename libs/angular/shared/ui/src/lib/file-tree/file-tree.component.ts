@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { DirectoryResponseDto, FileResponseDto, FileType } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { FileTreeNodeComponent } from './node/file-tree-node.component';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { ContextMenuAction } from '../context-menu/context-menu.dto';
@@ -44,7 +44,7 @@ export class FileTreeComponent {
   onNodeClicked(node: DirectoryResponseDto | FileResponseDto): void {
     this.store.selectNode(node.path);
 
-    if (node.type !== FileType.DIRECTORY) {
+    if (node.type !== Enums.FileType.DIRECTORY) {
       this.handleOpen.emit(node);
     }
   }

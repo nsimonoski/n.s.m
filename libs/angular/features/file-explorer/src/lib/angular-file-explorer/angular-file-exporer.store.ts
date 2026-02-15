@@ -9,15 +9,11 @@ import {
   withState,
 } from '@ngrx/signals';
 
-import {
-  DirectoryResponseDto,
-  FileResponseDto,
-  FileType,
-  RenameFileRequestDto,
-} from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, RenameFileRequestDto } from '@org/shared/contracts';
 import { FileExplorerService } from '../data-access/services/file-explorer.service';
 import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
 import { pipe, switchMap, tap } from 'rxjs';
+import { partialStore } from '@org/angular-utils';
 
 interface FileExplorerComponentState {
   directory: DirectoryResponseDto | null;
@@ -63,6 +59,7 @@ export const AngularFileExplorerStore = signalStore(
     file: null,
     loading: false,
   }),
+  partialStore.withLoading(),
   withProps(() => ({
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
@@ -89,21 +86,23 @@ export const AngularFileExplorerStore = signalStore(
       refreshParentDirectory,
       getDirectory: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((directory) => {
+            tap(() => state.setLoading(false));
             if (!directory) {
-              patchState(state, { loading: false });
               return;
             }
-
-            patchState(state, { directory, loading: false });
+            patchState(state, { directory });
           }),
         ),
       ),
       expandDirectory: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((fetched) => {
+            tap(() => state.setLoading(false));
             if (!fetched || !state.directory()) {
               return;
             }
@@ -116,23 +115,25 @@ export const AngularFileExplorerStore = signalStore(
       ),
       getFile: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.getFile(path)),
           tap((file) => {
+            tap(() => state.setLoading(false));
             if (!file) {
-              patchState(state, { loading: false });
               return;
             }
 
-            patchState(state, { file, loading: false });
+            patchState(state, { file });
           }),
         ),
       ),
       updateFile: rxMethod<FileResponseDto>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((file: FileResponseDto) => state.service.updateFile(file)),
           tap((file) => {
+            tap(() => state.setLoading(false));
             if (!file) {
-              patchState(state, { loading: false });
               return;
             }
 
@@ -142,34 +143,37 @@ export const AngularFileExplorerStore = signalStore(
       ),
       rename: rxMethod<RenameFileRequestDto>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((payload: RenameFileRequestDto) => state.service.renameFile(payload)),
           tap((file) => {
+            tap(() => state.setLoading(false));
             if (!file) {
-              patchState(state, { loading: false });
               return;
             }
 
-            patchState(state, { file, loading: false });
+            patchState(state, { file });
             refreshParentDirectory(file.path);
           }),
         ),
       ),
       createFile: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.createFile(path)),
           tap((file) => {
+            tap(() => state.setLoading(false));
             if (!file) {
-              patchState(state, { loading: false });
               return;
             }
 
-            patchState(state, { file, loading: false });
+            patchState(state, { file });
             refreshParentDirectory(file.path);
           }),
         ),
       ),
       createDirectory: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.createDirectory(path)),
           tap((directory) => {
             if (!directory) {
@@ -183,8 +187,10 @@ export const AngularFileExplorerStore = signalStore(
       ),
       delete: rxMethod<string>(
         pipe(
+          tap(() => state.setLoading()),
           switchMap((path: string) => state.service.delete(path)),
           tap((result) => {
+            tap(() => state.setLoading(false));
             refreshParentDirectory(result.path);
           }),
         ),

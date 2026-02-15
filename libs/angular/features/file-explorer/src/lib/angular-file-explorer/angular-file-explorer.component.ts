@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AngularFileExplorerStore } from './angular-file-exporer.store';
 import { FileTreeComponent } from '@org/angular/ui';
-import { DirectoryResponseDto, FileResponseDto, FileType } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 
 @Component({
   selector: 'app-angular-file-explorer',
@@ -63,7 +63,7 @@ export class AngularFileExplorerComponent {
       return this.store.directory()?.path ?? '';
     }
 
-    if (node.type === FileType.DIRECTORY) {
+    if (node.type === Enums.FileType.DIRECTORY) {
       return node.path;
     }
 
