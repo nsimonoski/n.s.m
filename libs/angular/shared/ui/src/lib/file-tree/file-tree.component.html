@@ -1,24 +1,30 @@
 <div class="file-tree-container" [style.width.px]="width()">
   <div class="file-tree" (contextmenu)="onContextMenu({ mouseEvent: $event, node: null })">
+    @if (rootInlineCreateActive()) {
+      <app-file-tree-create-node [level]="0" (confirmed)="handleInlineCreate.emit($event)" />
+    }
+
     @for (node of rootNodes(); track node.path) {
       <app-file-tree-node
         [node]="node"
         [level]="0"
+        [renamingPath]="renamingPath()"
         (nodeClicked)="onNodeClicked($event)"
         (toggleExpand)="onToggleExpand($event)"
         (contextMenu)="onContextMenu($event)"
+        (inlineCreateConfirmed)="handleInlineCreate.emit($event)"
+        (renameConfirmed)="onRenameConfirmed($event)"
+        (renameCancelled)="onRenameCancelled()"
       />
     }
   </div>
-
-  <!-- Resize Handle -->
   <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
 
-  @if (contextMenuVisible) {
+  @if (contextMenu().visible) {
     <app-context-menu
-      [x]="contextMenuX"
-      [y]="contextMenuY"
-      [node]="contextMenuNode"
+      [x]="contextMenu().x"
+      [y]="contextMenu().y"
+      [node]="contextMenu().node"
       (itemClicked)="onContextMenuAction($event)"
       (closed)="closeContextMenu()"
     />

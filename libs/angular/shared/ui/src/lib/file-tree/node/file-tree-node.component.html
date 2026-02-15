@@ -21,17 +21,38 @@
     <i [class]="'codicon ' + fileIcon().iconClass"></i>
   </span>
 
-  <span class="name">{{ node().name }}</span>
+  @if (isRenaming()) {
+    <input
+      #renameInput
+      class="inline-name-input"
+      [value]="node().name"
+      (keydown)="onRenameKeydown($event)"
+      (blur)="onRenameBlur($event)"
+      (click)="$event.stopPropagation()"
+    />
+  } @else {
+    <span class="name">{{ node().name }}</span>
+  }
 </div>
 
-@if (isDirectory() && isExpanded() && hasChildren()) {
-  @for (child of children(); track child.path) {
-    <app-file-tree-node
-      [node]="child"
-      [level]="level() + 1"
-      (nodeClicked)="nodeClicked.emit($event)"
-      (toggleExpand)="toggleExpand.emit($event)"
-      (contextMenu)="contextMenu.emit($event)"
-    />
+@if (isDirectory() && isExpanded()) {
+  @if (inlineCreateActive()) {
+    <app-file-tree-create-node [level]="level() + 1" (confirmed)="inlineCreateConfirmed.emit($event)" />
+  }
+
+  @if (hasChildren()) {
+    @for (child of children(); track child.path) {
+      <app-file-tree-node
+        [node]="child"
+        [level]="level() + 1"
+        [renamingPath]="renamingPath()"
+        (nodeClicked)="nodeClicked.emit($event)"
+        (toggleExpand)="toggleExpand.emit($event)"
+        (contextMenu)="contextMenu.emit($event)"
+        (inlineCreateConfirmed)="inlineCreateConfirmed.emit($event)"
+        (renameConfirmed)="renameConfirmed.emit($event)"
+        (renameCancelled)="renameCancelled.emit()"
+      />
+    }
   }
 }

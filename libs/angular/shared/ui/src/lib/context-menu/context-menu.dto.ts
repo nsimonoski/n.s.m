@@ -1,3 +1,39 @@
+import { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
+
+export interface ContextMenuEvent {
+  mouseEvent: MouseEvent;
+  node: DirectoryResponseDto | FileResponseDto | null;
+}
+
+export interface ContextMenuActionEvent {
+  action: ContextMenuAction;
+  node: DirectoryResponseDto | FileResponseDto | null;
+}
+
+export interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  node: DirectoryResponseDto | FileResponseDto | null;
+}
+
+export interface ResizeState {
+  isResizing: boolean;
+  startX: number;
+  startWidth: number;
+}
+
+export interface InlineCreateEvent {
+  parentPath: string;
+  name: string;
+  type: 'file' | 'directory';
+}
+
+export interface InlineRenameEvent {
+  node: DirectoryResponseDto | FileResponseDto;
+  newName: string;
+}
+
 export interface ContextMenuItem {
   label: string;
   icon?: string;

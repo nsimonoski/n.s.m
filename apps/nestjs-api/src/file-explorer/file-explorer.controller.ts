@@ -9,7 +9,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import { FileResponseDto, DirectoryResponseDto, RenameFileRequestDto } from '@org/shared/contracts';
+import { FileResponseDto, DirectoryResponseDto, RenameRequestDto } from '@org/shared/contracts';
 
 import { FileSystemProvider } from './domain/file-system.provider';
 
@@ -42,15 +42,15 @@ export class FileExplorerController {
     return this.service.updateFile(fileDto);
   }
 
-  @Put('file/rename')
-  async renameFile(@Body() body: RenameFileRequestDto): Promise<FileResponseDto> {
-    const { file, newName } = body;
+  @Put('rename')
+  async rename(@Body() body: RenameRequestDto): Promise<{ path: string }> {
+    const { path, newName } = body;
 
-    if (!newName) {
-      throw new BadRequestException('New name is required');
+    if (!path || !newName) {
+      throw new BadRequestException('Path and new name are required');
     }
 
-    return this.service.rename(file, newName);
+    return this.service.rename(path, newName);
   }
 
   @Post('file')

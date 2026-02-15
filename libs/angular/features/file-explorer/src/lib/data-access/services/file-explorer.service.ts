@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DirectoryResponseDto, FileResponseDto, RenameFileRequestDto } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 
 @Injectable({
   providedIn: 'root',
@@ -37,8 +37,8 @@ export class FileExplorerService {
   /**
    * Rename a file
    */
-  renameFile(renameDto: RenameFileRequestDto): Observable<FileResponseDto> {
-    return this.http.put<FileResponseDto>(`${this.API_BASE}/file/rename`, renameDto);
+  rename(renameDto: RenameRequestDto): Observable<{ path: string }> {
+    return this.http.put<{ path: string }>(`${this.API_BASE}/rename`, renameDto);
   }
 
   /**

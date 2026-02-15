@@ -9,7 +9,7 @@ import {
   withState,
 } from '@ngrx/signals';
 
-import { DirectoryResponseDto, FileResponseDto, RenameFileRequestDto } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 import { FileExplorerService } from '../data-access/services/file-explorer.service';
 import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
 import { pipe, switchMap, tap } from 'rxjs';
@@ -60,6 +60,7 @@ export const AngularFileExplorerStore = signalStore(
     loading: false,
   }),
   partialStore.withLoading(),
+  partialStore.withDialog(),
   withProps(() => ({
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
@@ -141,18 +142,17 @@ export const AngularFileExplorerStore = signalStore(
           }),
         ),
       ),
-      rename: rxMethod<RenameFileRequestDto>(
+      rename: rxMethod<RenameRequestDto>(
         pipe(
           tap(() => state.setLoading()),
-          switchMap((payload: RenameFileRequestDto) => state.service.renameFile(payload)),
-          tap((file) => {
+          switchMap((payload: RenameRequestDto) => state.service.rename(payload)),
+          tap((result) => {
             tap(() => state.setLoading(false));
-            if (!file) {
+            if (!result) {
               return;
             }
 
-            patchState(state, { file });
-            refreshParentDirectory(file.path);
+            refreshParentDirectory(result.path);
           }),
         ),
       ),

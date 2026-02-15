@@ -5,7 +5,7 @@ export abstract class FileSystemProvider {
 
   abstract getFile(path: string): Promise<FileResponseDto | undefined>;
 
-  abstract rename(fileDto: FileResponseDto, newName: string): Promise<FileResponseDto>;
+  abstract rename(nodePath: string, newName: string): Promise<{ path: string }>;
   
   abstract updateFile(fileDto: FileResponseDto): Promise<FileResponseDto>;
 

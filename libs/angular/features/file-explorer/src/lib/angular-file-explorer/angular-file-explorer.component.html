@@ -7,11 +7,18 @@
     <app-file-tree
       [rootDirectory]="store.directory()!"
       (handleDelete)="handleDelete($event)"
-      (handleNewFile)="handleNewFile($event)"
-      (handleNewFolder)="handleNewFolder($event)"
       (handleOpen)="handleOpen($event)"
       (handleRename)="handleRename($event)"
       (handleExpand)="handleExpandDirectory($event)"
+      (handleInlineCreate)="handleInlineCreate($event)"
     />
   }
 </div>
+
+<app-confirmation-dialog
+  [isOpen]="store.dialogOpen()"
+  [title]="store.dialogTitle()"
+  [message]="store.dialogMessage()"
+  (confirmed)="onConfirmDelete()"
+  (cancelled)="store.closeDialog()"
+/>

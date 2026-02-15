@@ -23,8 +23,8 @@ export interface FileCreateRequestDto {
   content?: string;
 }
 
-export interface RenameFileRequestDto {
-  file: FileResponseDto;
+export interface RenameRequestDto {
+  path: string;
   newName: string;
 }
 

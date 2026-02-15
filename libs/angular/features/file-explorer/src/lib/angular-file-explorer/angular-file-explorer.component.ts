@@ -1,12 +1,19 @@
 import { Component, inject } from '@angular/core';
+
+import { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
 import { AngularFileExplorerStore } from './angular-file-exporer.store';
-import { FileTreeComponent } from '@org/angular/ui';
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { Enums } from '@org/shared/contracts';
+import {
+  ConfirmationDialogComponent,
+  FileTreeComponent,
+  InlineCreateEvent,
+  InlineRenameEvent,
+} from '@org/angular/ui';
 
 @Component({
   selector: 'app-angular-file-explorer',
   standalone: true,
-  imports: [FileTreeComponent],
+  imports: [FileTreeComponent, ConfirmationDialogComponent],
   templateUrl: './angular-file-explorer.component.html',
   styleUrls: ['./angular-file-explorer.component.scss'],
   providers: [AngularFileExplorerStore],
@@ -14,59 +21,47 @@ import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contra
 export class AngularFileExplorerComponent {
   readonly store = inject(AngularFileExplorerStore);
 
-  handleNewFile(node: DirectoryResponseDto | FileResponseDto | null): void {
-    const name = prompt('Enter file name:');
-    if (!name) return;
+  handleInlineCreate(event: InlineCreateEvent): void {
+    const fullPath = `${event.parentPath}/${event.name}`;
 
-    const parentPath = this.getParentPath(node);
-    this.store.createFile(`${parentPath}/${name}`);
+    if (event.type === Enums.FileType.DIRECTORY) {
+      this.store.createDirectory(fullPath);
+      return;
+    }
+
+    this.store.createFile(fullPath);
   }
 
-  handleNewFolder(node: DirectoryResponseDto | FileResponseDto | null): void {
-    const name = prompt('Enter folder name:');
-    if (!name) return;
-
-    const parentPath = this.getParentPath(node);
-    this.store.createDirectory(`${parentPath}/${name}`);
-  }
-
-  handleRename(node: DirectoryResponseDto | FileResponseDto | null): void {
-    if (!node) return;
-
-    const newName = prompt('Enter new name:', node.name);
-    if (!newName || newName === node.name) return;
-
-    this.store.rename({ file: node as FileResponseDto, newName });
+  handleRename(event: InlineRenameEvent): void {
+    this.store.rename({ path: event.node.path, newName: event.newName });
   }
 
   handleDelete(node: DirectoryResponseDto | FileResponseDto | null): void {
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
-    const confirmed = confirm(`Delete "${node.name}"?`);
-    if (!confirmed) return;
+    this.store.openDialog(
+      `Delete ${node.type}`,
+      `Are you sure you want to delete ${node.name}`,
+      node.path,
+    );
+  }
 
-    this.store.delete(node.path);
+  onConfirmDelete(): void {
+    this.store.delete(this.store.dialogData() as string);
+    this.store.closeDialog();
   }
 
   handleOpen(node: DirectoryResponseDto | FileResponseDto | null): void {
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
     this.store.getFile(node.path);
   }
 
   handleExpandDirectory(node: DirectoryResponseDto): void {
     this.store.expandDirectory(node.path);
-  }
-
-  private getParentPath(node: DirectoryResponseDto | FileResponseDto | null): string {
-    if (!node) {
-      return this.store.directory()?.path ?? '';
-    }
-
-    if (node.type === Enums.FileType.DIRECTORY) {
-      return node.path;
-    }
-
-    return node.path.substring(0, node.path.lastIndexOf('/'));
   }
 }

@@ -1,0 +1,18 @@
+<div class="create-node" (click)="$event.stopPropagation()">
+  @for (guide of indentGuides(); track $index) {
+    <span class="indent-guide"></span>
+  }
+  <span class="expand-spacer"></span>
+  @if (icon(); as icon) {
+    <span class="file-icon" [style.color]="icon.color">
+      <i [class]="'codicon ' + icon.iconClass"></i>
+    </span>
+  }
+  <input
+    #nameInput
+    class="inline-name-input"
+    type="text"
+    (keydown)="onKeydown($event)"
+    (blur)="onBlur()"
+  />
+</div>

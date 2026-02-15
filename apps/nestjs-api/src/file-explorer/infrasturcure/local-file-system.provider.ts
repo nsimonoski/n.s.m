@@ -75,18 +75,14 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
   }
 
-  async rename(fileDto: FileResponseDto, newName: string): Promise<FileResponseDto> {
+  async rename(nodePath: string, newName: string): Promise<{ path: string }> {
     try {
-      const stat = await fs.stat(fileDto.path);
-      if (!stat.isFile()) {
-        throw new BadRequestException(`File not found: ${fileDto.path}`);
-      }
+      await fs.stat(nodePath);
 
-      const newPath = path.join(path.dirname(fileDto.path), newName);
-      await fs.rename(fileDto.path, newPath);
+      const newPath = path.join(path.dirname(nodePath), newName);
+      await fs.rename(nodePath, newPath);
 
-      const newStat = await fs.stat(newPath);
-      return this.toFileDto(newPath, newStat);
+      return { path: newPath };
     } catch (error) {
       throw this.errorMapper.mapFsError(error);
     }
