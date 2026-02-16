@@ -33,7 +33,7 @@
   } @else {
     <span class="name">{{ node().name }}</span>
     @if (nodeActions().length > 0) {
-      <app-file-tree-node-action
+      <ui-file-tree-node-action
         [actions]="nodeActions()"
         (actionClicked)="nodeActionClicked.emit({ actionId: $event, node: node() })"
       />
@@ -46,12 +46,12 @@
 
 @if (isDirectory() && isExpanded()) {
   @if (inlineCreateActive()) {
-    <app-file-tree-create-node [level]="level() + 1" (confirmed)="inlineCreateConfirmed.emit($event)" />
+    <ui-file-tree-create-node [level]="level() + 1" (confirmed)="inlineCreateConfirmed.emit($event)" />
   }
 
   @if (hasChildren()) {
     @for (child of children(); track child.path) {
-      <app-file-tree-node
+      <ui-file-tree-node
         [node]="child"
         [level]="level() + 1"
         [renamingPath]="renamingPath()"

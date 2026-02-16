@@ -1,7 +1,7 @@
 import { Component, inject, viewChild } from '@angular/core';
 
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
-import { AngularFileExplorerStore } from './angular-file-exporer.store';
+import { FileExplorerStore } from './file-explorer.store';
 import {
   ConfirmationDialogComponent,
   ContextMenuAction,
@@ -15,15 +15,15 @@ import {
 } from '@org/angular/ui';
 
 @Component({
-  selector: 'app-angular-file-explorer',
+  selector: 'ide-file-explorer',
   standalone: true,
   imports: [FileTreeComponent, ConfirmationDialogComponent, ContextMenuComponent],
-  templateUrl: './angular-file-explorer.component.html',
-  styleUrls: ['./angular-file-explorer.component.scss'],
-  providers: [AngularFileExplorerStore],
+  templateUrl: './file-explorer.component.html',
+  styleUrls: ['./file-explorer.component.scss'],
+  providers: [FileExplorerStore],
 })
-export class AngularFileExplorerComponent {
-  readonly store = inject(AngularFileExplorerStore);
+export class FileExplorerComponent {
+  readonly store = inject(FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
 
   handleInlineCreate(event: InlineCreateEvent): void {

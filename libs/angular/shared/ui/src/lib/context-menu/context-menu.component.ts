@@ -3,7 +3,7 @@ import { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
 import { ContextMenuAction, ContextMenuItem } from './context-menu.dto';
 
 @Component({
-  selector: 'app-context-menu',
+  selector: 'ui-context-menu',
   standalone: true,
   imports: [],
   templateUrl: './context-menu.component.html',

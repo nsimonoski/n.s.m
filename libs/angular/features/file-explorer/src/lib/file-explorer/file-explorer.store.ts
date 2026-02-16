@@ -53,7 +53,7 @@ function refreshDirectoryInTree(
   };
 }
 
-export const AngularFileExplorerStore = signalStore(
+export const FileExplorerStore = signalStore(
   { providedIn: 'root' },
   withState<FileExplorerComponentState>({
     directory: null,

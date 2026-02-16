@@ -25,7 +25,7 @@ interface GitExplorerState {
   behind: number;
 }
 
-export const AngularFileExplorerGitStore = signalStore(
+export const FileExplorerGitStore = signalStore(
   { providedIn: 'root' },
   withState<GitExplorerState>({
     branch: '',

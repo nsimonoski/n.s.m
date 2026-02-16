@@ -7,7 +7,7 @@ export interface NodeAction {
 }
 
 @Component({
-  selector: 'app-file-tree-node-action',
+  selector: 'ui-file-tree-node-action',
   standalone: true,
   templateUrl: './file-tree-node-action.component.html',
   styleUrls: ['./file-tree-node-action.component.scss'],

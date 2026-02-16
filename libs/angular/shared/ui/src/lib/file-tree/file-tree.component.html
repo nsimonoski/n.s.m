@@ -1,11 +1,11 @@
 <div class="file-tree-container">
   <div class="file-tree" (contextmenu)="onContextMenu({ mouseEvent: $event, node: null })">
     @if (rootInlineCreateActive()) {
-      <app-file-tree-create-node [level]="0" (confirmed)="handleInlineCreate.emit($event)" />
+      <ui-file-tree-create-node [level]="0" (confirmed)="handleInlineCreate.emit($event)" />
     }
 
     @for (node of rootNodes(); track node.path) {
-      <app-file-tree-node
+      <ui-file-tree-node
         [node]="node"
         [level]="0"
         [renamingPath]="renamingPath()"

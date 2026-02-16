@@ -4,7 +4,7 @@
   }
 
   @if (store.directory()) {
-    <app-file-tree
+    <ui-file-tree
       [rootDirectory]="store.directory()!"
       (handleDelete)="handleDelete($event)"
       (handleOpen)="handleOpen($event)"
@@ -13,7 +13,7 @@
       (handleInlineCreate)="handleInlineCreate($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">
-        <app-context-menu
+        <ui-context-menu
           [x]="ctx.x"
           [y]="ctx.y"
           [node]="ctx.node"
@@ -22,11 +22,11 @@
           (closed)="close()"
         />
       </ng-template>
-    </app-file-tree>
+    </ui-file-tree>
   }
 </div>
 
-<app-confirmation-dialog
+<ui-confirmation-dialog
   [isOpen]="store.dialogOpen()"
   [title]="store.dialogTitle()"
   [message]="store.dialogMessage()"

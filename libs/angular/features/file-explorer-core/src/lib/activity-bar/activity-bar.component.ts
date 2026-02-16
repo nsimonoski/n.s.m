@@ -8,7 +8,7 @@ interface PanelDefinition {
 }
 
 @Component({
-  selector: 'app-activity-bar',
+  selector: 'ide-activity-bar',
   standalone: true,
   template: `
     <div class="activity-bar">

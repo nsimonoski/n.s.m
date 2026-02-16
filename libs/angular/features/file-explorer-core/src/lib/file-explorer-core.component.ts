@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
-import { AngularFileExplorerComponent } from '@org/angular-file-explorer';
-import { AngularFileExplorerGitComponent } from '@org/angular-file-explorer-git';
+import { FileExplorerComponent } from '@org/angular-file-explorer';
+import { FileExplorerGitComponent } from '@org/angular-file-explorer-git';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
 import { FileExplorerCoreStore } from './file-explorer-core.store';
 
 @Component({
-  selector: 'app-file-explorer-core',
+  selector: 'ide-file-explorer-core',
   standalone: true,
-  imports: [ActivityBarComponent, FooterComponent, AngularFileExplorerComponent, AngularFileExplorerGitComponent],
+  imports: [ActivityBarComponent, FooterComponent, FileExplorerComponent, FileExplorerGitComponent],
   templateUrl: './file-explorer-core.component.html',
   styleUrls: ['./file-explorer-core.component.scss'],
 })

@@ -10,19 +10,19 @@ import {
   GIT_CONTEXT_MENU_ITEMS,
   NodeAction,
 } from '@org/angular/ui';
-import { AngularFileExplorerGitStore } from './angular-file-explorer-git.store';
-import { AngularFileExplorerGitSyncComponent } from './commit-input/angular-file-explorer-git-sync.component';
+import { FileExplorerGitStore } from './file-explorer-git.store';
+import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
 
 @Component({
-  selector: 'app-angular-file-explorer-git',
+  selector: 'ide-file-explorer-git',
   standalone: true,
-  imports: [FileTreeComponent, ContextMenuComponent, ConfirmationDialogComponent, AngularFileExplorerGitSyncComponent],
-  templateUrl: './angular-file-explorer-git.component.html',
-  styleUrls: ['./angular-file-explorer-git.component.scss'],
-  providers: [AngularFileExplorerGitStore],
+  imports: [FileTreeComponent, ContextMenuComponent, ConfirmationDialogComponent, FileExplorerGitSyncComponent],
+  templateUrl: './file-explorer-git.component.html',
+  styleUrls: ['./file-explorer-git.component.scss'],
+  providers: [FileExplorerGitStore],
 })
-export class AngularFileExplorerGitComponent {
-  readonly store = inject(AngularFileExplorerGitStore);
+export class FileExplorerGitComponent {
+  readonly store = inject(FileExplorerGitStore);
   private readonly fileTrees = viewChildren(FileTreeComponent);
 
   discardDialogOpen = signal(false);

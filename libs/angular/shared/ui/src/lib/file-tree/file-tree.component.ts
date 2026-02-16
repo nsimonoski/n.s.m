@@ -23,7 +23,7 @@ import {
 import { FileTreeStore } from './file-tree.store';
 
 @Component({
-  selector: 'app-file-tree',
+  selector: 'ui-file-tree',
   standalone: true,
   imports: [FileTreeNodeComponent, FileTreeCreateNodeComponent, NgTemplateOutlet],
   providers: [FileTreeStore],

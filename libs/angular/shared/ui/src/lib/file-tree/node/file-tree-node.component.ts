@@ -8,7 +8,7 @@ import { FileTreeNodeActionComponent, NodeAction } from './action/file-tree-node
 import { InlineCreateEvent, InlineRenameEvent } from '../../context-menu/context-menu.dto';
 
 @Component({
-  selector: 'app-file-tree-node',
+  selector: 'ui-file-tree-node',
   standalone: true,
   imports: [FileTreeCreateNodeComponent, FileTreeNodeActionComponent],
   templateUrl: './file-tree-node.component.html',

@@ -1,1 +1,1 @@
-export * from './lib/angular-file-explorer/angular-file-explorer.component';
+export * from './lib/file-explorer/file-explorer.component';

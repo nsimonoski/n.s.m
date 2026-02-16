@@ -4,7 +4,7 @@ import { FileUtils } from '@org/shared/utils';
 import { FileTreeStore } from '../file-tree.store';
 
 @Component({
-  selector: 'app-file-tree-create-node',
+  selector: 'ui-file-tree-create-node',
   standalone: true,
   templateUrl: './file-tree-create-node.component.html',
   styleUrls: ['./file-tree-create-node.component.scss'],

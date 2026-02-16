@@ -1,1 +1,1 @@
-export * from './lib/react-file-explorer';
+export * from './lib/file-explorer';

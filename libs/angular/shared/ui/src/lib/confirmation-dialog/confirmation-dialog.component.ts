@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 
 @Component({
-  selector: 'app-confirmation-dialog',
+  selector: 'ui-confirmation-dialog',
   standalone: true,
   template: `
     @if (isOpen()) {

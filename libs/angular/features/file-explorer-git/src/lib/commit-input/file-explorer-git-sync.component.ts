@@ -1,16 +1,16 @@
 import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AngularFileExplorerGitStore } from '../angular-file-explorer-git.store';
+import { FileExplorerGitStore } from '../file-explorer-git.store';
 
 @Component({
-  selector: 'app-angular-file-explorer-git-sync',
+  selector: 'ide-file-explorer-git-sync',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './angular-file-explorer-git-sync.component.html',
-  styleUrls: ['./angular-file-explorer-git-sync.component.scss'],
+  templateUrl: './file-explorer-git-sync.component.html',
+  styleUrls: ['./file-explorer-git-sync.component.scss'],
 })
-export class AngularFileExplorerGitSyncComponent {
-  readonly store = inject(AngularFileExplorerGitStore);
+export class FileExplorerGitSyncComponent {
+  readonly store = inject(FileExplorerGitStore);
   readonly hasStagedFiles = computed(() => {
     const tree = this.store.changesTree();
     return tree?.directories.some((d) => d.path === '/staged') ?? false;

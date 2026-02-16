@@ -2,7 +2,7 @@
   "name": "angular-file-explorer",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/angular/features/file-explorer/src",
-  "prefix": "lib",
+  "prefix": "ide",
   "projectType": "library",
   "tags": ["scope:angular", "type:feature"],
   "targets": {

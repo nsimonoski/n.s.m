@@ -1,5 +1,5 @@
 <div class="git-explorer">
-  <app-angular-file-explorer-git-sync />
+  <ide-file-explorer-git-sync />
 
   @if (store.isLoading()) {
     <div class="loading">Loading...</div>
@@ -7,14 +7,14 @@
 
   @if (stagedTree()) {
     <div class="section-header">{{ stagedTree()!.name }}</div>
-    <app-file-tree
+    <ui-file-tree
       [rootDirectory]="stagedTree()!"
       [statusMap]="store.statusMap()"
       [nodeActions]="stagedNodeActions"
       (handleNodeAction)="onNodeAction($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">
-        <app-context-menu
+        <ui-context-menu
           [x]="ctx.x"
           [y]="ctx.y"
           [node]="ctx.node"
@@ -23,19 +23,19 @@
           (closed)="close()"
         />
       </ng-template>
-    </app-file-tree>
+    </ui-file-tree>
   }
 
   @if (changesTree()) {
     <div class="section-header">{{ changesTree()!.name }}</div>
-    <app-file-tree
+    <ui-file-tree
       [rootDirectory]="changesTree()!"
       [statusMap]="store.statusMap()"
       [nodeActions]="changesNodeActions"
       (handleNodeAction)="onNodeAction($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">
-        <app-context-menu
+        <ui-context-menu
           [x]="ctx.x"
           [y]="ctx.y"
           [node]="ctx.node"
@@ -44,10 +44,10 @@
           (closed)="close()"
         />
       </ng-template>
-    </app-file-tree>
+    </ui-file-tree>
   }
 
-  <app-confirmation-dialog
+  <ui-confirmation-dialog
     [isOpen]="discardDialogOpen()"
     title="Discard Changes"
     message="Are you sure you want to discard changes? This cannot be undone."
