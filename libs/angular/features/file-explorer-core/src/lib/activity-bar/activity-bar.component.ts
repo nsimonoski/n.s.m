@@ -19,7 +19,7 @@ interface PanelDefinition {
           [title]="panel.tooltip"
           (click)="coreStore.setActivePanel(panel.id)"
         >
-          <span class="icon">{{ panel.icon }}</span>
+          <img class="icon" [src]="panel.icon" [alt]="panel.tooltip" />
         </button>
       }
     </div>
@@ -30,7 +30,7 @@ export class ActivityBarComponent {
   readonly coreStore = inject(FileExplorerCoreStore);
 
   readonly panels: PanelDefinition[] = [
-    { id: 'explorer', icon: '📁', tooltip: 'Explorer' },
-    { id: 'git', icon: '🔀', tooltip: 'Source Control' },
+    { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },
+    { id: 'git', icon: 'icons/source-control.svg', tooltip: 'Source Control' },
   ];
 }

@@ -43,6 +43,7 @@ export class GitController {
 
     const status = await this.service.status(path);
     return {
+      branch: status.branch,
       tree: GitTreeUtils.buildGitChangesTree(status),
       statusMap: GitTreeUtils.buildGitStatusMap(status),
       ahead: status.ahead,

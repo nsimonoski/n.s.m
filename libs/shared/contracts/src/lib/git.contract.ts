@@ -63,6 +63,7 @@ export interface GitPullRequestDto {
 }
 
 export interface GitStatusTreeResponseDto {
+  branch: string;
   tree: DirectoryResponseDto;
   statusMap: Record<string, string>;
   ahead: number;

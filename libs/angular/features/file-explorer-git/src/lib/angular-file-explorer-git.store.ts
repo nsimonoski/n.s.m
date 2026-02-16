@@ -17,6 +17,7 @@ import { GitWsService } from './data-access/git-ws.service';
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
 interface GitExplorerState {
+  branch: string;
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
   commitMessage: string;
@@ -27,6 +28,7 @@ interface GitExplorerState {
 export const AngularFileExplorerGitStore = signalStore(
   { providedIn: 'root' },
   withState<GitExplorerState>({
+    branch: '',
     changesTree: null,
     statusMap: {},
     commitMessage: '',
@@ -40,8 +42,9 @@ export const AngularFileExplorerGitStore = signalStore(
     wsService: inject(GitWsService),
   })),
   withMethods((state) => {
-    const patchFromResponse = (response: { tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number }) => {
+    const patchFromResponse = (response: { branch: string; tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number }) => {
       patchState(state, {
+        branch: response.branch,
         changesTree: response.tree,
         statusMap: response.statusMap,
         ahead: response.ahead,
