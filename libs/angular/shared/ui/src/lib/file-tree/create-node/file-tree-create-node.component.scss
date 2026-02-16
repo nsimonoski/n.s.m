@@ -4,8 +4,6 @@
   padding: 0 8px;
   height: 22px;
   font-size: 13px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .indent-guide {
@@ -22,7 +20,7 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--indent-guide);
   }
 }
 
@@ -51,9 +49,9 @@
   height: 18px;
   font-size: 13px;
   font-family: inherit;
-  color: #cccccc;
+  color: var(--text-primary);
   background: transparent;
-  border: 1px solid #007acc;
+  border: 1px solid var(--accent-primary);
   outline: none;
   padding: 0 4px;
   border-radius: 2px;

@@ -9,10 +9,9 @@
   width: 100%;
   padding: 4px 8px;
   font-size: 13px;
-  font-family: inherit;
-  color: #cccccc;
-  background-color: #3c3c3c;
-  border: 1px solid #3c3c3c;
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
   border-radius: 2px;
   outline: none;
   box-sizing: border-box;
@@ -20,11 +19,11 @@
   overflow: hidden;
 
   &:focus {
-    border-color: #007fd4;
+    border-color: var(--accent-focus);
   }
 
   &::placeholder {
-    color: #6e6e6e;
+    color: var(--text-placeholder);
   }
 }
 
@@ -32,15 +31,14 @@
   width: 100%;
   padding: 4px 12px;
   font-size: 13px;
-  font-family: inherit;
-  color: #ffffff;
-  background-color: #0e639c;
+  color: var(--text-white);
+  background-color: var(--accent-button);
   border: none;
   border-radius: 2px;
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: #1177bb;
+    background-color: var(--accent-button-hover);
   }
 
   &:disabled {

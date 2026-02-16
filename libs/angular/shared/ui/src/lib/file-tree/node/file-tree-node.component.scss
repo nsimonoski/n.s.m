@@ -6,19 +6,17 @@
   user-select: none;
   height: 22px;
   font-size: 13px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 
   &:hover {
-    background-color: rgba(90, 93, 94, 0.31);
+    background-color: var(--bg-hover);
   }
 
   &.selected {
-    background-color: #04395e;
+    background-color: var(--bg-selected);
   }
 
   &.selected:hover {
-    background-color: #04395e;
+    background-color: var(--bg-selected);
   }
 
   &.grayed {
@@ -40,11 +38,11 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--indent-guide);
   }
 
   .tree-node:hover &::before {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--indent-guide-hover);
   }
 }
 
@@ -55,7 +53,7 @@
   align-items: center;
   justify-content: center;
   margin-right: 2px;
-  color: #c5c5c5;
+  color: var(--text-secondary);
   flex-shrink: 0;
   border-radius: 2px;
 
@@ -86,7 +84,7 @@
 
 .name {
   font-size: 13px;
-  color: #cccccc;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -98,7 +96,7 @@
   padding: 0 6px;
   font-size: 11px;
   font-weight: 600;
-  color: #c5c5c5;
+  color: var(--text-secondary);
   flex-shrink: 0;
   letter-spacing: 0.5px;
 }
@@ -108,9 +106,9 @@
   height: 18px;
   font-size: 13px;
   font-family: inherit;
-  color: #cccccc;
+  color: var(--text-primary);
   background: transparent;
-  border: 1px solid #007acc;
+  border: 1px solid var(--accent-primary);
   outline: none;
   padding: 0 4px;
   border-radius: 2px;

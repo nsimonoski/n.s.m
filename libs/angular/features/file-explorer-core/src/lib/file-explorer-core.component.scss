@@ -14,8 +14,8 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #252526;
-  border-right: 1px solid #1e1e1e;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-primary);
 
   &::-webkit-scrollbar {
     width: 10px;
@@ -26,11 +26,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(121, 121, 121, 0.4);
+    background: var(--scrollbar-thumb);
     border-radius: 10px;
 
     &:hover {
-      background: rgba(100, 100, 100, 0.7);
+      background: var(--scrollbar-thumb-hover);
     }
   }
 }
@@ -46,10 +46,10 @@
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #007acc;
+    background-color: var(--accent-primary);
   }
 
   &:active {
-    background-color: #007acc;
+    background-color: var(--accent-primary);
   }
 }
