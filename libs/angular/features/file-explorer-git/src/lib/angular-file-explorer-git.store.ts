@@ -20,6 +20,8 @@ interface GitExplorerState {
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
   commitMessage: string;
+  ahead: number;
+  behind: number;
 }
 
 export const AngularFileExplorerGitStore = signalStore(
@@ -28,6 +30,8 @@ export const AngularFileExplorerGitStore = signalStore(
     changesTree: null,
     statusMap: {},
     commitMessage: '',
+    ahead: 0,
+    behind: 0,
   }),
   partialStore.withLoading(),
   partialStore.withBrowserStorage({ key: 'git-explorer' }),
@@ -36,13 +40,17 @@ export const AngularFileExplorerGitStore = signalStore(
     wsService: inject(GitWsService),
   })),
   withMethods((state) => {
-    const refreshStatus = () => {
-      state.service.getStatusTree(ROOT_PATH).subscribe((response) => {
-        patchState(state, {
-          changesTree: response.tree,
-          statusMap: response.statusMap,
-        });
+    const patchFromResponse = (response: { tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number }) => {
+      patchState(state, {
+        changesTree: response.tree,
+        statusMap: response.statusMap,
+        ahead: response.ahead,
+        behind: response.behind,
       });
+    };
+
+    const refreshStatus = () => {
+      state.service.getStatusTree(ROOT_PATH).subscribe(patchFromResponse);
     };
 
     return {
@@ -52,10 +60,7 @@ export const AngularFileExplorerGitStore = signalStore(
           switchMap((path: string) => state.service.getStatusTree(path)),
           tap((response) => {
             state.setLoading(false);
-            patchState(state, {
-              changesTree: response.tree,
-              statusMap: response.statusMap,
-            });
+            patchFromResponse(response);
           }),
         ),
       ),
@@ -83,11 +88,18 @@ export const AngularFileExplorerGitStore = signalStore(
           ),
           tap((response) => {
             state.saveToStorage({ commitMessage: '' });
-            patchState(state, {
-              changesTree: response.tree,
-              statusMap: response.statusMap,
-            });
+            patchFromResponse(response);
           }),
+        ),
+      ),
+      sync: rxMethod<void>(
+        pipe(
+          switchMap(() =>
+            state.service.push(ROOT_PATH).pipe(
+              switchMap(() => state.service.getStatusTree(ROOT_PATH)),
+            ),
+          ),
+          tap(patchFromResponse),
         ),
       ),
       listenToGitChanges: rxMethod<void>(

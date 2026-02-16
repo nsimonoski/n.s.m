@@ -45,6 +45,8 @@ export class GitController {
     return {
       tree: GitTreeUtils.buildGitChangesTree(status),
       statusMap: GitTreeUtils.buildGitStatusMap(status),
+      ahead: status.ahead,
+      behind: status.behind,
     };
   }
 

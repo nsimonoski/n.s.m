@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AngularFileExplorerGitStore } from '../angular-file-explorer-git.store';
 
@@ -11,6 +11,20 @@ import { AngularFileExplorerGitStore } from '../angular-file-explorer-git.store'
 })
 export class AngularFileExplorerGitSyncComponent {
   readonly store = inject(AngularFileExplorerGitStore);
+  readonly hasStagedFiles = computed(() => {
+    const tree = this.store.changesTree();
+    return tree?.directories.some((d) => d.path === '/staged') ?? false;
+  });
+  readonly hasPendingSync = computed(() => this.store.ahead() > 0 && !this.hasStagedFiles());
+  readonly syncLabel = computed(() => `Sync Changes (${this.store.ahead()})`);
+
+  onSync(): void {
+    if (this.hasPendingSync()) {
+      this.store.sync();
+    } else {
+      this.onCommit();
+    }
+  }
 
   onCommit(): void {
     const trimmed = this.store.commitMessage().trim();

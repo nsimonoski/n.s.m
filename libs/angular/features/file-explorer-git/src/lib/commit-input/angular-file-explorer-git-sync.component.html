@@ -9,5 +9,17 @@
     (input)="autoResize(textarea)"
     rows="1"
   ></textarea>
-  <button class="commit-button" [disabled]="!store.commitMessage().trim()" (click)="onCommit()">Commit</button>
+  @if (hasPendingSync()) {
+    <button class="commit-button sync" (click)="onSync()">
+      {{ syncLabel() }}
+    </button>
+  } @else {
+    <button
+      class="commit-button"
+      [disabled]="!store.commitMessage().trim()"
+      (click)="onCommit()"
+    >
+      Commit
+    </button>
+  }
 </div>

@@ -40,4 +40,10 @@ export class GitService {
       params: { path: repoPath },
     });
   }
+
+  push(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/push`, {}, {
+      params: { path: repoPath },
+    });
+  }
 }

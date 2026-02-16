@@ -65,6 +65,8 @@ export interface GitPullRequestDto {
 export interface GitStatusTreeResponseDto {
   tree: DirectoryResponseDto;
   statusMap: Record<string, string>;
+  ahead: number;
+  behind: number;
 }
 
 export const GIT_CHANGE_EVENT = 'git:change';
