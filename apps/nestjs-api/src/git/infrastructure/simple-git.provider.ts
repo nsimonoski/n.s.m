@@ -124,6 +124,25 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async discard(repoPath: string, paths: string[]): Promise<void> {
+    try {
+      const git = this.git(repoPath);
+      const status = await git.status();
+      const untracked = new Set(status.not_added);
+      const tracked = paths.filter((p) => !untracked.has(p));
+      const untrackedPaths = paths.filter((p) => untracked.has(p));
+
+      if (tracked.length > 0) {
+        await git.checkout(['--', ...tracked]);
+      }
+      if (untrackedPaths.length > 0) {
+        await git.clean('f', ['--', ...untrackedPaths]);
+      }
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async undoCommit(repoPath: string): Promise<void> {
     try {
       await this.git(repoPath).reset(['--soft', 'HEAD~1']);

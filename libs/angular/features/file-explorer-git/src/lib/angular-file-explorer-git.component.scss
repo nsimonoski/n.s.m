@@ -1,6 +1,18 @@
 .git-explorer {
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .loading {
   padding: 8px;
   color: var(--text-muted);

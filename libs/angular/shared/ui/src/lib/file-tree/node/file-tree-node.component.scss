@@ -83,6 +83,8 @@
 }
 
 .name {
+  flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: var(--text-primary);
   white-space: nowrap;

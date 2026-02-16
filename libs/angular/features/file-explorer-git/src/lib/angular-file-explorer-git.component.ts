@@ -1,12 +1,14 @@
-import { Component, effect, inject, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChildren } from '@angular/core';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import {
+  ConfirmationDialogComponent,
   ContextMenuAction,
   ContextMenuActionEvent,
   ContextMenuComponent,
   ContextMenuItem,
   FileTreeComponent,
   GIT_CONTEXT_MENU_ITEMS,
+  NodeAction,
 } from '@org/angular/ui';
 import { AngularFileExplorerGitStore } from './angular-file-explorer-git.store';
 import { AngularFileExplorerGitSyncComponent } from './commit-input/angular-file-explorer-git-sync.component';
@@ -14,21 +16,48 @@ import { AngularFileExplorerGitSyncComponent } from './commit-input/angular-file
 @Component({
   selector: 'app-angular-file-explorer-git',
   standalone: true,
-  imports: [FileTreeComponent, ContextMenuComponent, AngularFileExplorerGitSyncComponent],
+  imports: [FileTreeComponent, ContextMenuComponent, ConfirmationDialogComponent, AngularFileExplorerGitSyncComponent],
   templateUrl: './angular-file-explorer-git.component.html',
   styleUrls: ['./angular-file-explorer-git.component.scss'],
   providers: [AngularFileExplorerGitStore],
 })
 export class AngularFileExplorerGitComponent {
   readonly store = inject(AngularFileExplorerGitStore);
-  private readonly fileTree = viewChild(FileTreeComponent);
+  private readonly fileTrees = viewChildren(FileTreeComponent);
+
+  discardDialogOpen = signal(false);
+  private pendingDiscardPaths: string[] = [];
+
+  readonly stagedTree = computed(() => {
+    const tree = this.store.changesTree();
+    return tree?.directories.find((d) => d.path === '/staged') ?? null;
+  });
+
+  readonly changesTree = computed(() => {
+    const tree = this.store.changesTree();
+    return tree?.directories.find((d) => d.path === '/changes') ?? null;
+  });
+
+  readonly stagedNodeActions: NodeAction[] = [
+    { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
+  ];
+
+  readonly changesNodeActions: NodeAction[] = [
+    { id: ContextMenuAction.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
+    { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
+  ];
 
   constructor() {
     effect(() => {
-      const tree = this.store.changesTree();
-      const fileTree = this.fileTree();
-      if (tree && fileTree) {
-        fileTree.store.expandAll(this.getAllDirectoryPaths(tree));
+      const staged = this.stagedTree();
+      const changes = this.changesTree();
+      const trees = this.fileTrees();
+
+      for (const fileTree of trees) {
+        const root = fileTree.rootDirectory();
+        if (root && (root === staged || root === changes)) {
+          fileTree.store.expandAll(this.getAllDirectoryPaths(root));
+        }
       }
     });
   }
@@ -50,10 +79,17 @@ export class AngularFileExplorerGitComponent {
 
   onContextMenuAction(event: ContextMenuActionEvent): void {
     if (!event.node) return;
+    this.handleAction(event.action, event.node);
+  }
 
-    const paths = this.getFilePaths(event.node);
+  onNodeAction(event: { actionId: string; node: DirectoryResponseDto | FileResponseDto }): void {
+    this.handleAction(event.actionId as ContextMenuAction, event.node);
+  }
 
-    switch (event.action) {
+  private handleAction(action: ContextMenuAction, node: DirectoryResponseDto | FileResponseDto): void {
+    const paths = this.getFilePaths(node);
+
+    switch (action) {
       case ContextMenuAction.STAGE:
         this.store.stage(paths);
         break;
@@ -61,12 +97,24 @@ export class AngularFileExplorerGitComponent {
         this.store.unstage(paths);
         break;
       case ContextMenuAction.DISCARD:
-        // TODO: implement discard
+        this.pendingDiscardPaths = paths;
+        this.discardDialogOpen.set(true);
         break;
       case ContextMenuAction.OPEN:
         // TODO: open file diff
         break;
     }
+  }
+
+  onDiscardConfirmed(): void {
+    this.store.discard(this.pendingDiscardPaths);
+    this.discardDialogOpen.set(false);
+    this.pendingDiscardPaths = [];
+  }
+
+  onDiscardCancelled(): void {
+    this.discardDialogOpen.set(false);
+    this.pendingDiscardPaths = [];
   }
 
   private getFilePaths(node: DirectoryResponseDto | FileResponseDto): string[] {

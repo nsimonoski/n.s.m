@@ -35,6 +35,12 @@ export class GitService {
     });
   }
 
+  discard(repoPath: string, paths: string[]): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/discard`, { paths }, {
+      params: { path: repoPath },
+    });
+  }
+
   commit(repoPath: string, message: string): Observable<GitLogEntryDto> {
     return this.http.post<GitLogEntryDto>(`${this.API_BASE}/commit`, { message }, {
       params: { path: repoPath },

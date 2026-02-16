@@ -4,12 +4,13 @@ import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contra
 import { FileUtils } from '@org/shared/utils';
 import { FileTreeStore } from '../file-tree.store';
 import { FileTreeCreateNodeComponent } from '../create-node/file-tree-create-node.component';
+import { FileTreeNodeActionComponent, NodeAction } from './action/file-tree-node-action.component';
 import { InlineCreateEvent, InlineRenameEvent } from '../../context-menu/context-menu.dto';
 
 @Component({
   selector: 'app-file-tree-node',
   standalone: true,
-  imports: [FileTreeCreateNodeComponent],
+  imports: [FileTreeCreateNodeComponent, FileTreeNodeActionComponent],
   templateUrl: './file-tree-node.component.html',
   styleUrls: ['./file-tree-node.component.scss'],
 })
@@ -21,8 +22,10 @@ export class FileTreeNodeComponent {
   level = input<number>(0);
   renamingPath = input<string | null>(null);
   statusMap = input<Record<string, string>>({});
+  nodeActions = input<NodeAction[]>([]);
 
   nodeClicked = output<DirectoryResponseDto | FileResponseDto>();
+  nodeActionClicked = output<{ actionId: string; node: DirectoryResponseDto | FileResponseDto }>();
   toggleExpand = output<DirectoryResponseDto>();
   contextMenu = output<{ mouseEvent: MouseEvent; node: DirectoryResponseDto | FileResponseDto }>();
   inlineCreateConfirmed = output<InlineCreateEvent>();

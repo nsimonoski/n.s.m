@@ -1,5 +1,6 @@
 export * from './lib/file-tree/file-tree.component';
 export * from './lib/file-tree/file-tree.store';
+export * from './lib/file-tree/node/action/file-tree-node-action.component';
 export * from './lib/context-menu/context-menu.dto';
 export * from './lib/context-menu/context-menu.component';
 export * from './lib/confirmation-dialog/confirmation-dialog.component';

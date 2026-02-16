@@ -1,0 +1,33 @@
+:host {
+  display: none;
+  flex-shrink: 0;
+  margin-left: auto;
+
+  .tree-node:hover & {
+    display: inline-flex;
+    gap: 2px;
+  }
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 2px;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+}

@@ -32,6 +32,12 @@
     />
   } @else {
     <span class="name">{{ node().name }}</span>
+    @if (nodeActions().length > 0) {
+      <app-file-tree-node-action
+        [actions]="nodeActions()"
+        (actionClicked)="nodeActionClicked.emit({ actionId: $event, node: node() })"
+      />
+    }
     @if (statusLabel()) {
       <span class="status-badge">{{ statusLabel() }}</span>
     }
@@ -50,9 +56,11 @@
         [level]="level() + 1"
         [renamingPath]="renamingPath()"
         [statusMap]="statusMap()"
+        [nodeActions]="nodeActions()"
         (nodeClicked)="nodeClicked.emit($event)"
         (toggleExpand)="toggleExpand.emit($event)"
         (contextMenu)="contextMenu.emit($event)"
+        (nodeActionClicked)="nodeActionClicked.emit($event)"
         (inlineCreateConfirmed)="inlineCreateConfirmed.emit($event)"
         (renameConfirmed)="renameConfirmed.emit($event)"
         (renameCancelled)="renameCancelled.emit()"

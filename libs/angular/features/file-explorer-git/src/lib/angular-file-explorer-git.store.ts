@@ -34,7 +34,7 @@ export const AngularFileExplorerGitStore = signalStore(
     behind: 0,
   }),
   partialStore.withLoading(),
-  partialStore.withBrowserStorage({ key: 'git-explorer' }),
+  partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
   withProps(() => ({
     service: inject(GitService),
     wsService: inject(GitWsService),
@@ -73,6 +73,12 @@ export const AngularFileExplorerGitStore = signalStore(
       unstage: rxMethod<string[]>(
         pipe(
           switchMap((paths: string[]) => state.service.unstage(ROOT_PATH, paths)),
+          tap(() => refreshStatus()),
+        ),
+      ),
+      discard: rxMethod<string[]>(
+        pipe(
+          switchMap((paths: string[]) => state.service.discard(ROOT_PATH, paths)),
           tap(() => refreshStatus()),
         ),
       ),

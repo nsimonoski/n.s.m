@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { NodeAction } from './node/action/file-tree-node-action.component';
 import { FileTreeNodeComponent } from './node/file-tree-node.component';
 import { FileTreeCreateNodeComponent } from './create-node/file-tree-create-node.component';
 import {
@@ -32,12 +33,14 @@ import { FileTreeStore } from './file-tree.store';
 export class FileTreeComponent {
   rootDirectory = input.required<DirectoryResponseDto>();
   statusMap = input<Record<string, string>>({});
+  nodeActions = input<NodeAction[]>([]);
   contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
 
   readonly store = inject(FileTreeStore);
 
   renamingPath = signal<string | null>(null);
 
+  handleNodeAction = output<{ actionId: string; node: DirectoryResponseDto | FileResponseDto }>();
   handleRename = output<InlineRenameEvent>();
   handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
   handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();

@@ -11,5 +11,6 @@ export abstract class GitProvider {
   abstract commit(repoPath: string, message: string): Promise<GitLogEntryDto>;
   abstract stage(repoPath: string, paths: string[]): Promise<void>;
   abstract unstage(repoPath: string, paths: string[]): Promise<void>;
+  abstract discard(repoPath: string, paths: string[]): Promise<void>;
   abstract undoCommit(repoPath: string): Promise<void>;
 }

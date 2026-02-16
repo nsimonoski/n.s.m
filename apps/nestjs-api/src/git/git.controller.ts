@@ -152,6 +152,18 @@ export class GitController {
     return this.service.unstage(path, body.paths);
   }
 
+  @Post('discard')
+  async discard(
+    @Query('path') path: string,
+    @Body() body: GitStageRequestDto,
+  ): Promise<void> {
+    if (!path || !body.paths?.length) {
+      throw new BadRequestException('Path and file paths are required');
+    }
+
+    return this.service.discard(path, body.paths);
+  }
+
   @Post('undo-commit')
   async undoCommit(@Query('path') path: string): Promise<void> {
     if (!path) {

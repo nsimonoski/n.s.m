@@ -5,8 +5,14 @@
     <div class="loading">Loading...</div>
   }
 
-  @if (store.changesTree()) {
-    <app-file-tree [rootDirectory]="store.changesTree()!" [statusMap]="store.statusMap()">
+  @if (stagedTree()) {
+    <div class="section-header">{{ stagedTree()!.name }}</div>
+    <app-file-tree
+      [rootDirectory]="stagedTree()!"
+      [statusMap]="store.statusMap()"
+      [nodeActions]="stagedNodeActions"
+      (handleNodeAction)="onNodeAction($event)"
+    >
       <ng-template #contextMenu let-ctx let-close="close">
         <app-context-menu
           [x]="ctx.x"
@@ -19,4 +25,33 @@
       </ng-template>
     </app-file-tree>
   }
+
+  @if (changesTree()) {
+    <div class="section-header">{{ changesTree()!.name }}</div>
+    <app-file-tree
+      [rootDirectory]="changesTree()!"
+      [statusMap]="store.statusMap()"
+      [nodeActions]="changesNodeActions"
+      (handleNodeAction)="onNodeAction($event)"
+    >
+      <ng-template #contextMenu let-ctx let-close="close">
+        <app-context-menu
+          [x]="ctx.x"
+          [y]="ctx.y"
+          [node]="ctx.node"
+          [menuConfig]="getMenuItems(ctx.node)"
+          (itemClicked)="onContextMenuAction($event); close()"
+          (closed)="close()"
+        />
+      </ng-template>
+    </app-file-tree>
+  }
+
+  <app-confirmation-dialog
+    [isOpen]="discardDialogOpen()"
+    title="Discard Changes"
+    message="Are you sure you want to discard changes? This cannot be undone."
+    (confirmed)="onDiscardConfirmed()"
+    (cancelled)="onDiscardCancelled()"
+  />
 </div>
