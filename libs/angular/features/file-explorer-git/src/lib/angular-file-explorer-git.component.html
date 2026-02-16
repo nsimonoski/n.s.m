@@ -1,0 +1,22 @@
+<div class="git-explorer">
+  <app-angular-file-explorer-git-sync />
+
+  @if (store.isLoading()) {
+    <div class="loading">Loading...</div>
+  }
+
+  @if (store.changesTree()) {
+    <app-file-tree [rootDirectory]="store.changesTree()!" [statusMap]="store.statusMap()">
+      <ng-template #contextMenu let-ctx let-close="close">
+        <app-context-menu
+          [x]="ctx.x"
+          [y]="ctx.y"
+          [node]="ctx.node"
+          [menuConfig]="getMenuItems(ctx.node)"
+          (itemClicked)="onContextMenuAction($event); close()"
+          (closed)="close()"
+        />
+      </ng-template>
+    </app-file-tree>
+  }
+</div>

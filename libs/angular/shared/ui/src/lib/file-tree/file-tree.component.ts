@@ -1,35 +1,40 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  contentChild,
+  inject,
+  input,
+  output,
+  signal,
+  TemplateRef,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { FileTreeNodeComponent } from './node/file-tree-node.component';
 import { FileTreeCreateNodeComponent } from './create-node/file-tree-create-node.component';
-import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import {
-  ContextMenuAction,
-  ContextMenuActionEvent,
   ContextMenuEvent,
   ContextMenuState,
+  ContextMenuTemplateContext,
   InlineCreateEvent,
   InlineRenameEvent,
-  ResizeState,
 } from '../context-menu/context-menu.dto';
 import { FileTreeStore } from './file-tree.store';
 
 @Component({
   selector: 'app-file-tree',
   standalone: true,
-  imports: [FileTreeNodeComponent, FileTreeCreateNodeComponent, ContextMenuComponent],
+  imports: [FileTreeNodeComponent, FileTreeCreateNodeComponent, NgTemplateOutlet],
   providers: [FileTreeStore],
   templateUrl: './file-tree.component.html',
   styleUrls: ['./file-tree.component.scss'],
 })
 export class FileTreeComponent {
   rootDirectory = input.required<DirectoryResponseDto>();
+  statusMap = input<Record<string, string>>({});
+  contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
 
   readonly store = inject(FileTreeStore);
-
-  // Resizing
-  width = signal(300);
-  private resize = signal<ResizeState>({ isResizing: false, startX: 0, startWidth: 0 });
 
   renamingPath = signal<string | null>(null);
 
@@ -78,28 +83,6 @@ export class FileTreeComponent {
     });
   }
 
-  onContextMenuAction(event: ContextMenuActionEvent): void {
-    this.closeContextMenu();
-
-    switch (event.action) {
-      case ContextMenuAction.NEW_FILE:
-        this.startInlineCreate(event.node, 'file');
-        break;
-      case ContextMenuAction.NEW_FOLDER:
-        this.startInlineCreate(event.node, 'directory');
-        break;
-      case ContextMenuAction.RENAME:
-        this.renamingPath.set(event.node?.path ?? null);
-        break;
-      case ContextMenuAction.DELETE:
-        this.handleDelete.emit(event.node);
-        break;
-      case ContextMenuAction.OPEN:
-        this.handleOpen.emit(event.node);
-        break;
-    }
-  }
-
   onRenameConfirmed(event: InlineRenameEvent): void {
     this.handleRename.emit(event);
     this.renamingPath.set(null);
@@ -113,16 +96,7 @@ export class FileTreeComponent {
     this.contextMenu.update((state) => ({ ...state, visible: false }));
   }
 
-  onResizeStart(event: MouseEvent): void {
-    this.resize.set({ isResizing: true, startX: event.clientX, startWidth: this.width() });
-
-    event.preventDefault();
-
-    document.addEventListener('mousemove', this.onResize);
-    document.addEventListener('mouseup', this.onResizeEnd);
-  }
-
-  private startInlineCreate(
+  startInlineCreate(
     node: DirectoryResponseDto | FileResponseDto | null,
     type: 'file' | 'directory',
   ): void {
@@ -138,21 +112,4 @@ export class FileTreeComponent {
 
     this.store.startInlineCreate(parentPath, type);
   }
-
-  private onResize = (event: MouseEvent): void => {
-    const r = this.resize();
-    if (!r.isResizing) return;
-
-    const delta = event.clientX - r.startX;
-    const newWidth = r.startWidth + delta;
-
-    this.width.set(Math.min(Math.max(newWidth, 200), 600));
-  };
-
-  private onResizeEnd = (): void => {
-    this.resize.update((state) => ({ ...state, isResizing: false }));
-
-    document.removeEventListener('mousemove', this.onResize);
-    document.removeEventListener('mouseup', this.onResizeEnd);
-  };
 }

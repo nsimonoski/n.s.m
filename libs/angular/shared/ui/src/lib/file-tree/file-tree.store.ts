@@ -57,6 +57,10 @@ export const FileTreeStore = signalStore(
       patchState(store, { inlineCreate: null });
     },
 
+    expandAll: (paths: string[]) => {
+      patchState(store, { expandedPaths: new Set(paths) });
+    },
+
     reset: () => patchState(store, initialState),
   })),
 

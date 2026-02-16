@@ -17,6 +17,11 @@ export interface ContextMenuState {
   node: DirectoryResponseDto | FileResponseDto | null;
 }
 
+export interface ContextMenuTemplateContext {
+  $implicit: ContextMenuState;
+  close: () => void;
+}
+
 export interface ResizeState {
   isResizing: boolean;
   startX: number;
@@ -48,6 +53,9 @@ export enum ContextMenuAction {
   OPEN = 'open',
   RENAME = 'rename',
   DELETE = 'delete',
+  STAGE = 'stage',
+  UNSTAGE = 'unstage',
+  DISCARD = 'discard',
 }
 
 export enum ContextMenuIcon {
@@ -56,6 +64,9 @@ export enum ContextMenuIcon {
   OPEN = '📂',
   RENAME = '✏️',
   DELETE = '🗑️',
+  STAGE = '➕',
+  UNSTAGE = '➖',
+  DISCARD = '↩️',
 }
 
 export const CONTEXT_MENU_ITEMS = {
@@ -94,4 +105,32 @@ export const CONTEXT_MENU_ITEMS = {
     label: '',
     action: '',
   } as ContextMenuItem,
+};
+
+export const GIT_CONTEXT_MENU_ITEMS = {
+  STAGE: {
+    label: 'Stage',
+    icon: ContextMenuIcon.STAGE,
+    action: ContextMenuAction.STAGE,
+  } as ContextMenuItem,
+
+  UNSTAGE: {
+    label: 'Unstage',
+    icon: ContextMenuIcon.UNSTAGE,
+    action: ContextMenuAction.UNSTAGE,
+  } as ContextMenuItem,
+
+  DISCARD: {
+    label: 'Discard Changes',
+    icon: ContextMenuIcon.DISCARD,
+    action: ContextMenuAction.DISCARD,
+  } as ContextMenuItem,
+
+  OPEN: {
+    label: 'Open File',
+    icon: ContextMenuIcon.OPEN,
+    action: ContextMenuAction.OPEN,
+  } as ContextMenuItem,
+
+  SEPARATOR: CONTEXT_MENU_ITEMS.SEPARATOR,
 };

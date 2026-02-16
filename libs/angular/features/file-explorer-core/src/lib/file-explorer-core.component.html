@@ -1,0 +1,14 @@
+<div class="explorer-shell">
+  <app-activity-bar />
+  <div class="panel-content" [style.width.px]="coreStore.width()">
+    @switch (coreStore.activePanel()) {
+      @case ('explorer') {
+        <app-angular-file-explorer />
+      }
+      @case ('git') {
+        <app-angular-file-explorer-git />
+      }
+    }
+    <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
+  </div>
+</div>

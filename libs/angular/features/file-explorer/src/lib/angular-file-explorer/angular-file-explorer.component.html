@@ -11,7 +11,18 @@
       (handleRename)="handleRename($event)"
       (handleExpand)="handleExpandDirectory($event)"
       (handleInlineCreate)="handleInlineCreate($event)"
-    />
+    >
+      <ng-template #contextMenu let-ctx let-close="close">
+        <app-context-menu
+          [x]="ctx.x"
+          [y]="ctx.y"
+          [node]="ctx.node"
+          [menuConfig]="getMenuItems(ctx.node)"
+          (itemClicked)="onContextMenuAction($event); close()"
+          (closed)="close()"
+        />
+      </ng-template>
+    </app-file-tree>
   }
 </div>
 

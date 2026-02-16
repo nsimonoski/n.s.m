@@ -5,7 +5,7 @@
   [style.left.px]="x()"
   [style.top.px]="y()"
 >
-  @for (item of menuItems; track item.action) {
+  @for (item of menuConfig(); track item.action) {
     @if (item.separator) {
       <div class="separator"></div>
     } @else {

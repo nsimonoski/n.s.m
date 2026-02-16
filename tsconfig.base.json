@@ -15,7 +15,9 @@
       "@org/angular-file-explorer": ["libs/angular/features/file-explorer/src/index.ts"],
       "@org/react-file-explorer": ["libs/react/features/file-exporer/src/index.ts"],
       "@org/angular/ui": ["libs/angular/shared/ui/src/index.ts"],
-      "@org/angular-utils": ["libs/angular/shared/utils/src/index.ts"]
+      "@org/angular-utils": ["libs/angular/shared/utils/src/index.ts"],
+      "@org/angular-file-explorer-core": ["libs/angular/features/file-explorer-core/src/index.ts"],
+      "@org/angular-file-explorer-git": ["libs/angular/features/file-explorer-git/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

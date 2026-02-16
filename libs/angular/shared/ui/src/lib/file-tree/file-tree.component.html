@@ -1,4 +1,4 @@
-<div class="file-tree-container" [style.width.px]="width()">
+<div class="file-tree-container">
   <div class="file-tree" (contextmenu)="onContextMenu({ mouseEvent: $event, node: null })">
     @if (rootInlineCreateActive()) {
       <app-file-tree-create-node [level]="0" (confirmed)="handleInlineCreate.emit($event)" />
@@ -9,6 +9,7 @@
         [node]="node"
         [level]="0"
         [renamingPath]="renamingPath()"
+        [statusMap]="statusMap()"
         (nodeClicked)="onNodeClicked($event)"
         (toggleExpand)="onToggleExpand($event)"
         (contextMenu)="onContextMenu($event)"
@@ -18,15 +19,10 @@
       />
     }
   </div>
-  <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
-
   @if (contextMenu().visible) {
-    <app-context-menu
-      [x]="contextMenu().x"
-      [y]="contextMenu().y"
-      [node]="contextMenu().node"
-      (itemClicked)="onContextMenuAction($event)"
-      (closed)="closeContextMenu()"
+    <ng-container
+      [ngTemplateOutlet]="contextMenuTpl()"
+      [ngTemplateOutletContext]="{ $implicit: contextMenu(), close: closeContextMenu.bind(this) }"
     />
   }
 </div>

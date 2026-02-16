@@ -54,6 +54,7 @@ function refreshDirectoryInTree(
 }
 
 export const AngularFileExplorerStore = signalStore(
+  { providedIn: 'root' },
   withState<FileExplorerComponentState>({
     directory: null,
     file: null,
@@ -198,10 +199,7 @@ export const AngularFileExplorerStore = signalStore(
       listenToFileChanges: rxMethod<void>(
         pipe(
           switchMap(() => state.wsService.fileChanges$),
-          tap((event) => {
-            console.log('File change detected:', event);
-            refreshParentDirectory(event.path);
-          }),
+          tap((event) => refreshParentDirectory(event.path)),
         ),
       ),
     };

@@ -3,7 +3,8 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import * as path from 'path';
 
-import { FileResponseDto, DirectoryResponseDto, Enums } from '@org/shared/contracts';
+import type { FileResponseDto, DirectoryResponseDto } from '@org/shared/contracts';
+import { Enums } from '@org/shared/contracts';
 import { FileSystemErrorMapper } from '../domain/file-system-error.mapper';
 import { FileSystemProvider } from '../domain/file-system.provider';
 import { BadRequestException, Injectable } from '@nestjs/common';

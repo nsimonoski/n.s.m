@@ -16,7 +16,7 @@
   ],
   "references": [
     {
-      "path": "../../libs/angular/features/file-explorer"
+      "path": "../../libs/angular/features/file-explorer-core"
     }
   ]
 }

@@ -1,15 +1,10 @@
 .file-tree-container {
   position: relative;
-  height: 100vh;
-  width: 300px;
-  display: flex;
+  width: 100%;
   background-color: #252526;
-  border-right: 1px solid #1e1e1e;
 }
 
 .file-tree {
-  flex: 1;
-  overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0;
   font-family:
@@ -29,35 +24,6 @@
 
     &:hover {
       background: rgba(100, 100, 100, 0.7);
-    }
-  }
-}
-
-.resize-handle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4px;
-  height: 100%;
-  cursor: ew-resize;
-  background-color: transparent;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #007acc;
-  }
-
-  &:active {
-    background-color: #007acc;
-  }
-}
-
-:host {
-  &.resizing {
-    user-select: none;
-
-    * {
-      user-select: none;
     }
   }
 }

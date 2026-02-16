@@ -8,7 +8,8 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 
-import { FILE_CHANGE_EVENT, FILE_WATCH_EVENT, FileChangeEvent } from '@org/shared/contracts';
+import type { FileChangeEvent } from '@org/shared/contracts';
+import { FILE_CHANGE_EVENT, FILE_WATCH_EVENT } from '@org/shared/contracts';
 
 const DEBOUNCE_MS = 500;
 

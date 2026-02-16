@@ -1,34 +1,16 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { FILE_CHANGE_EVENT, FILE_WATCH_EVENT, FileChangeEvent } from '@org/shared/contracts';
+import { sockets } from '@org/angular-utils';
 
 @Injectable({ providedIn: 'root' })
-export class FileExplorerWsService implements OnDestroy {
-  private socket: Socket;
+export class FileExplorerWsService {
+  private readonly socket = inject(sockets.SocketService);
 
-  fileChanges$: Observable<FileChangeEvent>;
-
-  constructor() {
-    this.socket = io('http://localhost:3000');
-
-    this.fileChanges$ = new Observable<FileChangeEvent>((subscriber) => {
-      this.socket.on(FILE_CHANGE_EVENT, (event: FileChangeEvent) => {
-        subscriber.next(event);
-      });
-
-      return () => {
-        this.socket.off(FILE_CHANGE_EVENT);
-      };
-    });
-  }
+  fileChanges$: Observable<FileChangeEvent> = this.socket.on<FileChangeEvent>(FILE_CHANGE_EVENT);
 
   watchPath(path: string) {
-    this.socket.emit(FILE_WATCH_EVENT, path);
-  }
-
-  ngOnDestroy() {
-    this.socket.disconnect();
+    this.socket.watch(FILE_WATCH_EVENT, path);
   }
 }

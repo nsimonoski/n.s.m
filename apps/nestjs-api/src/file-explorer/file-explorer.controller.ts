@@ -9,7 +9,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import { FileResponseDto, DirectoryResponseDto, RenameRequestDto } from '@org/shared/contracts';
+import type { FileResponseDto, DirectoryResponseDto, RenameRequestDto } from '@org/shared/contracts';
 
 import { FileSystemProvider } from './domain/file-system.provider';
 

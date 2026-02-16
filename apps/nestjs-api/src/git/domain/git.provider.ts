@@ -1,4 +1,4 @@
-import { GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type { GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
 
 export abstract class GitProvider {
   abstract status(repoPath: string): Promise<GitStatusDto>;

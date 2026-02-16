@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
-import { AngularFileExplorerComponent } from '@org/angular-file-explorer';
+import { FileExplorerCoreComponent } from '@org/angular-file-explorer-core';
 
 @Component({
-  imports: [AngularFileExplorerComponent],
+  imports: [FileExplorerCoreComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',

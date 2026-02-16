@@ -1,4 +1,4 @@
-import { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
+import type { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
 
 export abstract class FileSystemProvider {
   abstract readDirectory(path: string): Promise<DirectoryResponseDto>;

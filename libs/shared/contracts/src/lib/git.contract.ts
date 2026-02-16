@@ -1,3 +1,5 @@
+import type { DirectoryResponseDto } from './directory.contract';
+
 export interface GitStatusDto {
   branch: string;
   ahead: number;
@@ -59,3 +61,12 @@ export interface GitPullRequestDto {
   remote?: string;
   branch?: string;
 }
+
+export interface GitStatusTreeResponseDto {
+  tree: DirectoryResponseDto;
+  statusMap: Record<string, string>;
+}
+
+export const GIT_CHANGE_EVENT = 'git:change';
+export const GIT_WATCH_EVENT = 'git:watch';
+

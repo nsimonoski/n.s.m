@@ -6,7 +6,7 @@ import {
   Query,
   BadRequestException,
 } from '@nestjs/common';
-import {
+import type {
   GitCheckoutRequestDto,
   GitCloneRequestDto,
   GitCommitRequestDto,
@@ -15,7 +15,9 @@ import {
   GitPushRequestDto,
   GitStageRequestDto,
   GitStatusDto,
+  GitStatusTreeResponseDto,
 } from '@org/shared/contracts';
+import { GitTreeUtils } from '@org/shared/utils';
 import { GitProvider } from './domain/git.provider';
 
 @Controller('git')
@@ -29,6 +31,21 @@ export class GitController {
     }
 
     return this.service.status(path);
+  }
+
+  @Get('status/tree')
+  async statusTree(
+    @Query('path') path: string,
+  ): Promise<GitStatusTreeResponseDto> {
+    if (!path) {
+      throw new BadRequestException('Path is required');
+    }
+
+    const status = await this.service.status(path);
+    return {
+      tree: GitTreeUtils.buildGitChangesTree(status),
+      statusMap: GitTreeUtils.buildGitStatusMap(status),
+    };
   }
 
   @Get('log')

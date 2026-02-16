@@ -32,6 +32,9 @@
     />
   } @else {
     <span class="name">{{ node().name }}</span>
+    @if (statusLabel()) {
+      <span class="status-badge">{{ statusLabel() }}</span>
+    }
   }
 </div>
 
@@ -46,6 +49,7 @@
         [node]="child"
         [level]="level() + 1"
         [renamingPath]="renamingPath()"
+        [statusMap]="statusMap()"
         (nodeClicked)="nodeClicked.emit($event)"
         (toggleExpand)="toggleExpand.emit($event)"
         (contextMenu)="contextMenu.emit($event)"

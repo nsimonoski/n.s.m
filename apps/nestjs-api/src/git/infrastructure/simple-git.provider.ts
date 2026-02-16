@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { simpleGit, SimpleGit } from 'simple-git';
-import { GitFileChange, GitFileStatus, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type { GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import { GitFileStatus } from '@org/shared/contracts';
 import { GitProvider } from '../domain/git.provider';
 
 @Injectable()

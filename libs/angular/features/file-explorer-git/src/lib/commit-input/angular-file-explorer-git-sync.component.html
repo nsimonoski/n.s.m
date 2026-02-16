@@ -1,0 +1,13 @@
+<div class="commit-input">
+  <textarea
+    #textarea
+    class="message-input"
+    placeholder="Message (Ctrl+Enter to commit)"
+    [ngModel]="store.commitMessage()"
+    (ngModelChange)="onMessageChange($event)"
+    (keydown)="onKeydown($event)"
+    (input)="autoResize(textarea)"
+    rows="1"
+  ></textarea>
+  <button class="commit-button" [disabled]="!store.commitMessage().trim()" (click)="onCommit()">Commit</button>
+</div>

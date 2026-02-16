@@ -20,6 +20,7 @@ export class FileTreeNodeComponent {
   node = input.required<DirectoryResponseDto | FileResponseDto>();
   level = input<number>(0);
   renamingPath = input<string | null>(null);
+  statusMap = input<Record<string, string>>({});
 
   nodeClicked = output<DirectoryResponseDto | FileResponseDto>();
   toggleExpand = output<DirectoryResponseDto>();
@@ -43,6 +44,7 @@ export class FileTreeNodeComponent {
   fileIcon = computed(() => FileUtils.getFileIcon(this.node().type, this.isExpanded()));
   expandIcon = computed(() => FileUtils.getExpandIcon(this.isExpanded()));
 
+  statusLabel = computed(() => this.statusMap()[this.node().path] ?? null);
   inlineCreateActive = computed(() => !!this.store.inlineCreateFor()(this.node().path));
 
   constructor() {
