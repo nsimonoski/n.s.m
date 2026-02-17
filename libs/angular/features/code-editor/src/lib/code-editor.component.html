@@ -1,7 +1,11 @@
 <div class="code-editor">
   @if (store.openFiles().length > 0) {
     <ide-tab-bar />
-    <ide-monaco-editor />
+    @if (store.activeFile()?.mode === 'diff') {
+      <ide-monaco-diff-editor />
+    } @else {
+      <ide-monaco-editor />
+    }
   } @else {
     <div class="empty-state">
       <span class="empty-message">Open a file to start editing</span>

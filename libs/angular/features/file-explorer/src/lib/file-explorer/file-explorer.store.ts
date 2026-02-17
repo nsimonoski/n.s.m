@@ -10,7 +10,7 @@ import {
 } from '@ngrx/signals';
 
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
-import { FileExplorerService } from '../data-access/services/file-explorer.service';
+import { FileExplorerService } from '@org/angular-data-access';
 import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
 import { pipe, switchMap, tap } from 'rxjs';
 import { editor } from '@org/angular-utils';

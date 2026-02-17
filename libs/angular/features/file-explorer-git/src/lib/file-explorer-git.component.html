@@ -11,6 +11,8 @@
       [rootDirectory]="stagedTree()!"
       [statusMap]="store.statusMap()"
       [nodeActions]="stagedNodeActions"
+      [autoExpandAll]="true"
+      (handleOpen)="onFileClick($event)"
       (handleNodeAction)="onNodeAction($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">
@@ -32,6 +34,8 @@
       [rootDirectory]="changesTree()!"
       [statusMap]="store.statusMap()"
       [nodeActions]="changesNodeActions"
+      [autoExpandAll]="true"
+      (handleOpen)="onFileClick($event)"
       (handleNodeAction)="onNodeAction($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">

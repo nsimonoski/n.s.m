@@ -63,8 +63,7 @@ export class GitGateway implements OnModuleDestroy {
     this.workingTreeWatcher = chokidar.watch(repoPath, {
       ignoreInitial: true,
       persistent: true,
-      ignored: (filePath: string) =>
-        WORKING_TREE_IGNORED.some((dir) => filePath.includes(dir)),
+      ignored: (filePath: string) => WORKING_TREE_IGNORED.some((dir) => filePath.includes(dir)),
       depth: 10,
       usePolling: true,
       interval: 1000,

@@ -1,15 +1,7 @@
-import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  afterNextRender,
-  effect,
-  inject,
-  viewChild,
-} from '@angular/core';
-import type * as Monaco from 'monaco-editor';
+import { Component } from '@angular/core';
+import { MonacoUtils } from '@org/shared/utils';
 import { editor } from '@org/angular-utils';
-import { MonacoLoaderService } from '../services/monaco-loader.service';
+import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
 
 @Component({
   selector: 'ide-monaco-editor',
@@ -17,54 +9,35 @@ import { MonacoLoaderService } from '../services/monaco-loader.service';
   templateUrl: './monaco-editor.component.html',
   styleUrls: ['./monaco-editor.component.scss'],
 })
-export class MonacoEditorComponent implements OnDestroy {
-  private readonly store = inject(editor.EditorStore);
-  private readonly container = viewChild.required<ElementRef<HTMLElement>>('editorContainer');
-  private readonly loader = inject(MonacoLoaderService);
+export class MonacoEditorComponent extends MonacoBaseComponent {
+  private monacoEditor: MonacoUtils.CodeEditor | null = null;
+  private models = new Map<string, MonacoUtils.TextModel>();
+  private onDidChangeDisposable: MonacoUtils.Disposable | null = null;
 
-  private monaco: typeof Monaco | null = null;
-  private monacoEditor: Monaco.editor.IStandaloneCodeEditor | null = null;
-  private models = new Map<string, Monaco.editor.ITextModel>();
-  private onDidChangeDisposable: Monaco.IDisposable | null = null;
-
-  constructor() {
-    afterNextRender(() => this.initEditor());
-
-    effect(() => {
-      const file = this.store.activeFile();
-      if (this.monacoEditor && this.monaco) {
-        this.switchToFile(file);
-      }
-    });
+  protected isReady(): boolean {
+    return !!this.monacoEditor;
   }
 
-  private async initEditor(): Promise<void> {
-    this.monaco = await this.loader.loadMonaco();
-
-    this.monacoEditor = this.monaco.editor.create(this.container().nativeElement, {
-      theme: 'vs-dark',
-      automaticLayout: true,
+  protected createEditor(container: HTMLElement): void {
+    this.monacoEditor = this.loader.createEditor(container, {
+      ...MonacoUtils.BASE_EDITOR_OPTIONS,
       minimap: { enabled: true },
-      fontSize: 14,
       lineNumbers: 'on',
-      scrollBeyondLastLine: false,
       renderWhitespace: 'selection',
       tabSize: 2,
     });
 
     this.monacoEditor.addCommand(
-      this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.KeyS,
+      this.loader.getKeyMod().CtrlCmd | this.loader.getKeyCode().KeyS,
       () => {
         const path = this.store.activeFilePath();
         if (path) this.store.saveFile(path);
       },
     );
-
-    this.switchToFile(this.store.activeFile());
   }
 
-  private switchToFile(file: editor.OpenFile | null): void {
-    if (!this.monaco || !this.monacoEditor) return;
+  protected switchToFile(file: editor.OpenFile | null): void {
+    if (!this.monacoEditor) return;
 
     this.onDidChangeDisposable?.dispose();
     this.onDidChangeDisposable = null;
@@ -76,8 +49,8 @@ export class MonacoEditorComponent implements OnDestroy {
 
     let model = this.models.get(file.path);
     if (!model || model.isDisposed()) {
-      const uri = this.monaco.Uri.parse(`file://${file.path}`);
-      model = this.monaco.editor.createModel(file.currentContent, file.language, uri);
+      const uri = this.loader.parseUri(`file://${file.path}`);
+      model = this.loader.createModel(file.currentContent, file.language, uri);
       this.models.set(file.path, model);
     }
 

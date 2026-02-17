@@ -151,6 +151,14 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async showDiff(repoPath: string, filePath: string, ref = 'HEAD'): Promise<string> {
+    try {
+      return await this.git(repoPath).show([`${ref}:${filePath}`]);
+    } catch {
+      return '';
+    }
+  }
+
   private mapFileChanges(
     files: { path: string; index: string; working_dir: string }[],
   ): GitFileChange[] {

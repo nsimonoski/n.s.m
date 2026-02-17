@@ -8,5 +8,14 @@ import { CodeEditorComponent } from '@org/angular-code-editor';
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  host: {
+    '(document:keydown)': 'preventBrowserDefaultShortcuts($event)',
+  },
 })
-export class App {}
+export class App {
+  preventBrowserDefaultShortcuts(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      event.preventDefault();
+    }
+  }
+}

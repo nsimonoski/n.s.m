@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Query,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, BadRequestException } from '@nestjs/common';
 import type {
   GitCheckoutRequestDto,
   GitCloneRequestDto,
@@ -13,6 +6,7 @@ import type {
   GitLogEntryDto,
   GitPullRequestDto,
   GitPushRequestDto,
+  GitShowResponseDto,
   GitStageRequestDto,
   GitStatusDto,
   GitStatusTreeResponseDto,
@@ -34,9 +28,7 @@ export class GitController {
   }
 
   @Get('status/tree')
-  async statusTree(
-    @Query('path') path: string,
-  ): Promise<GitStatusTreeResponseDto> {
+  async statusTree(@Query('path') path: string): Promise<GitStatusTreeResponseDto> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
@@ -75,10 +67,7 @@ export class GitController {
   }
 
   @Post('checkout')
-  async checkout(
-    @Query('path') path: string,
-    @Body() body: GitCheckoutRequestDto,
-  ): Promise<void> {
+  async checkout(@Query('path') path: string, @Body() body: GitCheckoutRequestDto): Promise<void> {
     if (!path || !body.branch) {
       throw new BadRequestException('Path and branch are required');
     }
@@ -96,10 +85,7 @@ export class GitController {
   }
 
   @Post('pull')
-  async pull(
-    @Query('path') path: string,
-    @Body() body: GitPullRequestDto,
-  ): Promise<void> {
+  async pull(@Query('path') path: string, @Body() body: GitPullRequestDto): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
@@ -108,10 +94,7 @@ export class GitController {
   }
 
   @Post('push')
-  async push(
-    @Query('path') path: string,
-    @Body() body: GitPushRequestDto,
-  ): Promise<void> {
+  async push(@Query('path') path: string, @Body() body: GitPushRequestDto): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
@@ -132,10 +115,7 @@ export class GitController {
   }
 
   @Post('stage')
-  async stage(
-    @Query('path') path: string,
-    @Body() body: GitStageRequestDto,
-  ): Promise<void> {
+  async stage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
     }
@@ -144,10 +124,7 @@ export class GitController {
   }
 
   @Post('unstage')
-  async unstage(
-    @Query('path') path: string,
-    @Body() body: GitStageRequestDto,
-  ): Promise<void> {
+  async unstage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
     }
@@ -156,15 +133,26 @@ export class GitController {
   }
 
   @Post('discard')
-  async discard(
-    @Query('path') path: string,
-    @Body() body: GitStageRequestDto,
-  ): Promise<void> {
+  async discard(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
     }
 
     return this.service.discard(path, body.paths);
+  }
+
+  @Get('show')
+  async showDiff(
+    @Query('path') path: string,
+    @Query('filePath') filePath: string,
+    @Query('ref') ref?: string,
+  ): Promise<GitShowResponseDto> {
+    if (!path || !filePath) {
+      throw new BadRequestException('Path and filePath are required');
+    }
+
+    const content = await this.service.showDiff(path, filePath, ref);
+    return { content };
   }
 
   @Post('undo-commit')

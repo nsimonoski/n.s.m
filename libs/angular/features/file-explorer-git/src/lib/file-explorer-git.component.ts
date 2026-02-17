@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, viewChildren } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import {
   ConfirmationDialogComponent,
@@ -23,7 +23,6 @@ import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-s
 })
 export class FileExplorerGitComponent {
   readonly store = inject(FileExplorerGitStore);
-  private readonly fileTrees = viewChildren(FileTreeComponent);
 
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
@@ -47,21 +46,6 @@ export class FileExplorerGitComponent {
     { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
   ];
 
-  constructor() {
-    effect(() => {
-      const staged = this.stagedTree();
-      const changes = this.changesTree();
-      const trees = this.fileTrees();
-
-      for (const fileTree of trees) {
-        const root = fileTree.rootDirectory();
-        if (root && (root === staged || root === changes)) {
-          fileTree.store.expandAll(this.getAllDirectoryPaths(root));
-        }
-      }
-    });
-  }
-
   getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
     if (!node) {
       return [];
@@ -75,6 +59,12 @@ export class FileExplorerGitComponent {
       GIT_CONTEXT_MENU_ITEMS.SEPARATOR,
       GIT_CONTEXT_MENU_ITEMS.OPEN,
     ];
+  }
+
+  onFileClick(node: DirectoryResponseDto | FileResponseDto | null): void {
+    if (node && node.type !== Enums.FileType.DIRECTORY) {
+      this.store.openDiff(node.path);
+    }
   }
 
   onContextMenuAction(event: ContextMenuActionEvent): void {
@@ -101,7 +91,9 @@ export class FileExplorerGitComponent {
         this.discardDialogOpen.set(true);
         break;
       case ContextMenuAction.OPEN:
-        // TODO: open file diff
+        if (node.type !== Enums.FileType.DIRECTORY) {
+          this.store.openDiff(node.path);
+        }
         break;
     }
   }
@@ -127,11 +119,4 @@ export class FileExplorerGitComponent {
     ];
   }
 
-  private getAllDirectoryPaths(dir: DirectoryResponseDto): string[] {
-    const paths = [dir.path];
-    for (const child of dir.directories) {
-      paths.push(...this.getAllDirectoryPaths(child));
-    }
-    return paths;
-  }
 }

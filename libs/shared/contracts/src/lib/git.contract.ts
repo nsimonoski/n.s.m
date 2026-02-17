@@ -72,6 +72,10 @@ export interface GitStatusTreeResponseDto {
   changesCount: number;
 }
 
+export interface GitShowResponseDto {
+  content: string;
+}
+
 export const GIT_CHANGE_EVENT = 'git:change';
 export const GIT_WATCH_EVENT = 'git:watch';
 

@@ -1,16 +1,17 @@
 import { inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import {
   patchState,
   signalStore,
   withComputed,
   withMethods,
+  withProps,
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { computed } from '@angular/core';
 import { pipe, switchMap, tap } from 'rxjs';
-import { FileResponseDto, Enums } from '@org/shared/contracts';
+import { Enums, FileResponseDto } from '@org/shared/contracts';
+import { FileExplorerService } from '@org/angular-data-access';
 import { getMonacoLanguage } from './language-map';
 
 export interface OpenFile {
@@ -18,9 +19,11 @@ export interface OpenFile {
   name: string;
   content: string;
   currentContent: string;
+  originalContent: string;
   language: string;
   type: Enums.FileType;
   extension?: string;
+  mode: 'regular' | 'diff';
   isDirty: boolean;
   updatedAt: string;
 }
@@ -36,6 +39,9 @@ export const EditorStore = signalStore(
     openFiles: [],
     activeFilePath: null,
   }),
+  withProps(() => ({
+    fileService: inject(FileExplorerService),
+  })),
   withComputed((state) => ({
     activeFile: computed(() => {
       const path = state.activeFilePath();
@@ -43,8 +49,6 @@ export const EditorStore = signalStore(
     }),
   })),
   withMethods((state) => {
-    const http = inject(HttpClient);
-
     return {
       openFile(file: FileResponseDto): void {
         const existing = state.openFiles().find((f) => f.path === file.path);
@@ -60,9 +64,11 @@ export const EditorStore = signalStore(
           name: file.name,
           content,
           currentContent: content,
+          originalContent: '',
           language,
           type: file.type,
           extension: file.extension,
+          mode: 'regular',
           isDirty: false,
           updatedAt: file.updatedAt,
         };
@@ -70,6 +76,32 @@ export const EditorStore = signalStore(
         patchState(state, {
           openFiles: [...state.openFiles(), openFile],
           activeFilePath: file.path,
+        });
+      },
+
+      openDiff(path: string, name: string, originalContent: string, modifiedContent: string, language: string): void {
+        const existing = state.openFiles().find((f) => f.path === path && f.mode === 'diff');
+        if (existing) {
+          patchState(state, { activeFilePath: path });
+          return;
+        }
+
+        const openFile: OpenFile = {
+          path,
+          name,
+          content: modifiedContent,
+          currentContent: modifiedContent,
+          originalContent,
+          language,
+          type: Enums.FileType.OTHER,
+          mode: 'diff',
+          isDirty: false,
+          updatedAt: '',
+        };
+
+        patchState(state, {
+          openFiles: [...state.openFiles(), openFile],
+          activeFilePath: path,
         });
       },
 
@@ -135,12 +167,12 @@ export const EditorStore = signalStore(
             const file = state.openFiles().find((f) => f.path === path);
             if (!file) throw new Error(`File not found: ${path}`);
 
-            return http.put<FileResponseDto>('http://localhost:3000/api/file-explorer/file', {
+            return state.fileService.updateFile({
               name: file.name,
               path: file.path,
               content: file.currentContent,
               type: file.type,
-            });
+            } as FileResponseDto);
           }),
           tap((saved) => {
             patchState(state, {

@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   contentChild,
+  effect,
   inject,
   input,
   output,
@@ -34,11 +35,21 @@ export class FileTreeComponent {
   rootDirectory = input.required<DirectoryResponseDto>();
   statusMap = input<Record<string, string>>({});
   nodeActions = input<NodeAction[]>([]);
+  autoExpandAll = input(false);
   contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
 
   readonly store = inject(FileTreeStore);
 
   renamingPath = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      const root = this.rootDirectory();
+      if (this.autoExpandAll()) {
+        this.store.expandAll(this.collectDirectoryPaths(root));
+      }
+    });
+  }
 
   handleNodeAction = output<{ actionId: string; node: DirectoryResponseDto | FileResponseDto }>();
   handleRename = output<InlineRenameEvent>();
@@ -114,5 +125,13 @@ export class FileTreeComponent {
     }
 
     this.store.startInlineCreate(parentPath, type);
+  }
+
+  private collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
+    const paths = [dir.path];
+    for (const child of dir.directories) {
+      paths.push(...this.collectDirectoryPaths(child));
+    }
+    return paths;
   }
 }

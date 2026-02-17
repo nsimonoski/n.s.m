@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GitLogEntryDto, GitStatusDto, GitStatusTreeResponseDto } from '@org/shared/contracts';
+import { GitLogEntryDto, GitShowResponseDto, GitStatusDto, GitStatusTreeResponseDto } from '@org/shared/contracts';
 
 @Injectable({
   providedIn: 'root',
@@ -50,6 +50,12 @@ export class GitService {
   push(repoPath: string): Observable<void> {
     return this.http.post<void>(`${this.API_BASE}/push`, {}, {
       params: { path: repoPath },
+    });
+  }
+
+  showDiff(repoPath: string, filePath: string): Observable<GitShowResponseDto> {
+    return this.http.get<GitShowResponseDto>(`${this.API_BASE}/show`, {
+      params: { path: repoPath, filePath },
     });
   }
 }
