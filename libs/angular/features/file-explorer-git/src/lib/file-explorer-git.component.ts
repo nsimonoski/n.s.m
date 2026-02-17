@@ -16,7 +16,12 @@ import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-s
 @Component({
   selector: 'ide-file-explorer-git',
   standalone: true,
-  imports: [FileTreeComponent, ContextMenuComponent, ConfirmationDialogComponent, FileExplorerGitSyncComponent],
+  imports: [
+    FileTreeComponent,
+    ContextMenuComponent,
+    ConfirmationDialogComponent,
+    FileExplorerGitSyncComponent,
+  ],
   templateUrl: './file-explorer-git.component.html',
   styleUrls: ['./file-explorer-git.component.scss'],
   providers: [FileExplorerGitStore],
@@ -76,7 +81,10 @@ export class FileExplorerGitComponent {
     this.handleAction(event.actionId as ContextMenuAction, event.node);
   }
 
-  private handleAction(action: ContextMenuAction, node: DirectoryResponseDto | FileResponseDto): void {
+  private handleAction(
+    action: ContextMenuAction,
+    node: DirectoryResponseDto | FileResponseDto,
+  ): void {
     const paths = this.getFilePaths(node);
 
     switch (action) {
@@ -118,5 +126,4 @@ export class FileExplorerGitComponent {
       ...dir.directories.flatMap((d) => this.getFilePaths(d)),
     ];
   }
-
 }

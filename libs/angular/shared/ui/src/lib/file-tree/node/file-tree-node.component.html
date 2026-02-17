@@ -46,7 +46,10 @@
 
 @if (isDirectory() && isExpanded()) {
   @if (inlineCreateActive()) {
-    <ui-file-tree-create-node [level]="level() + 1" (confirmed)="inlineCreateConfirmed.emit($event)" />
+    <ui-file-tree-create-node
+      [level]="level() + 1"
+      (confirmed)="inlineCreateConfirmed.emit($event)"
+    />
   }
 
   @if (hasChildren()) {

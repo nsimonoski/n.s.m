@@ -17,4 +17,3 @@ import { FileSystemErrorMapper } from './domain/file-system-error.mapper';
   ],
 })
 export class FileExplorerModule {}
-  

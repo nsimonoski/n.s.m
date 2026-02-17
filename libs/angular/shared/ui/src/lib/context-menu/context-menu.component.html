@@ -1,19 +1,11 @@
 <div class="context-menu-backdrop" (click)="onBackdropClick()"></div>
 
-<div 
-  class="context-menu"
-  [style.left.px]="x()"
-  [style.top.px]="y()"
->
+<div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
   @for (item of menuConfig(); track item.action) {
     @if (item.separator) {
       <div class="separator"></div>
     } @else {
-      <div 
-        class="menu-item"
-        [class.disabled]="item.disabled"
-        (click)="onItemClick(item)"
-      >
+      <div class="menu-item" [class.disabled]="item.disabled" (click)="onItemClick(item)">
         @if (item.icon) {
           <span class="icon">{{ item.icon }}</span>
         }

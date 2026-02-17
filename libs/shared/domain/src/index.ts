@@ -1,2 +1,2 @@
 export * from './lib/directory.model';
-export * from './lib/file.model'
+export * from './lib/file.model';

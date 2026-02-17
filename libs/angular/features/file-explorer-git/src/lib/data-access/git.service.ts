@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GitLogEntryDto, GitShowResponseDto, GitStatusDto, GitStatusTreeResponseDto } from '@org/shared/contracts';
+import {
+  GitLogEntryDto,
+  GitShowResponseDto,
+  GitStatusDto,
+  GitStatusTreeResponseDto,
+} from '@org/shared/contracts';
 
 @Injectable({
   providedIn: 'root',
@@ -24,33 +29,53 @@ export class GitService {
   }
 
   stage(repoPath: string, paths: string[]): Observable<void> {
-    return this.http.post<void>(`${this.API_BASE}/stage`, { paths }, {
-      params: { path: repoPath },
-    });
+    return this.http.post<void>(
+      `${this.API_BASE}/stage`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 
   unstage(repoPath: string, paths: string[]): Observable<void> {
-    return this.http.post<void>(`${this.API_BASE}/unstage`, { paths }, {
-      params: { path: repoPath },
-    });
+    return this.http.post<void>(
+      `${this.API_BASE}/unstage`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 
   discard(repoPath: string, paths: string[]): Observable<void> {
-    return this.http.post<void>(`${this.API_BASE}/discard`, { paths }, {
-      params: { path: repoPath },
-    });
+    return this.http.post<void>(
+      `${this.API_BASE}/discard`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 
   commit(repoPath: string, message: string): Observable<GitLogEntryDto> {
-    return this.http.post<GitLogEntryDto>(`${this.API_BASE}/commit`, { message }, {
-      params: { path: repoPath },
-    });
+    return this.http.post<GitLogEntryDto>(
+      `${this.API_BASE}/commit`,
+      { message },
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 
   push(repoPath: string): Observable<void> {
-    return this.http.post<void>(`${this.API_BASE}/push`, {}, {
-      params: { path: repoPath },
-    });
+    return this.http.post<void>(
+      `${this.API_BASE}/push`,
+      {},
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 
   showDiff(repoPath: string, filePath: string): Observable<GitShowResponseDto> {

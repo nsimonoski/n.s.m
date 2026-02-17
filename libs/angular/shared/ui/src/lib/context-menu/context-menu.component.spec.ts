@@ -11,9 +11,8 @@ describe('ContextMenuComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ContextMenuComponent ]
-    })
-    .compileComponents();
+      declarations: [ContextMenuComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

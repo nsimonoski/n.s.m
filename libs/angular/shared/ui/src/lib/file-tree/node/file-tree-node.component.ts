@@ -1,4 +1,14 @@
-import { Component, computed, effect, ElementRef, inject, input, output, Signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  Signal,
+  viewChild,
+} from '@angular/core';
 
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';

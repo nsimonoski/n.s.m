@@ -6,7 +6,7 @@ export class Directory {
     public name: string,
     public path: string,
     public files: File[] = [],
-    public directories: Directory[] = []
+    public directories: Directory[] = [],
   ) {}
 
   addFile(file: File): Directory {
@@ -14,6 +14,9 @@ export class Directory {
   }
 
   addDirectory(directory: Directory): Directory {
-    return new Directory(this.id, this.name, this.path, this.files, [...this.directories, directory]);
+    return new Directory(this.id, this.name, this.path, this.files, [
+      ...this.directories,
+      directory,
+    ]);
   }
 }

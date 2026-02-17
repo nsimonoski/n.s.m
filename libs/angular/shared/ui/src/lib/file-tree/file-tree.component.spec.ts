@@ -11,9 +11,8 @@ describe('FileTreeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FileTreeComponent ]
-    })
-    .compileComponents();
+      declarations: [FileTreeComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

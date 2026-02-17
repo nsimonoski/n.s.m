@@ -22,7 +22,6 @@ export const FileTreeStore = signalStore(
   withState(initialState),
 
   withMethods((store) => ({
-
     toggleExpanded: (path: string) => {
       const expanded = new Set(store.expandedPaths());
       if (expanded.has(path)) {
@@ -71,5 +70,5 @@ export const FileTreeStore = signalStore(
       const ic = store.inlineCreate();
       return ic && ic.parentPath === path ? ic : null;
     }),
-  }))
+  })),
 );

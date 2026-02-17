@@ -78,4 +78,3 @@ export interface GitShowResponseDto {
 
 export const GIT_CHANGE_EVENT = 'git:change';
 export const GIT_WATCH_EVENT = 'git:watch';
-

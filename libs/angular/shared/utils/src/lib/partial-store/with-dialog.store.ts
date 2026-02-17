@@ -1,9 +1,4 @@
-import {
-  patchState,
-  signalStoreFeature,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStoreFeature, withMethods, withState } from '@ngrx/signals';
 
 export const withDialog = () =>
   signalStoreFeature(
@@ -35,5 +30,5 @@ export const withDialog = () =>
           dialogData: null,
         });
       },
-    }))
+    })),
   );

@@ -1,9 +1,4 @@
-import {
-  patchState,
-  signalStoreFeature,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStoreFeature, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, pipe, tap } from 'rxjs';
 
@@ -17,13 +12,11 @@ export const withSnackbar = () =>
       return {
         showSnackBar: rxMethod<string>(
           pipe(
-            tap((message) =>
-              patchState(state, { showSnackbar: true, message })
-            ),
+            tap((message) => patchState(state, { showSnackbar: true, message })),
             debounceTime(1500),
-            tap(() => patchState(state, { showSnackbar: false, message: '' }))
-          )
+            tap(() => patchState(state, { showSnackbar: false, message: '' })),
+          ),
         ),
       };
-    })
+    }),
   );

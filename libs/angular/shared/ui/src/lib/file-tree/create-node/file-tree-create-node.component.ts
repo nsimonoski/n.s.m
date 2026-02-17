@@ -1,4 +1,13 @@
-import { afterNextRender, Component, computed, ElementRef, inject, input, output, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { Enums } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
 import { FileTreeStore } from '../file-tree.store';

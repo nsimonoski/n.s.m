@@ -79,7 +79,13 @@ export const EditorStore = signalStore(
         });
       },
 
-      openDiff(path: string, name: string, originalContent: string, modifiedContent: string, language: string): void {
+      openDiff(
+        path: string,
+        name: string,
+        originalContent: string,
+        modifiedContent: string,
+        language: string,
+      ): void {
         const existing = state.openFiles().find((f) => f.path === path && f.mode === 'diff');
         if (existing) {
           patchState(state, { activeFilePath: path });
@@ -136,7 +142,7 @@ export const EditorStore = signalStore(
         const activeStillOpen = dirty.some((f) => f.path === activePath);
         patchState(state, {
           openFiles: dirty,
-          activeFilePath: activeStillOpen ? activePath : dirty[0]?.path ?? null,
+          activeFilePath: activeStillOpen ? activePath : (dirty[0]?.path ?? null),
         });
       },
 
@@ -153,11 +159,13 @@ export const EditorStore = signalStore(
 
       updateContent(path: string, content: string): void {
         patchState(state, {
-          openFiles: state.openFiles().map((f) =>
-            f.path === path
-              ? { ...f, currentContent: content, isDirty: content !== f.content }
-              : f,
-          ),
+          openFiles: state
+            .openFiles()
+            .map((f) =>
+              f.path === path
+                ? { ...f, currentContent: content, isDirty: content !== f.content }
+                : f,
+            ),
         });
       },
 
@@ -176,11 +184,19 @@ export const EditorStore = signalStore(
           }),
           tap((saved) => {
             patchState(state, {
-              openFiles: state.openFiles().map((f) =>
-                f.path === saved.path
-                  ? { ...f, content: saved.content ?? f.currentContent, currentContent: saved.content ?? f.currentContent, isDirty: false, updatedAt: saved.updatedAt }
-                  : f,
-              ),
+              openFiles: state
+                .openFiles()
+                .map((f) =>
+                  f.path === saved.path
+                    ? {
+                        ...f,
+                        content: saved.content ?? f.currentContent,
+                        currentContent: saved.content ?? f.currentContent,
+                        isDirty: false,
+                        updatedAt: saved.updatedAt,
+                      }
+                    : f,
+                ),
             });
           }),
         ),

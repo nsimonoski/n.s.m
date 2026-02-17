@@ -49,7 +49,15 @@ export const FileExplorerGitStore = signalStore(
     editorStore: inject(editor.EditorStore),
   })),
   withMethods((state) => {
-    const patchFromResponse = (response: { branch: string; tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number; stagedCount: number; changesCount: number }) => {
+    const patchFromResponse = (response: {
+      branch: string;
+      tree: DirectoryResponseDto;
+      statusMap: Record<string, string>;
+      ahead: number;
+      behind: number;
+      stagedCount: number;
+      changesCount: number;
+    }) => {
       patchState(state, {
         branch: response.branch,
         changesTree: response.tree,
@@ -100,9 +108,9 @@ export const FileExplorerGitStore = signalStore(
       commit: rxMethod<string>(
         pipe(
           switchMap((message: string) =>
-            state.service.commit(ROOT_PATH, message).pipe(
-              switchMap(() => state.service.getStatusTree(ROOT_PATH)),
-            ),
+            state.service
+              .commit(ROOT_PATH, message)
+              .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
           ),
           tap((response) => {
             state.saveToStorage({ commitMessage: '' });
@@ -113,9 +121,9 @@ export const FileExplorerGitStore = signalStore(
       sync: rxMethod<void>(
         pipe(
           switchMap(() =>
-            state.service.push(ROOT_PATH).pipe(
-              switchMap(() => state.service.getStatusTree(ROOT_PATH)),
-            ),
+            state.service
+              .push(ROOT_PATH)
+              .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
           ),
           tap(patchFromResponse),
         ),

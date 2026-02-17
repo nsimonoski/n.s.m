@@ -1,10 +1,6 @@
 <span class="node-actions">
   @for (action of actions(); track action.id) {
-    <button
-      class="action-btn"
-      [title]="action.tooltip ?? ''"
-      (click)="onClick($event, action.id)"
-    >
+    <button class="action-btn" [title]="action.tooltip ?? ''" (click)="onClick($event, action.id)">
       <i [class]="'codicon ' + action.icon"></i>
     </button>
   }

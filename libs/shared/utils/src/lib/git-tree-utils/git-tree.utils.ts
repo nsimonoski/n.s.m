@@ -40,10 +40,7 @@ function insertIntoTree(root: TreeNode, filePath: string): void {
   });
 }
 
-function treeNodeToDirectory(
-  node: TreeNode,
-  path: string,
-): DirectoryResponseDto {
+function treeNodeToDirectory(node: TreeNode, path: string): DirectoryResponseDto {
   const directories: DirectoryResponseDto[] = [];
   for (const [dirName, child] of node.dirs) {
     directories.push(treeNodeToDirectory(child, `${path}/${dirName}`));
@@ -60,10 +57,7 @@ function treeNodeToDirectory(
   };
 }
 
-function buildSectionTree(
-  sectionName: string,
-  filePaths: string[],
-): DirectoryResponseDto {
+function buildSectionTree(sectionName: string, filePaths: string[]): DirectoryResponseDto {
   const root = createTreeNode(`${sectionName} (${filePaths.length})`);
 
   for (const filePath of filePaths) {
@@ -73,12 +67,8 @@ function buildSectionTree(
   return treeNodeToDirectory(root, `/${sectionName.toLowerCase()}`);
 }
 
-export function compactDirectory(
-  dir: DirectoryResponseDto,
-): DirectoryResponseDto {
-  const compactedChildren = dir.directories.map((child) =>
-    compactDirectory(child),
-  );
+export function compactDirectory(dir: DirectoryResponseDto): DirectoryResponseDto {
+  const compactedChildren = dir.directories.map((child) => compactDirectory(child));
 
   if (compactedChildren.length === 1 && dir.files.length === 0) {
     const child = compactedChildren[0];
@@ -93,9 +83,7 @@ export function compactDirectory(
   return { ...dir, directories: compactedChildren };
 }
 
-export function buildGitChangesTree(
-  status: GitStatusDto,
-): DirectoryResponseDto {
+export function buildGitChangesTree(status: GitStatusDto): DirectoryResponseDto {
   const directories: DirectoryResponseDto[] = [];
 
   if (status.staged.length > 0) {
@@ -109,10 +97,7 @@ export function buildGitChangesTree(
     });
   }
 
-  const changesPaths = [
-    ...status.unstaged.map((f) => f.path),
-    ...status.untracked,
-  ];
+  const changesPaths = [...status.unstaged.map((f) => f.path), ...status.untracked];
   if (changesPaths.length > 0) {
     const section = buildSectionTree('Changes', changesPaths);
     directories.push({
@@ -141,9 +126,7 @@ const STATUS_LETTER: Record<string, string> = {
   [GitFileStatus.UNTRACKED]: 'U',
 };
 
-export function buildGitStatusMap(
-  status: GitStatusDto,
-): Record<string, string> {
+export function buildGitStatusMap(status: GitStatusDto): Record<string, string> {
   const map: Record<string, string> = {};
 
   for (const file of status.staged) {
