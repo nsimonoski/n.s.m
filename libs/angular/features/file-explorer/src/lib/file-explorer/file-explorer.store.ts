@@ -13,6 +13,7 @@ import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/sh
 import { FileExplorerService } from '../data-access/services/file-explorer.service';
 import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
 import { pipe, switchMap, tap } from 'rxjs';
+import { editor } from '@org/angular-utils';
 import { partialStore } from '@org/angular-utils';
 
 interface FileExplorerComponentState {
@@ -65,6 +66,7 @@ export const FileExplorerStore = signalStore(
   withProps(() => ({
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
+    editorStore: inject(editor.EditorStore),
   })),
   withMethods((state) => {
     const refreshParentDirectory = (childPath: string) => {
@@ -126,6 +128,7 @@ export const FileExplorerStore = signalStore(
             }
 
             patchState(state, { file });
+            state.editorStore.openFile(file);
           }),
         ),
       ),

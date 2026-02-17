@@ -4,7 +4,7 @@
     class="message-input"
     placeholder="Message (Ctrl+Enter to commit)"
     [ngModel]="store.commitMessage()"
-    (ngModelChange)="onMessageChange($event)"
+    (ngModelChange)="store.setCommitMessage($event)"
     (keydown)="onKeydown($event)"
     (input)="autoResize(textarea)"
     rows="1"

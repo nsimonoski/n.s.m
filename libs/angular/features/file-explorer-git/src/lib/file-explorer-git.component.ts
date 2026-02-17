@@ -108,11 +108,10 @@ export class FileExplorerGitComponent {
 
   onDiscardConfirmed(): void {
     this.store.discard(this.pendingDiscardPaths);
-    this.discardDialogOpen.set(false);
-    this.pendingDiscardPaths = [];
+    this.closeDiscardDialog();
   }
 
-  onDiscardCancelled(): void {
+  closeDiscardDialog(): void {
     this.discardDialogOpen.set(false);
     this.pendingDiscardPaths = [];
   }

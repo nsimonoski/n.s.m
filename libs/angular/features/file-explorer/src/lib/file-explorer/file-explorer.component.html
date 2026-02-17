@@ -7,9 +7,9 @@
     <ui-file-tree
       [rootDirectory]="store.directory()!"
       (handleDelete)="handleDelete($event)"
-      (handleOpen)="handleOpen($event)"
-      (handleRename)="handleRename($event)"
-      (handleExpand)="handleExpandDirectory($event)"
+      (handleOpen)="store.getFile($event!.path)"
+      (handleRename)="store.rename({ path: $event.node.path, newName: $event.newName })"
+      (handleExpand)="store.expandDirectory($event.path)"
       (handleInlineCreate)="handleInlineCreate($event)"
     >
       <ng-template #contextMenu let-ctx let-close="close">

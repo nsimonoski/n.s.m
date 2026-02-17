@@ -32,10 +32,6 @@ export class FileExplorerGitSyncComponent {
     this.store.commit(trimmed);
   }
 
-  onMessageChange(value: string): void {
-    this.store.setCommitMessage(value);
-  }
-
   autoResize(textarea: HTMLTextAreaElement): void {
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';

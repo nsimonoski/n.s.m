@@ -68,6 +68,8 @@ export interface GitStatusTreeResponseDto {
   statusMap: Record<string, string>;
   ahead: number;
   behind: number;
+  stagedCount: number;
+  changesCount: number;
 }
 
 export const GIT_CHANGE_EVENT = 'git:change';

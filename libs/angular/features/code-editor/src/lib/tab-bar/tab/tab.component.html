@@ -1,0 +1,9 @@
+<div class="tab" [class.active]="isActive()" (click)="selected.emit()">
+  <span class="tab-name">{{ file().name }}</span>
+  @if (file().isDirty) {
+    <span class="dirty-indicator"></span>
+  }
+  <button class="close-btn" (click)="onClose($event)" title="Close">
+    <i class="codicon codicon-close"></i>
+  </button>
+</div>

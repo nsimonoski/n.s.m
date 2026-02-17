@@ -103,6 +103,7 @@
     "@vscode/codicons": "^0.0.44",
     "axios": "^1.6.0",
     "chokidar": "^5.0.0",
+    "monaco-editor": "^0.55.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reflect-metadata": "^0.1.13",

@@ -16,6 +16,9 @@
   ],
   "references": [
     {
+      "path": "../../libs/angular/features/code-editor"
+    },
+    {
       "path": "../../libs/angular/features/file-explorer-core"
     }
   ]

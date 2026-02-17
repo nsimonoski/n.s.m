@@ -56,6 +56,11 @@ export enum ContextMenuAction {
   STAGE = 'stage',
   UNSTAGE = 'unstage',
   DISCARD = 'discard',
+  CLOSE = 'close',
+  CLOSE_OTHERS = 'close-others',
+  CLOSE_TO_THE_RIGHT = 'close-to-the-right',
+  CLOSE_SAVED = 'close-saved',
+  CLOSE_ALL = 'close-all',
 }
 
 export enum ContextMenuIcon {
@@ -134,3 +139,12 @@ export const GIT_CONTEXT_MENU_ITEMS = {
 
   SEPARATOR: CONTEXT_MENU_ITEMS.SEPARATOR,
 };
+
+export const TAB_CONTEXT_MENU_ITEMS: ContextMenuItem[] = [
+  { label: 'Close', action: ContextMenuAction.CLOSE },
+  { label: 'Close Others', action: ContextMenuAction.CLOSE_OTHERS },
+  { label: 'Close to the Right', action: ContextMenuAction.CLOSE_TO_THE_RIGHT },
+  CONTEXT_MENU_ITEMS.SEPARATOR,
+  { label: 'Close Saved', action: ContextMenuAction.CLOSE_SAVED },
+  { label: 'Close All', action: ContextMenuAction.CLOSE_ALL },
+];

@@ -1,0 +1,10 @@
+<div class="code-editor">
+  @if (store.openFiles().length > 0) {
+    <ide-tab-bar />
+    <ide-monaco-editor />
+  } @else {
+    <div class="empty-state">
+      <span class="empty-message">Open a file to start editing</span>
+    </div>
+  }
+</div>

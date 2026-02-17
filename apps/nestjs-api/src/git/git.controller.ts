@@ -48,6 +48,8 @@ export class GitController {
       statusMap: GitTreeUtils.buildGitStatusMap(status),
       ahead: status.ahead,
       behind: status.behind,
+      stagedCount: status.staged.length,
+      changesCount: status.unstaged.length + status.untracked.length,
     };
   }
 

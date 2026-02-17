@@ -23,6 +23,8 @@ interface GitExplorerState {
   commitMessage: string;
   ahead: number;
   behind: number;
+  stagedCount: number;
+  changesCount: number;
 }
 
 export const FileExplorerGitStore = signalStore(
@@ -34,6 +36,8 @@ export const FileExplorerGitStore = signalStore(
     commitMessage: '',
     ahead: 0,
     behind: 0,
+    stagedCount: 0,
+    changesCount: 0,
   }),
   partialStore.withLoading(),
   partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
@@ -42,13 +46,15 @@ export const FileExplorerGitStore = signalStore(
     wsService: inject(GitWsService),
   })),
   withMethods((state) => {
-    const patchFromResponse = (response: { branch: string; tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number }) => {
+    const patchFromResponse = (response: { branch: string; tree: DirectoryResponseDto; statusMap: Record<string, string>; ahead: number; behind: number; stagedCount: number; changesCount: number }) => {
       patchState(state, {
         branch: response.branch,
         changesTree: response.tree,
         statusMap: response.statusMap,
         ahead: response.ahead,
         behind: response.behind,
+        stagedCount: response.stagedCount,
+        changesCount: response.changesCount,
       });
     };
 

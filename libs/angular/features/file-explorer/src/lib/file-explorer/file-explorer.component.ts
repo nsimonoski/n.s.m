@@ -11,7 +11,6 @@ import {
   CONTEXT_MENU_ITEMS,
   FileTreeComponent,
   InlineCreateEvent,
-  InlineRenameEvent,
 } from '@org/angular/ui';
 
 @Component({
@@ -20,7 +19,6 @@ import {
   imports: [FileTreeComponent, ConfirmationDialogComponent, ContextMenuComponent],
   templateUrl: './file-explorer.component.html',
   styleUrls: ['./file-explorer.component.scss'],
-  providers: [FileExplorerStore],
 })
 export class FileExplorerComponent {
   readonly store = inject(FileExplorerStore);
@@ -37,14 +35,8 @@ export class FileExplorerComponent {
     this.store.createFile(fullPath);
   }
 
-  handleRename(event: InlineRenameEvent): void {
-    this.store.rename({ path: event.node.path, newName: event.newName });
-  }
-
   handleDelete(node: DirectoryResponseDto | FileResponseDto | null): void {
-    if (!node) {
-      return;
-    }
+    if (!node) return;
 
     this.store.openDialog(
       `Delete ${node.type}`,
@@ -56,18 +48,6 @@ export class FileExplorerComponent {
   onConfirmDelete(): void {
     this.store.delete(this.store.dialogData() as string);
     this.store.closeDialog();
-  }
-
-  handleOpen(node: DirectoryResponseDto | FileResponseDto | null): void {
-    if (!node) {
-      return;
-    }
-
-    this.store.getFile(node.path);
-  }
-
-  handleExpandDirectory(node: DirectoryResponseDto): void {
-    this.store.expandDirectory(node.path);
   }
 
   getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
@@ -108,7 +88,7 @@ export class FileExplorerComponent {
         this.handleDelete(event.node);
         break;
       case ContextMenuAction.OPEN:
-        this.handleOpen(event.node);
+        if (event.node) this.store.getFile(event.node.path);
         break;
     }
   }
