@@ -16,6 +16,9 @@
       (handleExpand)="store.expandDirectory($event.path)"
       (handleInlineCreate)="handleInlineCreate($event)"
     >
+
+
+    
       <ng-template #contextMenu let-ctx let-close="close">
         <ui-context-menu
           [x]="ctx.x"
