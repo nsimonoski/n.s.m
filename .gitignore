@@ -47,3 +47,6 @@ vite.config.*.timestamp*
 test-output
 
 .angular
+
+vitest.config.*.timestamp*
+.claude/ 

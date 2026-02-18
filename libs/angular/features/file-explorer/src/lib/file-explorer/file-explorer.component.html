@@ -1,0 +1,42 @@
+<div class="file-explorer">
+  @if (store.loading()) {
+    <div class="loading">Loading...</div>
+  }
+
+  @if (store.directory()) {
+    <ui-file-tree
+      [rootDirectory]="store.directory()!"
+      [expandedPaths]="store.expandedPaths()"
+      [selectedPath]="store.selectedPath()"
+      (expandToggled)="onExpandToggled($event)"
+      (nodeSelected)="onNodeSelected($event)"
+      (handleDelete)="handleDelete($event)"
+      (handleOpen)="store.getFile($event!.path)"
+      (handleRename)="store.rename({ path: $event.node.path, newName: $event.newName })"
+      (handleExpand)="store.expandDirectory($event.path)"
+      (handleInlineCreate)="handleInlineCreate($event)"
+    >
+
+
+    
+      <ng-template #contextMenu let-ctx let-close="close">
+        <ui-context-menu
+          [x]="ctx.x"
+          [y]="ctx.y"
+          [node]="ctx.node"
+          [menuConfig]="getMenuItems(ctx.node)"
+          (itemClicked)="onContextMenuAction($event); close()"
+          (closed)="close()"
+        />
+      </ng-template>
+    </ui-file-tree>
+  }
+</div>
+
+<ui-confirmation-dialog
+  [isOpen]="store.dialogOpen()"
+  [title]="store.dialogTitle()"
+  [message]="store.dialogMessage()"
+  (confirmed)="onConfirmDelete()"
+  (cancelled)="store.closeDialog()"
+/>

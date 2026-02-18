@@ -1,0 +1,21 @@
+<div class="tab-bar">
+  @for (tab of store.openFiles(); track tab.path) {
+    <ide-tab
+      [file]="tab"
+      [isActive]="tab.path === store.activeFilePath()"
+      (selected)="store.setActiveFile(tab.path)"
+      (closed)="store.closeFile(tab.path)"
+      (contextmenu)="onContextMenu($event, tab.path)"
+    />
+  }
+</div>
+
+@if (contextMenu(); as menu) {
+  <ui-context-menu
+    [x]="menu.x"
+    [y]="menu.y"
+    [menuConfig]="menuItems"
+    (itemClicked)="onMenuAction($event)"
+    (closed)="closeContextMenu()"
+  />
+}

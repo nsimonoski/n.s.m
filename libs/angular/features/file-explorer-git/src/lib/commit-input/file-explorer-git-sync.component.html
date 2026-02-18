@@ -1,0 +1,21 @@
+<div class="commit-input">
+  <textarea
+    #textarea
+    class="message-input"
+    placeholder="Message (Ctrl+Enter to commit)"
+    [ngModel]="store.commitMessage()"
+    (ngModelChange)="store.setCommitMessage($event)"
+    (keydown)="onKeydown($event)"
+    (input)="autoResize(textarea)"
+    rows="1"
+  ></textarea>
+  @if (hasPendingSync()) {
+    <button class="commit-button sync" (click)="onSync()">
+      {{ syncLabel() }}
+    </button>
+  } @else {
+    <button class="commit-button" [disabled]="!store.commitMessage().trim()" (click)="onCommit()">
+      Commit
+    </button>
+  }
+</div>

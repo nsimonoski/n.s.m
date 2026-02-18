@@ -1,13 +1,21 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+
+import { FileExplorerCoreComponent } from '@org/angular-file-explorer-core';
+import { CodeEditorComponent } from '@org/angular-code-editor';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [FileExplorerCoreComponent, CodeEditorComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  host: {
+    '(document:keydown)': 'preventBrowserDefaultShortcuts($event)',
+  },
 })
 export class App {
-  protected title = 'angular-ide';
+  preventBrowserDefaultShortcuts(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      event.preventDefault();
+    }
+  }
 }

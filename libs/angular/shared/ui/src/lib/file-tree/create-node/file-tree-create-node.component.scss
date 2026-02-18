@@ -1,0 +1,59 @@
+.create-node {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 22px;
+  font-size: 13px;
+}
+
+.indent-guide {
+  display: inline-block;
+  width: 10px;
+  height: 100%;
+  position: relative;
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--indent-guide);
+  }
+}
+
+.expand-spacer {
+  width: 16px;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
+.file-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  flex-shrink: 0;
+
+  i {
+    font-size: 16px;
+  }
+}
+
+.inline-name-input {
+  flex: 1;
+  height: 18px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--accent-primary);
+  outline: none;
+  padding: 0 4px;
+  border-radius: 2px;
+  min-width: 0;
+}

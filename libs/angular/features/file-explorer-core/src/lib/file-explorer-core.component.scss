@@ -1,0 +1,62 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.explorer-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-area {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel-content {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-primary);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+
+    &:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--accent-primary);
+  }
+
+  &:active {
+    background-color: var(--accent-primary);
+  }
+}

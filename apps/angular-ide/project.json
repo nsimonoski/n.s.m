@@ -2,10 +2,17 @@
   "name": "angular-ide",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "prefix": "app",
+  "prefix": "ide",
   "sourceRoot": "apps/angular-ide/src",
-  "tags": [],
+  "tags": ["type:app"],
   "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p tsconfig.app.json",
+        "cwd": "{projectRoot}"
+      }
+    },
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
@@ -18,6 +25,11 @@
           {
             "glob": "**/*",
             "input": "apps/angular-ide/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "node_modules/monaco-editor/min",
+            "output": "monaco-editor/min"
           }
         ],
         "styles": ["apps/angular-ide/src/styles.scss"]
@@ -27,8 +39,8 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "4mb",
+              "maximumError": "8mb"
             },
             {
               "type": "anyComponentStyle",
