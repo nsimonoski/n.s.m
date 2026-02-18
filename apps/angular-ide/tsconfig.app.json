@@ -13,13 +13,5 @@
     "jest.config.ts",
     "jest.config.cts",
     "src/test-setup.ts"
-  ],
-  "references": [
-    {
-      "path": "../../libs/angular/features/code-editor"
-    },
-    {
-      "path": "../../libs/angular/features/file-explorer-core"
-    }
   ]
 }

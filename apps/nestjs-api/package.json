@@ -5,6 +5,13 @@
   "nx": {
     "tags": ["type:app"],
     "targets": {
+      "typecheck": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "tsc --noEmit -p tsconfig.app.json",
+          "cwd": "{projectRoot}"
+        }
+      },
       "build": {
         "executor": "nx:run-commands",
         "options": {
