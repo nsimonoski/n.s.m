@@ -17,6 +17,14 @@ import { GitWsService } from './data-access/git-ws.service';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
+function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
+  const paths = [dir.path];
+  for (const child of dir.directories) {
+    paths.push(...collectDirectoryPaths(child));
+  }
+  return paths;
+}
+
 interface GitExplorerState {
   branch: string;
   changesTree: DirectoryResponseDto | null;
@@ -41,6 +49,7 @@ export const FileExplorerGitStore = signalStore(
     changesCount: 0,
   }),
   partialStore.withLoading(),
+  partialStore.withFileTree(),
   partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
   withProps(() => ({
     service: inject(GitService),
@@ -67,6 +76,7 @@ export const FileExplorerGitStore = signalStore(
         stagedCount: response.stagedCount,
         changesCount: response.changesCount,
       });
+      state.expandAll(collectDirectoryPaths(response.tree));
     };
 
     const refreshStatus = () => {

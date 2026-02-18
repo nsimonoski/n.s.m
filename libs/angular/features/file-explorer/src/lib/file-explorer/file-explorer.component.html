@@ -6,6 +6,10 @@
   @if (store.directory()) {
     <ui-file-tree
       [rootDirectory]="store.directory()!"
+      [expandedPaths]="store.expandedPaths()"
+      [selectedPath]="store.selectedPath()"
+      (expandToggled)="onExpandToggled($event)"
+      (nodeSelected)="onNodeSelected($event)"
       (handleDelete)="handleDelete($event)"
       (handleOpen)="store.getFile($event!.path)"
       (handleRename)="store.rename({ path: $event.node.path, newName: $event.newName })"

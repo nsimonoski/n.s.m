@@ -5,36 +5,15 @@
     <div class="loading">Loading...</div>
   }
 
-  @if (stagedTree()) {
-    <div class="section-header">{{ stagedTree()!.name }}</div>
+  @if (store.changesTree()) {
     <ui-file-tree
-      [rootDirectory]="stagedTree()!"
+      [rootDirectory]="store.changesTree()!"
+      [expandedPaths]="store.expandedPaths()"
+      [selectedPath]="store.selectedPath()"
       [statusMap]="store.statusMap()"
-      [nodeActions]="stagedNodeActions"
-      [autoExpandAll]="true"
-      (handleOpen)="onFileClick($event)"
-      (handleNodeAction)="onNodeAction($event)"
-    >
-      <ng-template #contextMenu let-ctx let-close="close">
-        <ui-context-menu
-          [x]="ctx.x"
-          [y]="ctx.y"
-          [node]="ctx.node"
-          [menuConfig]="getMenuItems(ctx.node)"
-          (itemClicked)="onContextMenuAction($event); close()"
-          (closed)="close()"
-        />
-      </ng-template>
-    </ui-file-tree>
-  }
-
-  @if (changesTree()) {
-    <div class="section-header">{{ changesTree()!.name }}</div>
-    <ui-file-tree
-      [rootDirectory]="changesTree()!"
-      [statusMap]="store.statusMap()"
-      [nodeActions]="changesNodeActions"
-      [autoExpandAll]="true"
+      [nodeActionsFn]="nodeActionsFn"
+      (expandToggled)="store.toggleExpanded($event.path)"
+      (nodeSelected)="store.selectNode($event.path)"
       (handleOpen)="onFileClick($event)"
       (handleNodeAction)="onNodeAction($event)"
     >

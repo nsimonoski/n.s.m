@@ -10,9 +10,10 @@ import {
 } from '@ngrx/signals';
 
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
 import { FileExplorerService } from '@org/angular-data-access';
 import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
-import { pipe, switchMap, tap } from 'rxjs';
+import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
 import { editor } from '@org/angular-utils';
 import { partialStore } from '@org/angular-utils';
 
@@ -63,6 +64,7 @@ export const FileExplorerStore = signalStore(
   }),
   partialStore.withLoading(),
   partialStore.withDialog(),
+  partialStore.withFileTree(),
   withProps(() => ({
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
@@ -88,6 +90,27 @@ export const FileExplorerStore = signalStore(
 
     return {
       refreshParentDirectory,
+      revealFile: async (filePath: string) => {
+        const rootPath = state.directory()?.path;
+        if (!rootPath) return;
+
+        const ancestors = FileUtils.getAncestorPaths(rootPath, filePath);
+
+        for (const dirPath of ancestors) {
+          if (!FileUtils.isDirectoryLoaded(state.directory()!, dirPath)) {
+            const fetched = await firstValueFrom(state.service.readDirectory(dirPath));
+            if (state.directory()) {
+              patchState(state, {
+                directory: mergeDirectoryIntoTree(state.directory()!, fetched.path, fetched),
+              });
+            }
+          }
+        }
+
+        const expanded = new Set(state.expandedPaths());
+        ancestors.forEach((p) => expanded.add(p));
+        patchState(state, { expandedPaths: expanded, selectedPath: filePath });
+      },
       getDirectory: rxMethod<string>(
         pipe(
           tap(() => state.setLoading()),

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import {
   ConfirmationDialogComponent,
@@ -9,9 +9,19 @@ import {
   FileTreeComponent,
   GIT_CONTEXT_MENU_ITEMS,
   NodeAction,
+  NodeActionsFn,
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
+
+const STAGED_ACTIONS: NodeAction[] = [
+  { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
+];
+
+const CHANGES_ACTIONS: NodeAction[] = [
+  { id: ContextMenuAction.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
+  { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
+];
 
 @Component({
   selector: 'ide-file-explorer-git',
@@ -32,24 +42,11 @@ export class FileExplorerGitComponent {
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
 
-  readonly stagedTree = computed(() => {
-    const tree = this.store.changesTree();
-    return tree?.directories.find((d) => d.path === '/staged') ?? null;
-  });
-
-  readonly changesTree = computed(() => {
-    const tree = this.store.changesTree();
-    return tree?.directories.find((d) => d.path === '/changes') ?? null;
-  });
-
-  readonly stagedNodeActions: NodeAction[] = [
-    { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
-  ];
-
-  readonly changesNodeActions: NodeAction[] = [
-    { id: ContextMenuAction.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
-    { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
-  ];
+  readonly nodeActionsFn: NodeActionsFn = (node) => {
+    if (node.path.startsWith('/staged')) return STAGED_ACTIONS;
+    if (node.path.startsWith('/changes')) return CHANGES_ACTIONS;
+    return [];
+  };
 
   getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
     if (!node) {

@@ -2,112 +2,124 @@ import {
   Component,
   computed,
   contentChild,
+  ElementRef,
   effect,
-  inject,
   input,
   output,
   signal,
   TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
-import { NodeAction } from './node/action/file-tree-node-action.component';
-import { FileTreeNodeComponent } from './node/file-tree-node.component';
-import { FileTreeCreateNodeComponent } from './create-node/file-tree-create-node.component';
+import { FileTreeNodeActionComponent } from './node/action/file-tree-node-action.component';
 import {
-  ContextMenuEvent,
+  FileTreeCreateNodeComponent,
+  InlineCreate,
+} from './create-node/file-tree-create-node.component';
+import {
   ContextMenuState,
   ContextMenuTemplateContext,
   InlineCreateEvent,
   InlineRenameEvent,
 } from '../context-menu/context-menu.dto';
-import { FileTreeStore } from './file-tree.store';
+import { FileIconPipe, ExpandIconPipe, IndentGuidesPipe, FileChildrenPipe, NodeActionsPipe, NodeActionsFn } from './file-tree.pipes';
 
 @Component({
   selector: 'ui-file-tree',
   standalone: true,
-  imports: [FileTreeNodeComponent, FileTreeCreateNodeComponent, NgTemplateOutlet],
-  providers: [FileTreeStore],
+  imports: [
+    NgTemplateOutlet,
+    FileTreeCreateNodeComponent,
+    FileTreeNodeActionComponent,
+    FileIconPipe,
+    ExpandIconPipe,
+    IndentGuidesPipe,
+    FileChildrenPipe,
+    NodeActionsPipe,
+  ],
   templateUrl: './file-tree.component.html',
   styleUrls: ['./file-tree.component.scss'],
 })
 export class FileTreeComponent {
+  readonly DIRECTORY_TYPE = Enums.FileType.DIRECTORY;
+
   rootDirectory = input.required<DirectoryResponseDto>();
+  expandedPaths = input.required<Set<string>>();
+  selectedPath = input.required<string | null>();
   statusMap = input<Record<string, string>>({});
-  nodeActions = input<NodeAction[]>([]);
-  autoExpandAll = input(false);
+  nodeActionsFn = input<NodeActionsFn | null>(null);
   contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
 
-  readonly store = inject(FileTreeStore);
-
-  renamingPath = signal<string | null>(null);
-
-  constructor() {
-    effect(() => {
-      const root = this.rootDirectory();
-      if (this.autoExpandAll()) {
-        this.store.expandAll(this.collectDirectoryPaths(root));
-      }
-    });
-  }
-
-  handleNodeAction = output<{ actionId: string; node: DirectoryResponseDto | FileResponseDto }>();
-  handleRename = output<InlineRenameEvent>();
-  handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
-  handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();
+  expandToggled = output<DirectoryResponseDto>();
+  nodeSelected = output<DirectoryResponseDto | FileResponseDto>();
   handleExpand = output<DirectoryResponseDto>();
+  handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();
+  handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
+  handleRename = output<InlineRenameEvent>();
   handleInlineCreate = output<InlineCreateEvent>();
+  handleNodeAction = output<{ actionId: string; node: DirectoryResponseDto | FileResponseDto }>();
 
-  contextMenu = signal<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
+  readonly inlineCreate = signal<InlineCreate | null>(null);
+  readonly renamingPath = signal<string | null>(null);
+  readonly contextMenu = signal<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
+
+  renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
   rootNodes = computed(() => {
     const root = this.rootDirectory();
     return [...root.directories, ...root.files];
   });
 
-  rootInlineCreateActive = computed(() => {
-    const root = this.rootDirectory();
-    return !!this.store.inlineCreateFor()(root.path);
-  });
+  constructor() {
+    effect(() => {
+      if (this.renamingPath()) {
+        setTimeout(() => {
+          const input = this.renameInput()?.nativeElement;
+          if (!input) return;
+          input.focus();
 
-  onNodeClicked(node: DirectoryResponseDto | FileResponseDto): void {
-    this.store.selectNode(node.path);
+          const name = this.renamingNodeName();
+          const dotIndex = name.lastIndexOf('.');
+          if (dotIndex > 0) {
+            input.setSelectionRange(0, dotIndex);
+          } else {
+            input.select();
+          }
+        });
+      }
+    });
+  }
 
-    if (node.type !== Enums.FileType.DIRECTORY) {
+  onNodeClick(node: DirectoryResponseDto | FileResponseDto): void {
+    this.nodeSelected.emit(node);
+
+    if (node.type === Enums.FileType.DIRECTORY) {
+      const dir = node as DirectoryResponseDto;
+      this.expandToggled.emit(dir);
+
+      const wasExpanded = this.expandedPaths().has(node.path);
+      if (!wasExpanded && dir.files.length === 0 && dir.directories.length === 0) {
+        this.handleExpand.emit(dir);
+      }
+    } else {
       this.handleOpen.emit(node);
     }
   }
 
-  onToggleExpand(node: DirectoryResponseDto): void {
-    const wasExpanded = this.store.isExpanded()(node.path);
-    this.store.toggleExpanded(node.path);
-
-    if (!wasExpanded && node.files.length === 0 && node.directories.length === 0) {
-      this.handleExpand.emit(node);
-    }
-  }
-
-  onContextMenu(event: ContextMenuEvent): void {
-    event.mouseEvent.preventDefault();
+  onContextMenu(event: MouseEvent, node: DirectoryResponseDto | FileResponseDto | null): void {
+    event.preventDefault();
+    event.stopPropagation();
     this.contextMenu.set({
       visible: true,
-      x: event.mouseEvent.clientX,
-      y: event.mouseEvent.clientY,
-      node: event.node,
+      x: event.clientX,
+      y: event.clientY,
+      node,
     });
   }
 
-  onRenameConfirmed(event: InlineRenameEvent): void {
-    this.handleRename.emit(event);
-    this.renamingPath.set(null);
-  }
-
-  onRenameCancelled(): void {
-    this.renamingPath.set(null);
-  }
-
-  closeContextMenu(): void {
-    this.contextMenu.update((state) => ({ ...state, visible: false }));
+  onNodeAction(actionId: string, node: DirectoryResponseDto | FileResponseDto): void {
+    this.handleNodeAction.emit({ actionId, node });
   }
 
   startInlineCreate(
@@ -124,14 +136,36 @@ export class FileTreeComponent {
       parentPath = node.path.substring(0, node.path.lastIndexOf('/'));
     }
 
-    this.store.startInlineCreate(parentPath, type);
+    this.inlineCreate.set({ parentPath, type });
   }
 
-  private collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
-    const paths = [dir.path];
-    for (const child of dir.directories) {
-      paths.push(...this.collectDirectoryPaths(child));
+  cancelInlineCreate(): void {
+    this.inlineCreate.set(null);
+  }
+
+  onRenameKeydown(event: KeyboardEvent, node: DirectoryResponseDto | FileResponseDto): void {
+    if (event.key === 'Enter') {
+      (event.target as HTMLInputElement).blur();
+    } else if (event.key === 'Escape') {
+      this.renamingPath.set(null);
     }
-    return paths;
+  }
+
+  onRenameBlur(event: FocusEvent, node: DirectoryResponseDto | FileResponseDto): void {
+    const newName = (event.target as HTMLInputElement).value.trim();
+    if (newName && newName !== node.name) {
+      this.handleRename.emit({ node, newName });
+    }
+    this.renamingPath.set(null);
+  }
+
+  closeContextMenu = (): void => {
+    this.contextMenu.update((state) => ({ ...state, visible: false }));
+  };
+
+  private renamingNodeName(): string {
+    const path = this.renamingPath();
+    if (!path) return '';
+    return path.substring(path.lastIndexOf('/') + 1);
   }
 }

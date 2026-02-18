@@ -184,19 +184,17 @@ export const EditorStore = signalStore(
           }),
           tap((saved) => {
             patchState(state, {
-              openFiles: state
-                .openFiles()
-                .map((f) =>
-                  f.path === saved.path
-                    ? {
-                        ...f,
-                        content: saved.content ?? f.currentContent,
-                        currentContent: saved.content ?? f.currentContent,
-                        isDirty: false,
-                        updatedAt: saved.updatedAt,
-                      }
-                    : f,
-                ),
+              openFiles: state.openFiles().map((f) =>
+                f.path === saved.path
+                  ? {
+                      ...f,
+                      content: saved.content ?? f.currentContent,
+                      currentContent: saved.content ?? f.currentContent,
+                      isDirty: false,
+                      updatedAt: saved.updatedAt,
+                    }
+                  : f,
+              ),
             });
           }),
         ),

@@ -109,6 +109,10 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
   }
 
+  async searchFiles(rootPath: string, query: string, limit = 20): Promise<FileResponseDto[]> {
+    return this.walkDirectory(rootPath, query.toLowerCase(), limit);
+  }
+
   async createFile(filePath: string, content = ''): Promise<FileResponseDto> {
     try {
       await fs.writeFile(filePath, content);
@@ -152,6 +156,46 @@ export class LocalFileSystemProvider extends FileSystemProvider {
       updatedAt: stat.mtime.toISOString(),
       ...overrides,
     };
+  }
+
+  private async walkDirectory(
+    dirPath: string,
+    query: string,
+    limit: number,
+    results: FileResponseDto[] = [],
+  ): Promise<FileResponseDto[]> {
+    if (results.length >= limit) return results;
+
+    const skipDirs = new Set(['.git', 'node_modules', 'dist', '.nx', '.angular']);
+
+    let entries: string[];
+    try {
+      entries = await fs.readdir(dirPath);
+    } catch {
+      return results;
+    }
+
+    const fullPaths = entries.map((name) => path.join(dirPath, name));
+    const ignoredPaths = await this.getGitIgnoredPaths(dirPath, fullPaths);
+
+    for (const name of entries) {
+      if (results.length >= limit) return results;
+
+      const fullPath = path.join(dirPath, name);
+      if (ignoredPaths.has(fullPath)) continue;
+
+      const stat = await fs.stat(fullPath);
+
+      if (stat.isFile()) {
+        if (name.toLowerCase().includes(query)) {
+          results.push(this.toFileDto(fullPath, stat));
+        }
+      } else if (stat.isDirectory() && !skipDirs.has(name)) {
+        await this.walkDirectory(fullPath, query, limit, results);
+      }
+    }
+
+    return results;
   }
 
   private async getGitIgnoredPaths(dirPath: string, paths: string[]): Promise<Set<string>> {

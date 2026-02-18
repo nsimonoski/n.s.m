@@ -37,6 +37,16 @@ export class FileExplorerService {
     return this.http.post<DirectoryResponseDto>(`${this.API_BASE}/directory`, { path });
   }
 
+  searchFiles(query: string, rootPath: string, limit = 20): Observable<FileResponseDto[]> {
+    return this.http.get<FileResponseDto[]>(`${this.API_BASE}/search`, {
+      params: {
+        query: encodeURIComponent(query),
+        path: encodeURIComponent(rootPath),
+        limit: limit.toString(),
+      },
+    });
+  }
+
   delete(path: string): Observable<{ path: string }> {
     return this.http.request<{ path: string }>('DELETE', `${this.API_BASE}`, { body: { path } });
   }

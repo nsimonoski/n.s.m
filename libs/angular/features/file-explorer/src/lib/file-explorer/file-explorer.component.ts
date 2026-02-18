@@ -24,6 +24,14 @@ export class FileExplorerComponent {
   readonly store = inject(FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
 
+  onExpandToggled(node: DirectoryResponseDto): void {
+    this.store.toggleExpanded(node.path);
+  }
+
+  onNodeSelected(node: DirectoryResponseDto | FileResponseDto): void {
+    this.store.selectNode(node.path);
+  }
+
   handleInlineCreate(event: InlineCreateEvent): void {
     const fullPath = `${event.parentPath}/${event.name}`;
 

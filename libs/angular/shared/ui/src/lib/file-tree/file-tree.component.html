@@ -1,30 +1,94 @@
 <div class="file-tree-container">
-  <div class="file-tree" (contextmenu)="onContextMenu({ mouseEvent: $event, node: null })">
-    @if (rootInlineCreateActive()) {
-      <ui-file-tree-create-node [level]="0" (confirmed)="handleInlineCreate.emit($event)" />
+  <div class="file-tree" (contextmenu)="onContextMenu($event, null)">
+    <ng-template #nodeTemplate let-node let-level="level">
+      <div
+        class="tree-node"
+        [class.selected]="selectedPath() === node.path"
+        [class.grayed]="node.gitIgnored"
+        (click)="onNodeClick(node)"
+        (contextmenu)="onContextMenu($event, node)"
+      >
+        @for (guide of level | indentGuides; track $index) {
+          <span class="indent-guide"></span>
+        }
+
+        @if (node.type === DIRECTORY_TYPE) {
+          <span class="expand-icon">
+            <i [class]="expandedPaths().has(node.path) | expandIcon"></i>
+          </span>
+        } @else {
+          <span class="expand-spacer"></span>
+        }
+
+        <span class="file-icon" [style.color]="(node | fileIcon: expandedPaths().has(node.path)).color">
+          <i [class]="'codicon ' + (node | fileIcon: expandedPaths().has(node.path)).iconClass"></i>
+        </span>
+
+        @if (renamingPath() === node.path) {
+          <input
+            #renameInput
+            class="inline-name-input"
+            [value]="node.name"
+            (keydown)="onRenameKeydown($event, node)"
+            (blur)="onRenameBlur($event, node)"
+            (click)="$event.stopPropagation()"
+          />
+        } @else {
+          <span class="name">{{ node.name }}</span>
+          @if (node | nodeActions: nodeActionsFn(); as actions) {
+            @if (actions.length > 0) {
+              <ui-file-tree-node-action
+                [actions]="actions"
+                (actionClicked)="onNodeAction($event, node)"
+              />
+            }
+          }
+          @if (statusMap()[node.path]; as status) {
+            <span class="status-badge">{{ status }}</span>
+          }
+        }
+      </div>
+
+      @if (node.type === DIRECTORY_TYPE && expandedPaths().has(node.path)) {
+        @if (inlineCreate()?.parentPath === node.path) {
+          <ui-file-tree-create-node
+            [level]="level + 1"
+            [inlineCreate]="inlineCreate()!"
+            (confirmed)="handleInlineCreate.emit($event)"
+            (cancelled)="cancelInlineCreate()"
+          />
+        }
+
+        @for (child of node | fileChildren; track child.path) {
+          <ng-container
+            [ngTemplateOutlet]="nodeTemplate"
+            [ngTemplateOutletContext]="{ $implicit: child, level: level + 1 }"
+          />
+        }
+      }
+    </ng-template>
+
+    @if (inlineCreate()?.parentPath === rootDirectory().path) {
+      <ui-file-tree-create-node
+        [level]="0"
+        [inlineCreate]="inlineCreate()!"
+        (confirmed)="handleInlineCreate.emit($event)"
+        (cancelled)="cancelInlineCreate()"
+      />
     }
 
     @for (node of rootNodes(); track node.path) {
-      <ui-file-tree-node
-        [node]="node"
-        [level]="0"
-        [renamingPath]="renamingPath()"
-        [statusMap]="statusMap()"
-        [nodeActions]="nodeActions()"
-        (nodeClicked)="onNodeClicked($event)"
-        (toggleExpand)="onToggleExpand($event)"
-        (contextMenu)="onContextMenu($event)"
-        (nodeActionClicked)="handleNodeAction.emit($event)"
-        (inlineCreateConfirmed)="handleInlineCreate.emit($event)"
-        (renameConfirmed)="onRenameConfirmed($event)"
-        (renameCancelled)="onRenameCancelled()"
+      <ng-container
+        [ngTemplateOutlet]="nodeTemplate"
+        [ngTemplateOutletContext]="{ $implicit: node, level: 0 }"
       />
     }
   </div>
+
   @if (contextMenu().visible) {
     <ng-container
       [ngTemplateOutlet]="contextMenuTpl()"
-      [ngTemplateOutletContext]="{ $implicit: contextMenu(), close: closeContextMenu.bind(this) }"
+      [ngTemplateOutletContext]="{ $implicit: contextMenu(), close: closeContextMenu }"
     />
   }
 </div>

@@ -30,6 +30,23 @@ export class FileExplorerController {
     return this.service.readDirectory(path);
   }
 
+  @Get('search')
+  async search(
+    @Query('query') query: string,
+    @Query('path') searchPath: string,
+    @Query('limit') limit?: string,
+  ): Promise<FileResponseDto[]> {
+    if (!query || !searchPath) {
+      throw new BadRequestException('Query and path are required');
+    }
+
+    return this.service.searchFiles(
+      decodeURIComponent(searchPath),
+      decodeURIComponent(query),
+      limit ? parseInt(limit, 10) : 20,
+    );
+  }
+
   @Get('file')
   async getFile(@Query('path') id: string): Promise<FileResponseDto> {
     const file = await this.service.getFile(decodeURIComponent(id));
