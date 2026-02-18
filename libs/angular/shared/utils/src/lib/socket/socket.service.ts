@@ -32,10 +32,10 @@ export class SocketService implements OnDestroy {
   on<T = void>(event: string): Observable<T> {
     return new Observable<T>((subscriber) => {
       const handler = (data: T) => subscriber.next(data);
-      this.socket.on(event, handler as any);
+      this.socket.on(event, handler as (...args: unknown[]) => void);
 
       return () => {
-        this.socket.off(event, handler as any);
+        this.socket.off(event, handler as (...args: unknown[]) => void);
       };
     });
   }

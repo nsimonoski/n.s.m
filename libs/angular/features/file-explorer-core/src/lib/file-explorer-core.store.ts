@@ -1,4 +1,4 @@
-import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { partialStore } from '@org/angular-utils';
 
 export const FileExplorerCoreStore = signalStore(

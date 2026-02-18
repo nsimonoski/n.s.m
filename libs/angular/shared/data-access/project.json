@@ -4,7 +4,7 @@
   "sourceRoot": "libs/angular/shared/data-access/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["scope:angular", "type:data-access"],
+  "tags": ["scope:angular", "type:util"],
   "targets": {
     "test": {
       "executor": "@nx/vitest:test",

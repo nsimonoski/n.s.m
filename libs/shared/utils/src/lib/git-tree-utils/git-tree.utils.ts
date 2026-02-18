@@ -19,14 +19,15 @@ function createTreeNode(name: string): TreeNode {
 
 function insertIntoTree(root: TreeNode, filePath: string): void {
   const segments = filePath.split('/');
-  const fileName = segments.pop()!;
+  const fileName = segments.pop();
+  if (!fileName) return;
   let current = root;
 
   for (const segment of segments) {
     if (!current.dirs.has(segment)) {
       current.dirs.set(segment, createTreeNode(segment));
     }
-    current = current.dirs.get(segment)!;
+    current = current.dirs.get(segment) ?? current;
   }
 
   const ext = fileName.includes('.') ? fileName.split('.').pop() : undefined;

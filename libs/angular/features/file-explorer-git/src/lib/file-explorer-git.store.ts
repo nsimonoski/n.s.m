@@ -9,7 +9,7 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { forkJoin, pipe, switchMap, tap } from 'rxjs';
-import { DirectoryResponseDto, Enums } from '@org/shared/contracts';
+import { DirectoryResponseDto } from '@org/shared/contracts';
 import { editor, partialStore } from '@org/angular-utils';
 import { FileExplorerService } from '@org/angular-data-access';
 import { GitService } from './data-access/git.service';

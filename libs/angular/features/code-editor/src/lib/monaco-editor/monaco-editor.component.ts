@@ -56,8 +56,9 @@ export class MonacoEditorComponent extends MonacoBaseComponent {
 
     this.monacoEditor.setModel(model);
 
-    this.onDidChangeDisposable = model.onDidChangeContent(() => {
-      this.store.updateContent(file.path, model!.getValue());
+    const currentModel = model;
+    this.onDidChangeDisposable = currentModel.onDidChangeContent(() => {
+      this.store.updateContent(file.path, currentModel.getValue());
     });
   }
 

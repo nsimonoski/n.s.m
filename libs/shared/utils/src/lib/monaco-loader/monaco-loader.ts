@@ -68,12 +68,16 @@ export class MonacoService {
       const script = document.createElement('script');
       script.src = `${baseUrl}/loader.js`;
       script.onload = () => {
-        const require = (window as any).require;
+        const win = window as unknown as Record<string, unknown>;
+        const amdRequire = win['require'] as {
+          config: (opts: { paths: Record<string, string> }) => void;
+          (deps: string[], callback: () => void): void;
+        };
 
-        require.config({ paths: { vs: baseUrl } });
-        require(['vs/editor/editor.main'], () => {
-          this._monaco = (window as any).monaco;
-          resolve(this._monaco!);
+        amdRequire.config({ paths: { vs: baseUrl } });
+        amdRequire(['vs/editor/editor.main'], () => {
+          this._monaco = win['monaco'] as typeof Monaco;
+          resolve(this._monaco);
         });
       };
       script.onerror = reject;

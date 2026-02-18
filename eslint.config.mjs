@@ -22,12 +22,8 @@ export default [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
             {
-              sourceTag: 'scope:demo',
-              onlyDependOnLibsWithTags: ['scope:demo', 'scope:shared'],
-            },
-            {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:model'],
+              onlyDependOnLibsWithTags: ['type:feature', 'type:model', 'type:ui', 'type:util', 'type:domain'],
             },
             {
               sourceTag: 'type:ui',
@@ -35,7 +31,7 @@ export default [
             },
             {
               sourceTag: 'type:util',
-              onlyDependOnLibsWithTags: ['type:util'],
+              onlyDependOnLibsWithTags: ['type:util', 'type:domain'],
             },
             {
               sourceTag: 'type:feature',

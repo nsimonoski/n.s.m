@@ -55,7 +55,7 @@
         #renameInput
         class="inline-name-input"
         [value]="node.name"
-        (keydown)="onRenameKeydown($event, node)"
+        (keydown)="onRenameKeydown($event)"
         (blur)="onRenameBlur($event, node)"
         (click)="$event.stopPropagation()"
       />

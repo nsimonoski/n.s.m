@@ -79,11 +79,12 @@ export const FileExplorerStore = signalStore(
       }
 
       state.service.readDirectory(targetPath).subscribe((fetched) => {
-        if (!fetched || !state.directory()) {
+        const currentDir = state.directory();
+        if (!fetched || !currentDir) {
           return;
         }
         patchState(state, {
-          directory: refreshDirectoryInTree(state.directory()!, targetPath, fetched),
+          directory: refreshDirectoryInTree(currentDir, targetPath, fetched),
         });
       });
     };
@@ -97,11 +98,13 @@ export const FileExplorerStore = signalStore(
         const ancestors = FileUtils.getAncestorPaths(rootPath, filePath);
 
         for (const dirPath of ancestors) {
-          if (!FileUtils.isDirectoryLoaded(state.directory()!, dirPath)) {
+          const currentDir = state.directory();
+          if (!currentDir || !FileUtils.isDirectoryLoaded(currentDir, dirPath)) {
             const fetched = await firstValueFrom(state.service.readDirectory(dirPath));
-            if (state.directory()) {
+            const dirAfterFetch = state.directory();
+            if (dirAfterFetch) {
               patchState(state, {
-                directory: mergeDirectoryIntoTree(state.directory()!, fetched.path, fetched),
+                directory: mergeDirectoryIntoTree(dirAfterFetch, fetched.path, fetched),
               });
             }
           }
@@ -130,12 +133,13 @@ export const FileExplorerStore = signalStore(
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((fetched) => {
             tap(() => state.setLoading(false));
-            if (!fetched || !state.directory()) {
+            const currentDir = state.directory();
+            if (!fetched || !currentDir) {
               return;
             }
 
             patchState(state, {
-              directory: mergeDirectoryIntoTree(state.directory()!, fetched.path, fetched),
+              directory: mergeDirectoryIntoTree(currentDir, fetched.path, fetched),
             });
           }),
         ),

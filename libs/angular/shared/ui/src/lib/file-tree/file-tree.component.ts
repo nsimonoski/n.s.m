@@ -120,7 +120,7 @@ export class FileTreeComponent {
     this.inlineCreate.set(null);
   }
 
-  onRenameKeydown(event: KeyboardEvent, node: DirectoryResponseDto | FileResponseDto): void {
+  onRenameKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
       (event.target as HTMLInputElement).blur();
     } else if (event.key === 'Escape') {
