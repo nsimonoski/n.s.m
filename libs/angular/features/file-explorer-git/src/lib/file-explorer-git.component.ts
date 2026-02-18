@@ -7,9 +7,9 @@ import {
   ContextMenuComponent,
   ContextMenuItem,
   FileTreeComponent,
+  FileTreeNodeActionComponent,
   GIT_CONTEXT_MENU_ITEMS,
   NodeAction,
-  NodeActionsFn,
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
@@ -28,6 +28,7 @@ const CHANGES_ACTIONS: NodeAction[] = [
   standalone: true,
   imports: [
     FileTreeComponent,
+    FileTreeNodeActionComponent,
     ContextMenuComponent,
     ConfirmationDialogComponent,
     FileExplorerGitSyncComponent,
@@ -42,11 +43,11 @@ export class FileExplorerGitComponent {
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
 
-  readonly nodeActionsFn: NodeActionsFn = (node) => {
+  getNodeActions(node: DirectoryResponseDto | FileResponseDto): NodeAction[] {
     if (node.path.startsWith('/staged')) return STAGED_ACTIONS;
     if (node.path.startsWith('/changes')) return CHANGES_ACTIONS;
     return [];
-  };
+  }
 
   getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
     if (!node) {
@@ -74,8 +75,8 @@ export class FileExplorerGitComponent {
     this.handleAction(event.action, event.node);
   }
 
-  onNodeAction(event: { actionId: string; node: DirectoryResponseDto | FileResponseDto }): void {
-    this.handleAction(event.actionId as ContextMenuAction, event.node);
+  onNodeAction(actionId: string, node: DirectoryResponseDto | FileResponseDto): void {
+    this.handleAction(actionId as ContextMenuAction, node);
   }
 
   private handleAction(

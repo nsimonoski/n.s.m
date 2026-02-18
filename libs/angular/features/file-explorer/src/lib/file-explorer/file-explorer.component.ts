@@ -90,7 +90,9 @@ export class FileExplorerComponent {
         this.fileTree().startInlineCreate(event.node, 'directory');
         break;
       case ContextMenuAction.RENAME:
-        this.fileTree().renamingPath.set(event.node?.path ?? null);
+        if (event.node) {
+          this.fileTree().startRename(event.node);
+        }
         break;
       case ContextMenuAction.DELETE:
         this.handleDelete(event.node);

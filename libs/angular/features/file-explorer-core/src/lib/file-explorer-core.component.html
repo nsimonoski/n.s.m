@@ -17,8 +17,5 @@
 </div>
 
 @if (showGoToFile()) {
-  <ui-go-to-file
-    (fileSelected)="onFileSelected($event)"
-    (closed)="onGoToFileClosed()"
-  />
+  <ui-go-to-file (fileSelected)="onFileSelected($event)" (closed)="onGoToFileClosed()" />
 }

@@ -58,29 +58,11 @@ export const FileExplorerGitStore = signalStore(
     editorStore: inject(editor.EditorStore),
   })),
   withMethods((state) => {
-    const patchFromResponse = (response: {
-      branch: string;
-      tree: DirectoryResponseDto;
-      statusMap: Record<string, string>;
-      ahead: number;
-      behind: number;
-      stagedCount: number;
-      changesCount: number;
-    }) => {
-      patchState(state, {
-        branch: response.branch,
-        changesTree: response.tree,
-        statusMap: response.statusMap,
-        ahead: response.ahead,
-        behind: response.behind,
-        stagedCount: response.stagedCount,
-        changesCount: response.changesCount,
-      });
-      state.expandAll(collectDirectoryPaths(response.tree));
-    };
-
     const refreshStatus = () => {
-      state.service.getStatusTree(ROOT_PATH).subscribe(patchFromResponse);
+      state.service.getStatusTree(ROOT_PATH).subscribe(({ tree: changesTree, ...rest }) => {
+        patchState(state, { changesTree, ...rest });
+        state.expandAll(collectDirectoryPaths(changesTree));
+      });
     };
 
     return {
@@ -88,9 +70,10 @@ export const FileExplorerGitStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.getStatusTree(path)),
-          tap((response) => {
+          tap(({ tree: changesTree, ...rest }) => {
             state.setLoading(false);
-            patchFromResponse(response);
+            patchState(state, { changesTree, ...rest });
+            state.expandAll(collectDirectoryPaths(changesTree));
           }),
         ),
       ),
@@ -122,9 +105,10 @@ export const FileExplorerGitStore = signalStore(
               .commit(ROOT_PATH, message)
               .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
           ),
-          tap((response) => {
+          tap(({ tree: changesTree, ...rest }) => {
             state.saveToStorage({ commitMessage: '' });
-            patchFromResponse(response);
+            patchState(state, { changesTree, ...rest });
+            state.expandAll(collectDirectoryPaths(changesTree));
           }),
         ),
       ),
@@ -135,13 +119,16 @@ export const FileExplorerGitStore = signalStore(
               .push(ROOT_PATH)
               .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
           ),
-          tap(patchFromResponse),
+          tap(({ tree: changesTree, ...rest }) => {
+            patchState(state, { changesTree, ...rest });
+            state.expandAll(collectDirectoryPaths(changesTree));
+          }),
         ),
       ),
       listenToGitChanges: rxMethod<void>(
         pipe(
           switchMap(() => state.wsService.gitChanges$),
-          tap((event) => refreshStatus()),
+          tap(() => refreshStatus()),
         ),
       ),
       openDiff: rxMethod<string>(

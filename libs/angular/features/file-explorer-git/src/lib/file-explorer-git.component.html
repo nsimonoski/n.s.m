@@ -11,12 +11,21 @@
       [expandedPaths]="store.expandedPaths()"
       [selectedPath]="store.selectedPath()"
       [statusMap]="store.statusMap()"
-      [nodeActionsFn]="nodeActionsFn"
       (expandToggled)="store.toggleExpanded($event.path)"
       (nodeSelected)="store.selectNode($event.path)"
       (handleOpen)="onFileClick($event)"
-      (handleNodeAction)="onNodeAction($event)"
     >
+      <ng-template #nodeActions let-node>
+        @if (getNodeActions(node); as actions) {
+          @if (actions.length > 0) {
+            <ui-file-tree-node-action
+              [actions]="actions"
+              (actionClicked)="onNodeAction($event, node)"
+            />
+          }
+        }
+      </ng-template>
+
       <ng-template #contextMenu let-ctx let-close="close">
         <ui-context-menu
           [x]="ctx.x"
