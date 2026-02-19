@@ -33,6 +33,8 @@ export interface GitLogEntryDto {
 export interface GitBranchDto {
   name: string;
   current: boolean;
+  remote: boolean;
+  lastCommit: GitLogEntryDto;
 }
 
 export interface GitCloneRequestDto {

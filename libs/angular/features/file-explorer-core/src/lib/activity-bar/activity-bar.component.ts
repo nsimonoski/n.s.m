@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { FileExplorerCoreStore } from '../file-explorer-core.store';
-import { FileExplorerGitStore } from '@org/angular-file-explorer-git';
 
 interface PanelDefinition {
   id: string;
@@ -16,9 +15,8 @@ interface PanelDefinition {
 })
 export class ActivityBarComponent {
   readonly coreStore = inject(FileExplorerCoreStore);
-  private readonly gitStore = inject(FileExplorerGitStore);
 
-  readonly changeCount = computed(() => this.gitStore.stagedCount() + this.gitStore.changesCount());
+  readonly changeCount = computed(() => this.coreStore.stagedCount() + this.coreStore.changesCount());
 
   readonly panels: PanelDefinition[] = [
     { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },

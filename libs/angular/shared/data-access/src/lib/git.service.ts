@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  GitBranchDto,
   GitLogEntryDto,
   GitShowResponseDto,
   GitStatusDto,
@@ -82,5 +83,21 @@ export class GitService {
     return this.http.get<GitShowResponseDto>(`${this.API_BASE}/show`, {
       params: { path: repoPath, filePath },
     });
+  }
+
+  listBranches(path: string): Observable<GitBranchDto[]> {
+    return this.http.get<GitBranchDto[]>(`${this.API_BASE}/branches`, {
+      params: { path },
+    });
+  }
+
+  checkout(repoPath: string, branch: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/checkout`,
+      { branch },
+      {
+        params: { path: repoPath },
+      },
+    );
   }
 }

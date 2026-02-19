@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, Query, BadRequestException } from '@nestjs/common';
 import type {
+  GitBranchDto,
   GitCheckoutRequestDto,
   GitCloneRequestDto,
   GitCommitRequestDto,
@@ -43,6 +44,15 @@ export class GitController {
       stagedCount: status.staged.length,
       changesCount: status.unstaged.length + status.untracked.length,
     };
+  }
+
+  @Get('branches')
+  async branches(@Query('path') path: string): Promise<GitBranchDto[]> {
+    if (!path) {
+      throw new BadRequestException('Path is required');
+    }
+
+    return this.service.listBranches(path);
   }
 
   @Get('log')

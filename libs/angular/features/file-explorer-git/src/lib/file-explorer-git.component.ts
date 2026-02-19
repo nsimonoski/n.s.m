@@ -35,7 +35,6 @@ const CHANGES_ACTIONS: NodeAction[] = [
   ],
   templateUrl: './file-explorer-git.component.html',
   styleUrls: ['./file-explorer-git.component.scss'],
-  providers: [FileExplorerGitStore],
 })
 export class FileExplorerGitComponent {
   readonly store = inject(FileExplorerGitStore);

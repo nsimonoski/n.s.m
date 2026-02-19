@@ -10,6 +10,8 @@ import {
 } from '@nestjs/websockets';
 
 import { GIT_CHANGE_EVENT, GIT_WATCH_EVENT } from '@org/shared/contracts';
+import { GitTreeUtils } from '@org/shared/utils';
+import { GitProvider } from './domain/git.provider';
 
 const THROTTLE_MS = 1000;
 
@@ -31,6 +33,8 @@ export class GitGateway implements OnModuleDestroy {
   private gitWatcher: chokidar.FSWatcher | null = null;
   private workingTreeWatcher: chokidar.FSWatcher | null = null;
   private throttleTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(private readonly gitProvider: GitProvider) {}
 
   @WebSocketServer()
   server!: Server;
@@ -71,21 +75,34 @@ export class GitGateway implements OnModuleDestroy {
 
     this.gitWatcher.on('all', (event, filePath) => {
       this.logger.debug(`Git internal: ${event} ${filePath}`);
-      this.scheduleEmit();
+      this.scheduleEmit(repoPath);
     });
 
     this.workingTreeWatcher.on('all', (event, filePath) => {
       this.logger.debug(`Working tree: ${event} ${filePath}`);
-      this.scheduleEmit();
+      this.scheduleEmit(repoPath);
     });
   }
 
-  private scheduleEmit() {
+  private scheduleEmit(repoPath: string) {
     if (this.throttleTimer) return;
-    this.throttleTimer = setTimeout(() => {
+    this.throttleTimer = setTimeout(async () => {
       this.throttleTimer = null;
-      this.logger.debug('Emitting git change event');
-      this.server.emit(GIT_CHANGE_EVENT);
+      try {
+        const status = await this.gitProvider.status(repoPath);
+        const payload = {
+          branch: status.branch,
+          tree: GitTreeUtils.buildGitChangesTree(status),
+          statusMap: GitTreeUtils.buildGitStatusMap(status),
+          ahead: status.ahead,
+          behind: status.behind,
+          stagedCount: status.staged.length,
+          changesCount: status.unstaged.length + status.untracked.length,
+        };
+        this.server.emit(GIT_CHANGE_EVENT, payload);
+      } catch (error) {
+        this.logger.error('Failed to compute git status for WS event', error);
+      }
     }, THROTTLE_MS);
   }
 

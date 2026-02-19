@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { simpleGit, SimpleGit } from 'simple-git';
-import type { GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type { GitBranchDto, GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
 import { GitFileStatus } from '@org/shared/contracts';
 import { GitProvider } from '../domain/git.provider';
 
@@ -22,14 +22,46 @@ export class SimpleGitProvider extends GitProvider {
           result.files
             .filter((f) => f.index !== ' ' && f.index !== '?')
             .map((f) => ({ path: f.path, index: f.index, working_dir: f.working_dir })),
+          'index',
         ),
         unstaged: this.mapFileChanges(
           result.files
             .filter((f) => f.working_dir !== ' ' && f.working_dir !== '?')
             .map((f) => ({ path: f.path, index: f.index, working_dir: f.working_dir })),
+          'working_dir',
         ),
         untracked: result.not_added,
       };
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async listBranches(repoPath: string): Promise<GitBranchDto[]> {
+    try {
+      const git = this.git(repoPath);
+      const result = await git.branch(['-a']);
+
+      const branches = await Promise.all(
+        result.all.map(async (name) => {
+          const log = await git.log({ maxCount: 1, from: name });
+          const latest = log.latest;
+
+          return {
+            name: name.replace(/^remotes\//, ''),
+            current: name === result.current,
+            remote: name.startsWith('remotes/'),
+            lastCommit: {
+              hash: latest?.hash ?? '',
+              message: latest?.message ?? '',
+              author: latest?.author_name ?? '',
+              date: latest?.date ?? '',
+            },
+          };
+        }),
+      );
+
+      return branches;
     } catch (error) {
       throw this.mapError(error);
     }
@@ -161,10 +193,11 @@ export class SimpleGitProvider extends GitProvider {
 
   private mapFileChanges(
     files: { path: string; index: string; working_dir: string }[],
+    source: 'index' | 'working_dir',
   ): GitFileChange[] {
     return files.map((file) => ({
       path: file.path,
-      status: this.mapStatusCode(file.index || file.working_dir),
+      status: this.mapStatusCode(file[source]),
     }));
   }
 

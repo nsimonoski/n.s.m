@@ -65,7 +65,7 @@
         <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: node }" />
       }
       @if (statusMap()[node.path]; as status) {
-        <span class="status-badge">{{ status }}</span>
+        <span class="status-badge status-{{ status }}">{{ status }}</span>
       }
     }
   </div>

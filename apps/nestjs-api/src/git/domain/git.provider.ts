@@ -1,7 +1,8 @@
-import type { GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type { GitBranchDto, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
 
 export abstract class GitProvider {
   abstract status(repoPath: string): Promise<GitStatusDto>;
+  abstract listBranches(repoPath: string): Promise<GitBranchDto[]>;
   abstract log(repoPath: string, limit?: number): Promise<GitLogEntryDto[]>;
   abstract clone(url: string, path: string): Promise<void>;
   abstract checkout(repoPath: string, branch: string): Promise<void>;

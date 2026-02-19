@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MonacoUtils } from '@org/shared/utils';
+import { FileResponseDto } from '@org/shared/contracts';
 import { editor } from '@org/angular-utils';
+import { FileExplorerService } from '@org/angular-data-access';
 import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
 
 @Component({
@@ -10,6 +12,7 @@ import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
   styleUrls: ['./monaco-editor.component.scss'],
 })
 export class MonacoEditorComponent extends MonacoBaseComponent {
+  private readonly fileService = inject(FileExplorerService);
   private monacoEditor: MonacoUtils.CodeEditor | null = null;
   private models = new Map<string, MonacoUtils.TextModel>();
   private onDidChangeDisposable: MonacoUtils.Disposable | null = null;
@@ -31,7 +34,7 @@ export class MonacoEditorComponent extends MonacoBaseComponent {
       this.loader.getKeyMod().CtrlCmd | this.loader.getKeyCode().KeyS,
       () => {
         const path = this.store.activeFilePath();
-        if (path) this.store.saveFile(path);
+        if (path) this.saveFile(path);
       },
     );
   }
@@ -67,5 +70,19 @@ export class MonacoEditorComponent extends MonacoBaseComponent {
     this.models.forEach((model) => model.dispose());
     this.models.clear();
     this.monacoEditor?.dispose();
+  }
+
+  private saveFile(path: string): void {
+    const file = this.store.openFiles().find((f) => f.path === path);
+    if (!file) return;
+
+    this.fileService
+      .updateFile({
+        name: file.name,
+        path: file.path,
+        content: file.currentContent,
+        type: file.type,
+      } as FileResponseDto)
+      .subscribe((saved) => this.store.markSaved(saved));
   }
 }

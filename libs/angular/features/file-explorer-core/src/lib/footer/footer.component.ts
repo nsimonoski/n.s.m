@@ -1,12 +1,29 @@
-import { Component, inject } from '@angular/core';
-import { FileExplorerGitStore } from '@org/angular-file-explorer-git';
+import { Component, inject, signal } from '@angular/core';
+import { BranchPickerComponent } from '../branch-picker/branch-picker.component';
+import { FileExplorerCoreStore } from '../file-explorer-core.store';
 
 @Component({
   selector: 'ide-footer',
   standalone: true,
+  imports: [BranchPickerComponent],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent {
-  readonly gitStore = inject(FileExplorerGitStore);
+  readonly coreStore = inject(FileExplorerCoreStore);
+  readonly branchPickerOpen = signal(false);
+
+  openBranchPicker(): void {
+    this.coreStore.listBranches();
+    this.branchPickerOpen.set(true);
+  }
+
+  onBranchSelected(branchName: string): void {
+    this.branchPickerOpen.set(false);
+    this.coreStore.checkout(branchName);
+  }
+
+  closeBranchPicker(): void {
+    this.branchPickerOpen.set(false);
+  }
 }

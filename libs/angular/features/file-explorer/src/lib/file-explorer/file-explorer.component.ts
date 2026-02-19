@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, effect, inject, input, viewChild } from '@angular/core';
 
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { FileExplorerStore } from './file-explorer.store';
@@ -23,6 +23,17 @@ import {
 export class FileExplorerComponent {
   readonly store = inject(FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
+  readonly fileToOpen = input<FileResponseDto | null>(null);
+
+  constructor() {
+    effect(() => {
+      const file = this.fileToOpen();
+      if (file) {
+        this.store.getFile(file.path);
+        this.store.revealFile(file.path);
+      }
+    });
+  }
 
   onExpandToggled(node: DirectoryResponseDto): void {
     this.store.toggleExpanded(node.path);
