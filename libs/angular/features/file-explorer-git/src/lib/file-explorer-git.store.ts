@@ -10,8 +10,8 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { forkJoin, pipe, switchMap, tap } from 'rxjs';
 import { DirectoryResponseDto } from '@org/shared/contracts';
-import { editor, partialStore } from '@org/angular-utils';
-import { FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
+import { partialStore } from '@org/angular-utils';
+import { editor, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
@@ -47,7 +47,7 @@ export const FileExplorerGitStore = signalStore(
     service: inject(GitService),
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
-    editorStore: inject(editor.EditorStore),
+    editorStore: inject(editor.CodeEditorStore),
   })),
   withMethods((state) => ({
     getStatus: rxMethod<string>(
@@ -98,15 +98,7 @@ export const FileExplorerGitStore = signalStore(
           }),
         ),
         tap(({ headContent, currentFile }) => {
-          const ext = currentFile.extension ?? currentFile.name.split('.').pop() ?? '';
-          const language = editor.getMonacoLanguage(currentFile.type, ext);
-          state.editorStore.openDiff(
-            currentFile.path,
-            currentFile.name,
-            headContent.content,
-            currentFile.content ?? '',
-            language,
-          );
+          state.editorStore.openDiff(currentFile, headContent.content);
         }),
       ),
     ),

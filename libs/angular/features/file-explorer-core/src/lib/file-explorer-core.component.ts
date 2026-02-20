@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { FileResponseDto } from '@org/shared/contracts';
-import { FileExplorerComponent } from '@org/angular-file-explorer';
-import { FileExplorerGitComponent } from '@org/angular-file-explorer-git';
 import { FilePickerComponent } from './file-picker/file-picker.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
@@ -11,10 +10,9 @@ import { FileExplorerCoreStore } from './file-explorer-core.store';
   selector: 'ide-file-explorer-core',
   standalone: true,
   imports: [
+    RouterOutlet,
     ActivityBarComponent,
     FooterComponent,
-    FileExplorerComponent,
-    FileExplorerGitComponent,
     FilePickerComponent,
   ],
   templateUrl: './file-explorer-core.component.html',
@@ -26,7 +24,6 @@ import { FileExplorerCoreStore } from './file-explorer-core.store';
 export class FileExplorerCoreComponent {
   readonly coreStore = inject(FileExplorerCoreStore);
   readonly showFilePicker = signal(false);
-  readonly fileToOpen = signal<FileResponseDto | null>(null);
 
   private resizing = false;
   private startX = 0;
@@ -44,8 +41,7 @@ export class FileExplorerCoreComponent {
 
   onFileSelected(file: FileResponseDto): void {
     this.showFilePicker.set(false);
-    this.coreStore.setActivePanel('explorer');
-    this.fileToOpen.set(file);
+    this.coreStore.openFile(file.path);
   }
 
   onFilePickerClosed(): void {

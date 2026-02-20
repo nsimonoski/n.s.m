@@ -2,14 +2,7 @@
   <div class="main-area">
     <ide-activity-bar />
     <div class="panel-content" [style.width.px]="coreStore.width()">
-      @switch (coreStore.activePanel()) {
-        @case ('explorer') {
-          <ide-file-explorer [fileToOpen]="fileToOpen()" />
-        }
-        @case ('git') {
-          <ide-file-explorer-git />
-        }
-      }
+      <router-outlet />
       <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
     </div>
   </div>

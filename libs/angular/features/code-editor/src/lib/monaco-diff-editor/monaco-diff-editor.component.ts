@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MonacoUtils } from '@org/shared/utils';
-import { editor } from '@org/angular-utils';
+import { editor } from '@org/angular-data-access';
 import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
 
 @Component({

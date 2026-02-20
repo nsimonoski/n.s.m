@@ -1,7 +1,8 @@
-import { inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
+  withComputed,
   withHooks,
   withMethods,
   withProps,
@@ -17,7 +18,6 @@ const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
 interface FileExplorerCoreState {
   width: number;
-  activePanel: string;
   branch: string;
   branches: GitBranchDto[];
   searchResults: FileResponseDto[];
@@ -30,7 +30,6 @@ export const FileExplorerCoreStore = signalStore(
   { providedIn: 'root' },
   withState<FileExplorerCoreState>({
     width: 300,
-    activePanel: 'explorer',
     branch: '',
     branches: [],
     searchResults: [],
@@ -39,17 +38,24 @@ export const FileExplorerCoreStore = signalStore(
     changesCount: 0,
   }),
   partialStore.withBrowserStorage({ key: 'file-explorer-core', debounce: 300 }),
+  partialStore.withRouting(),
   withProps(() => ({
     gitService: inject(GitService),
     fileService: inject(FileExplorerService),
     wsService: inject(GitWsService),
   })),
+  withComputed((store) => ({
+    activePanel: computed(() => (store.currentUrl().startsWith('/git') ? 'git' : 'explorer')),
+  })),
   withMethods((store) => ({
     setWidth: (width: number) => {
       store.saveToStorage({ width });
     },
-    setActivePanel: (activePanel: string) => {
-      store.saveToStorage({ activePanel });
+    setActivePanel: (panel: string) => {
+      store.navigate('/' + panel);
+    },
+    openFile: (path: string) => {
+      store.navigate('/explorer?filePath=' + encodeURIComponent(path));
     },
     listBranches: rxMethod<void>(
       pipe(
@@ -72,6 +78,14 @@ export const FileExplorerCoreStore = signalStore(
     clearSearchResults: () => {
       patchState(store, { searchResults: [], searchLoading: false });
     },
+    loadGitStatus: rxMethod<void>(
+      pipe(
+        switchMap(() => store.gitService.getStatusTree(ROOT_PATH)),
+        tap(({ branch, stagedCount, changesCount }) => {
+          patchState(store, { branch, stagedCount, changesCount });
+        }),
+      ),
+    ),
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => store.wsService.gitChanges$),
@@ -97,7 +111,9 @@ export const FileExplorerCoreStore = signalStore(
   withHooks({
     onInit(store) {
       store.loadFromStorage();
+      store.wsService.watchPath(ROOT_PATH);
       store.listBranches();
+      store.loadGitStatus();
       store.listenToGitChanges();
     },
   }),

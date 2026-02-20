@@ -11,7 +11,7 @@
       (expandToggled)="onExpandToggled($event)"
       (nodeSelected)="onNodeSelected($event)"
       (handleDelete)="handleDelete($event)"
-      (handleOpen)="store.getFile($event!.path)"
+      (handleOpen)="store.navigateToFile($event!.path)"
       (handleRename)="store.rename({ path: $event.node.path, newName: $event.newName })"
       (handleExpand)="store.expandDirectory($event.path)"
       (handleInlineCreate)="handleInlineCreate($event)"

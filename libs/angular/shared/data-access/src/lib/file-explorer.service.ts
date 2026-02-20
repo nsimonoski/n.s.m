@@ -21,6 +21,12 @@ export class FileExplorerService {
     });
   }
 
+  getFiles(paths: string[]): Observable<FileResponseDto[]> {
+    return this.http.post<FileResponseDto[]>(`${this.API_BASE}/files`, {
+      paths: paths.map(encodeURIComponent),
+    });
+  }
+
   updateFile(file: FileResponseDto): Observable<FileResponseDto> {
     return this.http.put<FileResponseDto>(`${this.API_BASE}/file`, file);
   }

@@ -47,6 +47,15 @@ export class FileExplorerController {
     );
   }
 
+  @Post('files')
+  async getFiles(@Body('paths') paths: string[]): Promise<FileResponseDto[]> {
+    if (!paths || paths.length === 0) {
+      throw new BadRequestException('Paths array is required');
+    }
+
+    return this.service.getFiles(paths.map(decodeURIComponent));
+  }
+
   @Get('file')
   async getFile(@Query('path') id: string): Promise<FileResponseDto> {
     const file = await this.service.getFile(decodeURIComponent(id));

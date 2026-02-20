@@ -59,6 +59,17 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
   }
 
+  async getFiles(paths: string[]): Promise<FileResponseDto[]> {
+    const results: FileResponseDto[] = [];
+    for (const filePath of paths) {
+      const file = await this.getFile(filePath);
+      if (file) {
+        results.push(file);
+      }
+    }
+    return results;
+  }
+
   async updateFile(fileDto: FileResponseDto): Promise<FileResponseDto> {
     try {
       const stat = await fs.stat(fileDto.path);
@@ -67,10 +78,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
         throw new BadRequestException(`File not found: ${fileDto.path}`);
       }
 
-      await fs.writeFile(fileDto.path, fileDto.content ?? '');
+      const content = await this.formatWithPrettier(fileDto.path, fileDto.content ?? '');
+      await fs.writeFile(fileDto.path, content);
 
       const updatedStat = await fs.stat(fileDto.path);
-      return this.toFileDto(fileDto.path, updatedStat, { content: fileDto.content });
+      return this.toFileDto(fileDto.path, updatedStat, { content });
     } catch (error) {
       throw this.errorMapper.mapFsError(error);
     }
@@ -196,6 +208,18 @@ export class LocalFileSystemProvider extends FileSystemProvider {
     }
 
     return results;
+  }
+
+  private async formatWithPrettier(filePath: string, content: string): Promise<string> {
+    try {
+      const prettier = await import('prettier');
+      const config = await prettier.resolveConfig(filePath);
+      if (!config) return content;
+
+      return prettier.format(content, { ...config, filepath: filePath });
+    } catch {
+      return content;
+    }
   }
 
   private async getGitIgnoredPaths(dirPath: string, paths: string[]): Promise<Set<string>> {

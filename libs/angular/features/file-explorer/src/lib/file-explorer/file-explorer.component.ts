@@ -1,7 +1,7 @@
-import { Component, effect, inject, input, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
-import { FileExplorerStore } from './file-explorer.store';
+import { FileExplorerStore } from '@org/angular-data-access';
 import {
   ConfirmationDialogComponent,
   ContextMenuAction,
@@ -23,17 +23,6 @@ import {
 export class FileExplorerComponent {
   readonly store = inject(FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
-  readonly fileToOpen = input<FileResponseDto | null>(null);
-
-  constructor() {
-    effect(() => {
-      const file = this.fileToOpen();
-      if (file) {
-        this.store.getFile(file.path);
-        this.store.revealFile(file.path);
-      }
-    });
-  }
 
   onExpandToggled(node: DirectoryResponseDto): void {
     this.store.toggleExpanded(node.path);
@@ -109,7 +98,7 @@ export class FileExplorerComponent {
         this.handleDelete(event.node);
         break;
       case ContextMenuAction.OPEN:
-        if (event.node) this.store.getFile(event.node.path);
+        if (event.node) this.store.navigateToFile(event.node.path);
         break;
     }
   }

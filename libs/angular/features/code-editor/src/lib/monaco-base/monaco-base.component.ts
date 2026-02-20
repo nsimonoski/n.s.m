@@ -7,12 +7,12 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { editor } from '@org/angular-utils';
+import { editor } from '@org/angular-data-access';
 import { MonacoService } from '../services/monaco.service';
 
 @Directive()
 export abstract class MonacoBaseComponent implements OnDestroy {
-  protected readonly store = inject(editor.EditorStore);
+  protected readonly store = inject(editor.CodeEditorStore);
   protected readonly container = viewChild.required<ElementRef<HTMLElement>>('editorContainer');
   protected readonly loader = inject(MonacoService);
 

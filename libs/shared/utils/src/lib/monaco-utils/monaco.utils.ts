@@ -14,7 +14,7 @@ export const BASE_EDITOR_OPTIONS: EditorOptions = {
   scrollBeyondLastLine: false,
 };
 
-export class MonacoService {
+export class MonacoUtils {
   protected _monaco: typeof Monaco | null = null;
   private _loading: Promise<typeof Monaco> | null = null;
 

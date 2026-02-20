@@ -11,11 +11,10 @@ import {
 
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
-import { FileExplorerService } from '@org/angular-data-access';
-import { FileExplorerWsService } from '../data-access/services/file-explorer-ws.service';
-import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
-import { editor } from '@org/angular-utils';
 import { partialStore } from '@org/angular-utils';
+import { distinctUntilChanged, filter, firstValueFrom, map, pipe, switchMap, tap } from 'rxjs';
+import { FileExplorerService } from './file-explorer.service';
+import { FileExplorerWsService } from './file-explorer-ws.service';
 
 interface FileExplorerComponentState {
   directory: DirectoryResponseDto | null;
@@ -65,10 +64,10 @@ export const FileExplorerStore = signalStore(
   partialStore.withLoading(),
   partialStore.withDialog(),
   partialStore.withFileTree(),
+  partialStore.withRouting(),
   withProps(() => ({
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
-    editorStore: inject(editor.EditorStore),
   })),
   withMethods((state) => {
     const refreshParentDirectory = (childPath: string) => {
@@ -91,6 +90,9 @@ export const FileExplorerStore = signalStore(
 
     return {
       refreshParentDirectory,
+      navigateToFile: (filePath: string) => {
+        state.navigate('/explorer?filePath=' + encodeURIComponent(filePath));
+      },
       revealFile: async (filePath: string) => {
         const rootPath = state.directory()?.path;
         if (!rootPath) return;
@@ -155,21 +157,6 @@ export const FileExplorerStore = signalStore(
             }
 
             patchState(state, { file });
-            state.editorStore.openFile(file);
-          }),
-        ),
-      ),
-      updateFile: rxMethod<FileResponseDto>(
-        pipe(
-          tap(() => state.setLoading()),
-          switchMap((file: FileResponseDto) => state.service.updateFile(file)),
-          tap((file) => {
-            tap(() => state.setLoading(false));
-            if (!file) {
-              return;
-            }
-
-            patchState(state, { file, loading: false });
           }),
         ),
       ),
@@ -234,12 +221,28 @@ export const FileExplorerStore = signalStore(
       ),
     };
   }),
+  withMethods((state) => ({
+    listenToFileOpen: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          state.navigationEnd$.pipe(
+            map((event) =>
+              new URL(event.urlAfterRedirects, location.origin).searchParams.get('filePath'),
+            ),
+            filter((filePath): filePath is string => !!filePath),
+            distinctUntilChanged(),
+          ),
+        ),
+        tap((filePath) => state.revealFile(filePath)),
+      ),
+    ),
+  })),
   withHooks({
     onInit(state) {
       state.getDirectory(ROOT_PATH);
       state.wsService.watchPath(ROOT_PATH);
-
       state.listenToFileChanges();
+      state.listenToFileOpen();
     },
   }),
 );

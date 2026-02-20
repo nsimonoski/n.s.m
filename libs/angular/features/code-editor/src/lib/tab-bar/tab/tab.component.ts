@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { editor } from '@org/angular-utils';
+import { editor } from '@org/angular-data-access';
 
 @Component({
   selector: 'ide-tab',
