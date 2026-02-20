@@ -17,7 +17,7 @@ export class FileExplorerGitSyncComponent {
     return tree?.directories.some((d) => d.path === '/staged') ?? false;
   });
   readonly hasPendingSync = computed(() => this.store.ahead() > 0 && !this.hasStagedFiles());
-  readonly syncLabel = computed(() => `Sync Changes (${this.store.ahead()})`);
+  readonly syncLabel = computed(() => `Push (${this.store.ahead()})`);
 
   onSync(): void {
     if (this.hasPendingSync()) {
