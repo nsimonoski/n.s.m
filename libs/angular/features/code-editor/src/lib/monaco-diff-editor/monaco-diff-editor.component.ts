@@ -10,53 +10,21 @@ import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
   styleUrls: ['./monaco-diff-editor.component.scss'],
 })
 export class MonacoDiffEditorComponent extends MonacoBaseComponent {
-  private diffEditor: MonacoUtils.DiffEditor | null = null;
+  private diffEditor = new MonacoUtils.MonacoDiffEditorUtils(this.loader);
 
   protected isReady(): boolean {
-    return !!this.diffEditor;
+    return this.diffEditor.isReady;
   }
 
   protected createEditor(container: HTMLElement): void {
-    this.diffEditor = this.loader.createDiffEditor(container, {
-      ...MonacoUtils.BASE_EDITOR_OPTIONS,
-      readOnly: true,
-      renderSideBySide: true,
-      minimap: { enabled: false },
-    });
+    this.diffEditor.create(container);
   }
 
   protected switchToFile(file: editor.OpenFile | null): void {
-    if (!this.diffEditor) return;
-
-    if (!file || file.mode !== 'diff') return;
-
-    const previousModel = this.diffEditor.getModel();
-
-    const originalModel = this.loader.createModel(
-      file.originalContent,
-      file.language,
-      this.loader.parseUri(`diff-original://${file.path}`),
-    );
-
-    const modifiedModel = this.loader.createModel(
-      file.currentContent,
-      file.language,
-      this.loader.parseUri(`diff-modified://${file.path}`),
-    );
-
-    this.diffEditor.setModel({
-      original: originalModel,
-      modified: modifiedModel,
-    });
-
-    previousModel?.original?.dispose();
-    previousModel?.modified?.dispose();
+    this.diffEditor.switchToFile(file);
   }
 
   ngOnDestroy(): void {
-    const model = this.diffEditor?.getModel();
-    model?.original?.dispose();
-    model?.modified?.dispose();
-    this.diffEditor?.dispose();
+    this.diffEditor.dispose();
   }
 }

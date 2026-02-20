@@ -10,68 +10,30 @@ import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
   styleUrls: ['./monaco-editor.component.scss'],
 })
 export class MonacoEditorComponent extends MonacoBaseComponent {
-  private monacoEditor: MonacoUtils.CodeEditor | null = null;
-  private models = new Map<string, MonacoUtils.TextModel>();
-  private onDidChangeDisposable: MonacoUtils.Disposable | null = null;
+  private monacoEditor = new MonacoUtils.MonacoEditorUtils(this.loader);
 
   protected isReady(): boolean {
-    return !!this.monacoEditor;
+    return this.monacoEditor.isReady;
   }
 
   protected createEditor(container: HTMLElement): void {
-    this.monacoEditor = this.loader.createEditor(container, {
-      ...MonacoUtils.BASE_EDITOR_OPTIONS,
-      minimap: { enabled: true },
-      lineNumbers: 'on',
-      renderWhitespace: 'selection',
-      tabSize: 2,
-    });
-
-    this.monacoEditor.addCommand(
-      this.loader.getKeyMod().CtrlCmd | this.loader.getKeyCode().KeyS,
-      () => {
-        const path = this.store.activeFilePath();
-        if (path) this.saveFile(path);
-      },
-    );
+    this.monacoEditor.create(container, this.save);
   }
 
   protected switchToFile(file: editor.OpenFile | null): void {
-    if (!this.monacoEditor) return;
-
-    this.onDidChangeDisposable?.dispose();
-    this.onDidChangeDisposable = null;
-
-    if (!file) {
-      this.monacoEditor.setModel(null);
-      return;
-    }
-
-    let model = this.models.get(file.path);
-    if (!model || model.isDisposed()) {
-      const uri = this.loader.parseUri(`file://${file.path}`);
-      model = this.loader.createModel(file.currentContent, file.language, uri);
-      this.models.set(file.path, model);
-    } else if (model.getValue() !== file.currentContent) {
-      model.setValue(file.currentContent);
-    }
-
-    this.monacoEditor.setModel(model);
-
-    const currentModel = model;
-    this.onDidChangeDisposable = currentModel.onDidChangeContent(() => {
-      this.store.updateContent(file.path, currentModel.getValue());
-    });
+    this.monacoEditor.switchToFile(file, this.onContentChange);
   }
 
   ngOnDestroy(): void {
-    this.onDidChangeDisposable?.dispose();
-    this.models.forEach((model) => model.dispose());
-    this.models.clear();
-    this.monacoEditor?.dispose();
+    this.monacoEditor.dispose();
   }
 
-  private saveFile(path: string): void {
-    this.store.saveFile(path);
-  }
+  private save = (): void => {
+    const path = this.store.activeFilePath();
+    if (path) this.store.saveFile(path);
+  };
+
+  private onContentChange = (path: string, value: string): void => {
+    this.store.updateContent(path, value);
+  };
 }

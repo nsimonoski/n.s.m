@@ -8,3 +8,6 @@ export type {
   Disposable,
 } from './monaco.utils';
 export { getMonacoLanguage } from './language-map';
+export { MonacoDiffEditorUtils } from './monaco-diff-editor.utils';
+export { MonacoEditorUtils } from './monaco-editor.utils';
+export type { MonacoFile } from './monaco-diff-editor.utils';
