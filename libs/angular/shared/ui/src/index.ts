@@ -6,3 +6,5 @@ export * from './lib/context-menu/context-menu.component';
 export * from './lib/confirmation-dialog/confirmation-dialog.component';
 export * from './lib/command-palette/command-palette.component';
 export * from './lib/command-palette/command-palette.model';
+export * from './lib/snackbar/snackbar.service';
+export * from './lib/snackbar/snackbar.component';

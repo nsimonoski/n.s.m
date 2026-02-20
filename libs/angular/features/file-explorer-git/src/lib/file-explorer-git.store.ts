@@ -12,6 +12,7 @@ import { forkJoin, pipe, switchMap, tap } from 'rxjs';
 import { DirectoryResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
 import { editor, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
+import { SnackbarService } from '@org/angular/ui';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
@@ -48,6 +49,7 @@ export const FileExplorerGitStore = signalStore(
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
     editorStore: inject(editor.CodeEditorStore),
+    snackbar: inject(SnackbarService),
   })),
   withMethods((state) => ({
     getStatus: rxMethod<string>(
@@ -76,10 +78,18 @@ export const FileExplorerGitStore = signalStore(
     commit: rxMethod<string>(
       pipe(
         switchMap((message: string) => state.service.commit(ROOT_PATH, message)),
-        tap(() => state.saveToStorage({ commitMessage: '' })),
+        tap(() => {
+          state.saveToStorage({ commitMessage: '' });
+          state.snackbar.success('Committed!');
+        }),
       ),
     ),
-    sync: rxMethod<void>(pipe(switchMap(() => state.service.push(ROOT_PATH)))),
+    sync: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.push(ROOT_PATH)),
+        tap(() => state.snackbar.success('Pushed!')),
+      ),
+    ),
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => state.wsService.gitChanges$),

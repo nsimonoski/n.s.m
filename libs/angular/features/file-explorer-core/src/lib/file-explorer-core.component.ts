@@ -4,6 +4,7 @@ import { FileResponseDto } from '@org/shared/contracts';
 import { FilePickerComponent } from './file-picker/file-picker.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
+import { SnackbarComponent } from '@org/angular/ui';
 import { FileExplorerCoreStore } from './file-explorer-core.store';
 
 @Component({
@@ -14,6 +15,7 @@ import { FileExplorerCoreStore } from './file-explorer-core.store';
     ActivityBarComponent,
     FooterComponent,
     FilePickerComponent,
+    SnackbarComponent,
   ],
   templateUrl: './file-explorer-core.component.html',
   styleUrls: ['./file-explorer-core.component.scss'],
