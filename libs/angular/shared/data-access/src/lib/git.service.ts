@@ -85,6 +85,18 @@ export class GitService {
     });
   }
 
+  stash(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash`, {}, { params: { path: repoPath } });
+  }
+
+  stashPop(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash/pop`, {}, { params: { path: repoPath } });
+  }
+
+  stashApply(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash/apply`, {}, { params: { path: repoPath } });
+  }
+
   listBranches(path: string): Observable<GitBranchDto[]> {
     return this.http.get<GitBranchDto[]>(`${this.API_BASE}/branches`, {
       params: { path },

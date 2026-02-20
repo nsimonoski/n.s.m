@@ -233,7 +233,9 @@ export const CodeEditorStore = signalStore(
           patchState(state, { openFiles });
           if (activePath) {
             state.saveToStorage({ activeFilePath: activePath });
-            state.navigate('/explorer?filePath=' + encodeURIComponent(activePath));
+            if (state.currentUrl().startsWith('/explorer')) {
+              state.navigate('/explorer?filePath=' + encodeURIComponent(activePath));
+            }
           }
         }),
       ),

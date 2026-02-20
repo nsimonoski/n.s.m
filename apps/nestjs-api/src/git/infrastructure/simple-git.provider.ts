@@ -92,7 +92,18 @@ export class SimpleGitProvider extends GitProvider {
 
   async checkout(repoPath: string, branch: string): Promise<void> {
     try {
-      await this.git(repoPath).checkout(branch);
+      const git = this.git(repoPath);
+      const localName = branch.replace(/^origin\//, '');
+
+      if (localName !== branch) {
+        const locals = await git.branchLocal();
+        if (!locals.all.includes(localName)) {
+          await git.checkout(['-b', localName, branch]);
+          return;
+        }
+      }
+
+      await git.checkout(localName);
     } catch (error) {
       throw this.mapError(error);
     }
@@ -178,6 +189,30 @@ export class SimpleGitProvider extends GitProvider {
   async undoCommit(repoPath: string): Promise<void> {
     try {
       await this.git(repoPath).reset(['--soft', 'HEAD~1']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stash(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['push']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stashPop(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['pop']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stashApply(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['apply']);
     } catch (error) {
       throw this.mapError(error);
     }

@@ -6,6 +6,8 @@ import {
   ContextMenuActionEvent,
   ContextMenuComponent,
   ContextMenuItem,
+  DropdownMenuComponent,
+  DropdownMenuItem,
   FileTreeComponent,
   FileTreeNodeActionComponent,
   GIT_CONTEXT_MENU_ITEMS,
@@ -13,6 +15,13 @@ import {
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
+
+enum HeaderAction {
+  Stash = 'stash',
+  StashAll = 'stash-all',
+  StashPop = 'stash-pop',
+  StashApply = 'stash-apply',
+}
 
 const STAGED_ACTIONS: NodeAction[] = [
   { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
@@ -31,6 +40,7 @@ const CHANGES_ACTIONS: NodeAction[] = [
     FileTreeNodeActionComponent,
     ContextMenuComponent,
     ConfirmationDialogComponent,
+    DropdownMenuComponent,
     FileExplorerGitSyncComponent,
   ],
   templateUrl: './file-explorer-git.component.html',
@@ -38,6 +48,18 @@ const CHANGES_ACTIONS: NodeAction[] = [
 })
 export class FileExplorerGitComponent {
   readonly store = inject(FileExplorerGitStore);
+
+  readonly headerMenuItems: DropdownMenuItem[] = [
+    {
+      id: HeaderAction.Stash,
+      label: 'Stash',
+      children: [
+        { id: HeaderAction.StashAll, label: 'Stash All Changes' },
+        { id: HeaderAction.StashPop, label: 'Pop Stash' },
+        { id: HeaderAction.StashApply, label: 'Apply Stash' },
+      ],
+    },
+  ];
 
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
@@ -106,6 +128,20 @@ export class FileExplorerGitComponent {
   onDiscardConfirmed(): void {
     this.store.discard(this.pendingDiscardPaths);
     this.closeDiscardDialog();
+  }
+
+  onHeaderAction(id: string): void {
+    switch (id) {
+      case HeaderAction.StashAll:
+        this.store.stash();
+        break;
+      case HeaderAction.StashPop:
+        this.store.stashPop();
+        break;
+      case HeaderAction.StashApply:
+        this.store.stashApply();
+        break;
+    }
   }
 
   closeDiscardDialog(): void {

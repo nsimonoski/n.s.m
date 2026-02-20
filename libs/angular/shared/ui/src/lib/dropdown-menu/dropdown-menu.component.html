@@ -1,0 +1,9 @@
+<button class="trigger" (click)="toggle()" title="More Actions">
+  <i class="codicon codicon-ellipsis"></i>
+</button>
+
+@if (isOpen()) {
+  <div class="dropdown">
+    <ui-dropdown-menu-panel [items]="items()" (actionClicked)="onAction($event)" />
+  </div>
+}

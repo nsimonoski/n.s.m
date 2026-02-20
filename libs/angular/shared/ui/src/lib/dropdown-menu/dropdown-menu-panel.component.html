@@ -1,0 +1,15 @@
+@for (item of items(); track item.id) {
+  <button class="dropdown-item" (click)="onItemClick(item)">
+    <span>{{ item.label }}</span>
+    @if (item.children?.length) {
+      <i class="codicon codicon-chevron-right"></i>
+    }
+  </button>
+
+  @if (item.children?.length && expandedItemId() === item.id) {
+    <ui-dropdown-menu-panel
+      [items]="item.children"
+      (actionClicked)="onChildAction($event)"
+    />
+  }
+}

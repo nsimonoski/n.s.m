@@ -151,6 +151,33 @@ export class GitController {
     return this.service.discard(path, body.paths);
   }
 
+  @Post('stash')
+  async stash(@Query('path') path: string): Promise<void> {
+    if (!path) {
+      throw new BadRequestException('Path is required');
+    }
+
+    return this.service.stash(path);
+  }
+
+  @Post('stash/pop')
+  async stashPop(@Query('path') path: string): Promise<void> {
+    if (!path) {
+      throw new BadRequestException('Path is required');
+    }
+
+    return this.service.stashPop(path);
+  }
+
+  @Post('stash/apply')
+  async stashApply(@Query('path') path: string): Promise<void> {
+    if (!path) {
+      throw new BadRequestException('Path is required');
+    }
+
+    return this.service.stashApply(path);
+  }
+
   @Get('show')
   async showDiff(
     @Query('path') path: string,

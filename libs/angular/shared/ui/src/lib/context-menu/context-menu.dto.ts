@@ -60,6 +60,7 @@ export enum ContextMenuAction {
   CLOSE_OTHERS = 'close-others',
   CLOSE_TO_THE_RIGHT = 'close-to-the-right',
   CLOSE_SAVED = 'close-saved',
+  STASH = 'stash',
   CLOSE_ALL = 'close-all',
 }
 

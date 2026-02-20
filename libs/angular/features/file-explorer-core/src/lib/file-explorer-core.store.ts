@@ -11,8 +11,9 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { FileResponseDto, GitBranchDto } from '@org/shared/contracts';
-import { partialStore } from '@org/angular-utils';
+import { handleError, partialStore } from '@org/angular-utils';
 import { FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
+import { SnackbarService } from '@org/angular/ui';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
@@ -43,6 +44,7 @@ export const FileExplorerCoreStore = signalStore(
     gitService: inject(GitService),
     fileService: inject(FileExplorerService),
     wsService: inject(GitWsService),
+    snackbar: inject(SnackbarService),
   })),
   withComputed((store) => ({
     activePanel: computed(() => (store.currentUrl().startsWith('/git') ? 'git' : 'explorer')),
@@ -105,6 +107,7 @@ export const FileExplorerCoreStore = signalStore(
           const current = branches.find((b) => b.current);
           patchState(store, { branches, ...(current ? { branch: current.name } : {}) });
         }),
+        handleError((msg) => store.snackbar.error(msg)),
       ),
     ),
   })),

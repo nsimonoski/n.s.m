@@ -99,6 +99,24 @@ export const FileExplorerGitStore = signalStore(
         }),
       ),
     ),
+    stash: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stash(ROOT_PATH)),
+        tap(() => state.snackbar.success('Stashed!')),
+      ),
+    ),
+    stashPop: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stashPop(ROOT_PATH)),
+        tap(() => state.snackbar.success('Stash popped!')),
+      ),
+    ),
+    stashApply: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stashApply(ROOT_PATH)),
+        tap(() => state.snackbar.success('Stash applied!')),
+      ),
+    ),
     openDiff: rxMethod<string>(
       pipe(
         switchMap((filePath: string) =>

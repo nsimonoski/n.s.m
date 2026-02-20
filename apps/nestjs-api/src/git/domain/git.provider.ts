@@ -15,4 +15,7 @@ export abstract class GitProvider {
   abstract discard(repoPath: string, paths: string[]): Promise<void>;
   abstract undoCommit(repoPath: string): Promise<void>;
   abstract showDiff(repoPath: string, filePath: string, ref?: string): Promise<string>;
+  abstract stash(repoPath: string): Promise<void>;
+  abstract stashPop(repoPath: string): Promise<void>;
+  abstract stashApply(repoPath: string): Promise<void>;
 }

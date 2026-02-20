@@ -1,4 +1,9 @@
 <div class="git-explorer">
+  <div class="panel-header">
+    <span class="panel-title">Source Control</span>
+    <ui-dropdown-menu [items]="headerMenuItems" (actionClicked)="onHeaderAction($event)" />
+  </div>
+
   <ide-file-explorer-git-sync />
 
   @if (store.isLoading()) {
