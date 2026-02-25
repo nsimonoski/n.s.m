@@ -15,7 +15,7 @@ export default defineConfig(() => ({
     port: 4201,
     host: 'localhost',
   },
-  plugins: [react(), nxViteTsPaths()],
+  plugins: [nxViteTsPaths(), react()],
   css: {
     preprocessorOptions: {
       scss: {
