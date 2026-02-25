@@ -7,9 +7,6 @@
   </button>
 
   @if (item.children?.length && expandedItemId() === item.id) {
-    <ui-dropdown-menu-panel
-      [items]="item.children"
-      (actionClicked)="onChildAction($event)"
-    />
+    <ui-dropdown-menu-panel [items]="item.children" (actionClicked)="onChildAction($event)" />
   }
 }

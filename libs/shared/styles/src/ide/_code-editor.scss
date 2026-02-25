@@ -1,0 +1,24 @@
+.code-editor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: var(--bg-primary);
+}
+
+.empty-message {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.editor-container {
+  width: 100%;
+  height: 100%;
+}

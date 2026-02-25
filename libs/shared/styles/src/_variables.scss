@@ -1,0 +1,41 @@
+:root {
+  // Backgrounds
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #333333;
+  --bg-input: #3c3c3c;
+  --bg-selected: #04395e;
+  --bg-hover: rgba(90, 93, 94, 0.31);
+  --bg-backdrop: rgba(0, 0, 0, 0.5);
+
+  // Accent
+  --accent-primary: #007acc;
+  --accent-focus: #007fd4;
+  --accent-button: #0e639c;
+  --accent-button-hover: #1177bb;
+  --accent-button-active: #0062a3;
+
+  // Text
+  --text-primary: #cccccc;
+  --text-secondary: #c5c5c5;
+  --text-muted: #9d9d9d;
+  --text-placeholder: #6e6e6e;
+  --text-white: #ffffff;
+
+  // Borders
+  --border-primary: #1e1e1e;
+  --border-input: #3c3c3c;
+
+  // Scrollbar
+  --scrollbar-thumb: rgba(121, 121, 121, 0.4);
+  --scrollbar-thumb-hover: rgba(100, 100, 100, 0.7);
+
+  // Misc
+  --indent-guide: rgba(255, 255, 255, 0.1);
+  --indent-guide-hover: rgba(255, 255, 255, 0.2);
+  --shadow: rgba(0, 0, 0, 0.15);
+
+  // Font
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}

@@ -32,7 +32,10 @@
             "output": "monaco-editor/min"
           }
         ],
-        "styles": ["apps/angular-ide/src/styles.scss"]
+        "styles": ["apps/angular-ide/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/shared/styles/src"]
+        }
       },
       "configurations": {
         "production": {
