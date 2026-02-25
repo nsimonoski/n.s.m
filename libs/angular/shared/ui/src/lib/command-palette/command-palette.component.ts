@@ -25,20 +25,7 @@ export class CommandPaletteComponent {
   readonly filteredItems = linkedSignal(() => this.items());
 
   constructor() {
-    this.searchControl.valueChanges
-      .pipe(
-        tap((value) => {
-          const q = (value ?? '').toLowerCase();
-          this.activeIndex.set(0);
-          this.filteredItems.set(
-            this.items().filter((item) => item.label.toLowerCase().includes(q)),
-          );
-        }),
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntilDestroyed(),
-      )
-      .subscribe((value) => this.searchChanged.emit(value ?? ''));
+    this.listenToSearchChanges();
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -77,5 +64,22 @@ export class CommandPaletteComponent {
 
   onBackdropClick(): void {
     this.closed.emit();
+  }
+
+  private listenToSearchChanges(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        tap((value) => {
+          const q = (value ?? '').toLowerCase();
+          this.activeIndex.set(0);
+          this.filteredItems.set(
+            this.items().filter((item) => item.label.toLowerCase().includes(q)),
+          );
+        }),
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => this.searchChanged.emit(value ?? ''));
   }
 }
