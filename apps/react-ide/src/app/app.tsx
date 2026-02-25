@@ -1,11 +1,13 @@
-// Uncomment this line to use CSS modules
-// import styles from './app.module.scss';
-import NxWelcome from './nx-welcome';
+import './app.scss';
+import { CodeEditor } from '@org/react-code-editor';
 
 export function App() {
   return (
-    <div>
-      <NxWelcome title="@org/react-ide" />
+    <div className="ide-shell">
+      <div className="sidebar-placeholder" />
+      <div className="editor-area">
+        <CodeEditor />
+      </div>
     </div>
   );
 }
