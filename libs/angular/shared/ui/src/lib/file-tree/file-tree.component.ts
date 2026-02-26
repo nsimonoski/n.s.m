@@ -10,17 +10,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import {
   FileTreeCreateNodeComponent,
   InlineCreate,
 } from './create-node/file-tree-create-node.component';
-import {
-  ContextMenuState,
-  ContextMenuTemplateContext,
-  InlineCreateEvent,
-  InlineRenameEvent,
-} from '../context-menu/context-menu.dto';
+import { ContextMenuState, ContextMenuTemplateContext } from '../context-menu/context-menu.dto';
 import {
   FileIconPipe,
   ExpandIconPipe,
@@ -58,8 +53,8 @@ export class FileTreeComponent {
   handleExpand = output<DirectoryResponseDto>();
   handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();
   handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
-  handleRename = output<InlineRenameEvent>();
-  handleInlineCreate = output<InlineCreateEvent>();
+  handleRename = output<ContextMenu.InlineRenameEvent>();
+  handleInlineCreate = output<ContextMenu.InlineCreateEvent>();
 
   readonly inlineCreate = signal<InlineCreate | null>(null);
   readonly renamingNode = signal<DirectoryResponseDto | FileResponseDto | null>(null);

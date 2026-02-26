@@ -1,16 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import {
   ConfirmationDialogComponent,
-  ContextMenuAction,
   ContextMenuActionEvent,
   ContextMenuComponent,
-  ContextMenuItem,
   DropdownMenuComponent,
   DropdownMenuItem,
   FileTreeComponent,
   FileTreeNodeActionComponent,
-  GIT_CONTEXT_MENU_ITEMS,
   NodeAction,
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
@@ -24,12 +21,12 @@ enum HeaderAction {
 }
 
 const STAGED_ACTIONS: NodeAction[] = [
-  { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
+  { id: ContextMenu.Action.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
 ];
 
 const CHANGES_ACTIONS: NodeAction[] = [
-  { id: ContextMenuAction.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
-  { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
+  { id: ContextMenu.Action.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
+  { id: ContextMenu.Action.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
 ];
 
 @Component({
@@ -70,18 +67,18 @@ export class FileExplorerGitComponent {
     return [];
   }
 
-  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
+  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenu.Item[] {
     if (!node) {
       return [];
     }
 
     return [
-      GIT_CONTEXT_MENU_ITEMS.STAGE,
-      GIT_CONTEXT_MENU_ITEMS.UNSTAGE,
-      GIT_CONTEXT_MENU_ITEMS.SEPARATOR,
-      GIT_CONTEXT_MENU_ITEMS.DISCARD,
-      GIT_CONTEXT_MENU_ITEMS.SEPARATOR,
-      GIT_CONTEXT_MENU_ITEMS.OPEN,
+      ContextMenu.GIT_ITEMS.STAGE,
+      ContextMenu.GIT_ITEMS.UNSTAGE,
+      ContextMenu.GIT_ITEMS.SEPARATOR,
+      ContextMenu.GIT_ITEMS.DISCARD,
+      ContextMenu.GIT_ITEMS.SEPARATOR,
+      ContextMenu.GIT_ITEMS.OPEN,
     ];
   }
 
@@ -97,27 +94,27 @@ export class FileExplorerGitComponent {
   }
 
   onNodeAction(actionId: string, node: DirectoryResponseDto | FileResponseDto): void {
-    this.handleAction(actionId as ContextMenuAction, node);
+    this.handleAction(actionId as ContextMenu.Action, node);
   }
 
   private handleAction(
-    action: ContextMenuAction,
+    action: ContextMenu.Action,
     node: DirectoryResponseDto | FileResponseDto,
   ): void {
     const paths = this.getFilePaths(node);
 
     switch (action) {
-      case ContextMenuAction.STAGE:
+      case ContextMenu.Action.STAGE:
         this.store.stage(paths);
         break;
-      case ContextMenuAction.UNSTAGE:
+      case ContextMenu.Action.UNSTAGE:
         this.store.unstage(paths);
         break;
-      case ContextMenuAction.DISCARD:
+      case ContextMenu.Action.DISCARD:
         this.pendingDiscardPaths = paths;
         this.discardDialogOpen.set(true);
         break;
-      case ContextMenuAction.OPEN:
+      case ContextMenu.Action.OPEN:
         if (node.type !== Enums.FileType.DIRECTORY) {
           this.store.openDiff(node.path);
         }

@@ -1,16 +1,12 @@
 import { Component, inject, viewChild } from '@angular/core';
 
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import { IdeStore } from '@org/angular-data-access';
 import {
   ConfirmationDialogComponent,
-  ContextMenuAction,
   ContextMenuActionEvent,
   ContextMenuComponent,
-  ContextMenuItem,
-  CONTEXT_MENU_ITEMS,
   FileTreeComponent,
-  InlineCreateEvent,
 } from '@org/angular/ui';
 
 @Component({
@@ -32,7 +28,7 @@ export class FileExplorerComponent {
     this.store.selectNode(node.path);
   }
 
-  handleInlineCreate(event: InlineCreateEvent): void {
+  handleInlineCreate(event: ContextMenu.InlineCreateEvent): void {
     const fullPath = `${event.parentPath}/${event.name}`;
 
     if (event.type === Enums.FileType.DIRECTORY) {
@@ -58,46 +54,46 @@ export class FileExplorerComponent {
     this.store.closeDialog();
   }
 
-  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
+  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenu.Item[] {
     if (!node) {
-      return [CONTEXT_MENU_ITEMS.NEW_FILE, CONTEXT_MENU_ITEMS.NEW_FOLDER];
+      return [ContextMenu.ITEMS.NEW_FILE, ContextMenu.ITEMS.NEW_FOLDER];
     }
 
     if (node.type === Enums.FileType.DIRECTORY) {
       return [
-        CONTEXT_MENU_ITEMS.NEW_FILE,
-        CONTEXT_MENU_ITEMS.NEW_FOLDER,
-        CONTEXT_MENU_ITEMS.SEPARATOR,
-        CONTEXT_MENU_ITEMS.RENAME,
-        CONTEXT_MENU_ITEMS.DELETE,
+        ContextMenu.ITEMS.NEW_FILE,
+        ContextMenu.ITEMS.NEW_FOLDER,
+        ContextMenu.ITEMS.SEPARATOR,
+        ContextMenu.ITEMS.RENAME,
+        ContextMenu.ITEMS.DELETE,
       ];
     }
 
     return [
-      CONTEXT_MENU_ITEMS.OPEN,
-      CONTEXT_MENU_ITEMS.SEPARATOR,
-      CONTEXT_MENU_ITEMS.RENAME,
-      CONTEXT_MENU_ITEMS.DELETE,
+      ContextMenu.ITEMS.OPEN,
+      ContextMenu.ITEMS.SEPARATOR,
+      ContextMenu.ITEMS.RENAME,
+      ContextMenu.ITEMS.DELETE,
     ];
   }
 
   onContextMenuAction(event: ContextMenuActionEvent): void {
     switch (event.action) {
-      case ContextMenuAction.NEW_FILE:
+      case ContextMenu.Action.NEW_FILE:
         this.fileTree().startInlineCreate(event.node, 'file');
         break;
-      case ContextMenuAction.NEW_FOLDER:
+      case ContextMenu.Action.NEW_FOLDER:
         this.fileTree().startInlineCreate(event.node, 'directory');
         break;
-      case ContextMenuAction.RENAME:
+      case ContextMenu.Action.RENAME:
         if (event.node) {
           this.fileTree().startRename(event.node);
         }
         break;
-      case ContextMenuAction.DELETE:
+      case ContextMenu.Action.DELETE:
         this.handleDelete(event.node);
         break;
-      case ContextMenuAction.OPEN:
+      case ContextMenu.Action.OPEN:
         if (event.node) this.store.navigateToFile(event.node.path);
         break;
     }
