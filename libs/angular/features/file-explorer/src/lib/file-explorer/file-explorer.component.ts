@@ -1,7 +1,7 @@
 import { Component, inject, viewChild } from '@angular/core';
 
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
-import { FileExplorerStore } from '@org/angular-data-access';
+import { IdeStore } from '@org/angular-data-access';
 import {
   ConfirmationDialogComponent,
   ContextMenuAction,
@@ -21,7 +21,7 @@ import {
   styleUrls: ['./file-explorer.component.scss'],
 })
 export class FileExplorerComponent {
-  readonly store = inject(FileExplorerStore);
+  readonly store = inject(IdeStore.FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
 
   onExpandToggled(node: DirectoryResponseDto): void {

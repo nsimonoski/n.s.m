@@ -1,7 +1,14 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  afterNextRender,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { IdeStore } from '@org/angular-data-access';
 import { MonacoUtils } from '@org/shared/utils';
-import { editor } from '@org/angular-data-access';
-import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
 
 @Component({
   selector: 'ide-monaco-editor',
@@ -9,23 +16,29 @@ import { MonacoBaseComponent } from '../monaco-base/monaco-base.component';
   templateUrl: './monaco-editor.component.html',
   styleUrls: ['./monaco-editor.component.scss'],
 })
-export class MonacoEditorComponent extends MonacoBaseComponent {
-  private monacoEditor = new MonacoUtils.MonacoEditorUtils(this.loader);
+export class MonacoEditorComponent implements OnDestroy {
+  private readonly store = inject(IdeStore.CodeEditorStore);
+  private readonly container = viewChild.required<ElementRef<HTMLElement>>('editorContainer');
 
-  protected isReady(): boolean {
-    return this.monacoEditor.isReady;
-  }
+  constructor() {
+    afterNextRender(() => this.init());
 
-  protected createEditor(container: HTMLElement): void {
-    this.monacoEditor.create(container, this.save);
-  }
-
-  protected switchToFile(file: editor.OpenFile | null): void {
-    this.monacoEditor.switchToFile(file, this.onContentChange);
+    effect(() => {
+      const file = this.store.activeFile();
+      if (MonacoUtils.editorUtils.isLoaded && MonacoUtils.editorUtils.isReady) {
+        MonacoUtils.editorUtils.switchToFile(file, this.onContentChange);
+      }
+    });
   }
 
   ngOnDestroy(): void {
-    this.monacoEditor.dispose();
+    MonacoUtils.editorUtils.dispose();
+  }
+
+  private async init(): Promise<void> {
+    await MonacoUtils.editorUtils.loadMonaco();
+    MonacoUtils.editorUtils.create(this.container().nativeElement, this.save);
+    MonacoUtils.editorUtils.switchToFile(this.store.activeFile(), this.onContentChange);
   }
 
   private save = (): void => {

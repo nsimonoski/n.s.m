@@ -1,13 +1,6 @@
 import { BASE_EDITOR_OPTIONS, MonacoUtils } from './monaco.utils';
 import type { DiffEditor } from './monaco.utils';
-
-export interface MonacoFile {
-  path: string;
-  currentContent: string;
-  originalContent: string;
-  language: string;
-  mode: 'regular' | 'diff';
-}
+import type { File } from './monaco.contract';
 
 export class MonacoDiffEditorUtils {
   private editor: DiffEditor | null = null;
@@ -31,7 +24,7 @@ export class MonacoDiffEditorUtils {
     });
   }
 
-  switchToFile(file: MonacoFile | null): void {
+  switchToFile(file: File | null): void {
     if (!this.editor) return;
     if (!file || file.mode !== 'diff') return;
 

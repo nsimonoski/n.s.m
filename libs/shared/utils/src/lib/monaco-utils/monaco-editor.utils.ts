@@ -1,6 +1,6 @@
 import { MonacoUtils, BASE_EDITOR_OPTIONS } from './monaco.utils';
 import type { CodeEditor, TextModel, Disposable } from './monaco.utils';
-import type { MonacoFile } from './monaco-diff-editor.utils';
+import type { File } from './monaco.contract';
 
 export class MonacoEditorUtils {
   private editor: CodeEditor | null = null;
@@ -15,6 +15,14 @@ export class MonacoEditorUtils {
 
   get isReady(): boolean {
     return !!this.editor;
+  }
+
+  async loadMonaco(): Promise<void> {
+    await this.loader.loadMonaco();
+  }
+
+  get isLoaded(): boolean {
+    return this.loader.isLoaded;
   }
 
   create(container: HTMLElement, onSave?: () => void): void {
@@ -34,7 +42,7 @@ export class MonacoEditorUtils {
     }
   }
 
-  switchToFile(file: MonacoFile | null, onContentChange?: (path: string, value: string) => void): void {
+  switchToFile(file: File | null, onContentChange?: (path: string, value: string) => void): void {
     if (!this.editor) return;
 
     this.onDidChangeDisposable?.dispose();

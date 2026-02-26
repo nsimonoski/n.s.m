@@ -1,40 +1,36 @@
 import { useEffect, useRef } from 'react';
 import { MonacoUtils } from '@org/shared/utils';
+import { useCodeEditorStore } from '@org/react-data-access';
 import './monaco-editor.scss';
-
-const SAMPLE_FILE = {
-  path: '/sample.ts',
-  currentContent: [
-    `import { Component } from '@angular/core';`,
-    ``,
-    `@Component({`,
-    `  selector: 'app-root',`,
-    `  template: '<h1>Hello World</h1>',`,
-    `})`,
-    `export class AppComponent {}`,
-    ``,
-  ].join('\n'),
-  originalContent: '',
-  language: 'typescript',
-  mode: 'regular' as const,
-};
 
 export function MonacoEditor() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const loader = new MonacoUtils.MonacoService();
-    const editorUtils = new MonacoUtils.MonacoEditorUtils(loader);
+  const activeFile = useCodeEditorStore((s) => {
+    const path = s.activeFilePath;
+    return s.openFiles.find((f) => f.path === path) ?? null;
+  });
 
-    loader.loadMonaco().then(() => {
-      if (containerRef.current) {
-        editorUtils.create(containerRef.current);
-        editorUtils.switchToFile(SAMPLE_FILE);
+  useEffect(() => {
+    MonacoUtils.editorUtils.loadMonaco().then(() => {
+      if (containerRef.current && !MonacoUtils.editorUtils.isReady) {
+        MonacoUtils.editorUtils.create(containerRef.current, handleSave);
       }
     });
-
-    return () => editorUtils.dispose();
   }, []);
 
+  useEffect(() => {
+    MonacoUtils.editorUtils.switchToFile(activeFile, handleContentChange);
+  }, [activeFile?.path]);
+
   return <div ref={containerRef} className="editor-container" />;
+}
+
+function handleSave(): void {
+  const { activeFilePath, saveFile } = useCodeEditorStore.getState();
+  if (activeFilePath) saveFile(activeFilePath);
+}
+
+function handleContentChange(path: string, value: string): void {
+  useCodeEditorStore.getState().updateContent(path, value);
 }

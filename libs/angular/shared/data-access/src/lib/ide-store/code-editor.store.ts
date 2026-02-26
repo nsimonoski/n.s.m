@@ -10,47 +10,16 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { distinctUntilChanged, EMPTY, filter, map, pipe, switchMap, tap } from 'rxjs';
-import { Enums, FileResponseDto } from '@org/shared/contracts';
+import { FileResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
 import { MonacoUtils } from '@org/shared/utils';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
 
-export interface OpenFile {
-  path: string;
-  name: string;
-  content: string;
-  currentContent: string;
-  originalContent: string;
-  language: string;
-  type: Enums.FileType;
-  extension?: string;
-  mode: 'regular' | 'diff';
-  isDirty: boolean;
-  updatedAt: string;
-}
-
 interface State {
-  openFiles: OpenFile[];
+  openFiles: MonacoUtils.OpenFile[];
   openFilePaths: string[];
   activeFilePath: string | null;
-}
-
-function mapFile(file: FileResponseDto): OpenFile {
-  const content = file.content ?? '';
-  return {
-    path: file.path,
-    name: file.name,
-    content,
-    currentContent: content,
-    originalContent: '',
-    language: MonacoUtils.getMonacoLanguage(file.type, file.extension),
-    type: file.type,
-    extension: file.extension,
-    mode: 'regular',
-    isDirty: false,
-    updatedAt: file.updatedAt,
-  };
 }
 
 export const CodeEditorStore = signalStore(
@@ -73,7 +42,7 @@ export const CodeEditorStore = signalStore(
     }),
   })),
   withMethods((state) => {
-    const syncAfterClose = (files: OpenFile[], activePath: string | null) => {
+    const syncAfterClose = (files: MonacoUtils.OpenFile[], activePath: string | null) => {
       state.saveToStorage({
         openFilePaths: files.map((f) => f.path),
         activeFilePath: activePath,
@@ -92,7 +61,7 @@ export const CodeEditorStore = signalStore(
           return;
         }
 
-        patchState(state, { openFiles: [...state.openFiles(), mapFile(file)] });
+        patchState(state, { openFiles: [...state.openFiles(), MonacoUtils.mapFile(file)] });
         state.saveToStorage({
           openFilePaths: [...state.openFilePaths(), file.path],
           activeFilePath: file.path,
@@ -106,8 +75,8 @@ export const CodeEditorStore = signalStore(
           return;
         }
 
-        const openFile: OpenFile = {
-          ...mapFile(file),
+        const openFile: MonacoUtils.OpenFile = {
+          ...MonacoUtils.mapFile(file),
           originalContent,
           mode: 'diff',
         };
@@ -228,7 +197,7 @@ export const CodeEditorStore = signalStore(
           const openFiles = paths
             .map((path) => fileMap.get(path))
             .filter((f): f is FileResponseDto => !!f)
-            .map(mapFile);
+            .map(MonacoUtils.mapFile);
 
           patchState(state, { openFiles });
           if (activePath) {
@@ -247,7 +216,7 @@ export const CodeEditorStore = signalStore(
         filter((event) => state.openFiles().some((f) => f.path === event.path)),
         switchMap((event) => state.service.getFile(event.path)),
         tap((file) => {
-          const mapped = mapFile(file);
+          const mapped = MonacoUtils.mapFile(file);
           patchState(state, {
             openFiles: state
               .openFiles()

@@ -30,3 +30,33 @@ export function findDirectory(
 
   return null;
 }
+
+export function mergeDirectoryIntoTree(
+  root: DirectoryResponseDto,
+  targetPath: string,
+  fetched: DirectoryResponseDto,
+): DirectoryResponseDto {
+  if (root.path === targetPath) {
+    return { ...root, files: fetched.files, directories: fetched.directories };
+  }
+
+  return {
+    ...root,
+    directories: root.directories.map((dir) => mergeDirectoryIntoTree(dir, targetPath, fetched)),
+  };
+}
+
+export function refreshDirectoryInTree(
+  root: DirectoryResponseDto,
+  parentPath: string,
+  fetched: DirectoryResponseDto,
+): DirectoryResponseDto {
+  if (root.path === parentPath) {
+    return fetched;
+  }
+
+  return {
+    ...root,
+    directories: root.directories.map((dir) => refreshDirectoryInTree(dir, parentPath, fetched)),
+  };
+}

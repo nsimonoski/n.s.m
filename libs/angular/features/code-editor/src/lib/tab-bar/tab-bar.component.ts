@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { editor } from '@org/angular-data-access';
+import { IdeStore } from '@org/angular-data-access';
 import {
   ContextMenuComponent,
   ContextMenuAction,
@@ -16,7 +16,7 @@ import { TabComponent } from './tab/tab.component';
   styleUrls: ['./tab-bar.component.scss'],
 })
 export class TabBarComponent {
-  readonly store = inject(editor.CodeEditorStore);
+  readonly store = inject(IdeStore.CodeEditorStore);
   readonly menuItems = TAB_CONTEXT_MENU_ITEMS;
   readonly contextMenu = signal<{ x: number; y: number; path: string } | null>(null);
 

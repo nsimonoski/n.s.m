@@ -13,8 +13,8 @@ import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/sh
 import { FileUtils } from '@org/shared/utils';
 import { partialStore } from '@org/angular-utils';
 import { distinctUntilChanged, filter, firstValueFrom, map, pipe, switchMap, tap } from 'rxjs';
-import { FileExplorerService } from './file-explorer.service';
-import { FileExplorerWsService } from './file-explorer-ws.service';
+import { FileExplorerService } from '../file-explorer.service';
+import { FileExplorerWsService } from '../file-explorer-ws.service';
 
 interface FileExplorerComponentState {
   directory: DirectoryResponseDto | null;
@@ -23,36 +23,6 @@ interface FileExplorerComponentState {
 }
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
-
-function mergeDirectoryIntoTree(
-  root: DirectoryResponseDto,
-  targetPath: string,
-  fetched: DirectoryResponseDto,
-): DirectoryResponseDto {
-  if (root.path === targetPath) {
-    return { ...root, files: fetched.files, directories: fetched.directories };
-  }
-
-  return {
-    ...root,
-    directories: root.directories.map((dir) => mergeDirectoryIntoTree(dir, targetPath, fetched)),
-  };
-}
-
-function refreshDirectoryInTree(
-  root: DirectoryResponseDto,
-  parentPath: string,
-  fetched: DirectoryResponseDto,
-): DirectoryResponseDto {
-  if (root.path === parentPath) {
-    return fetched;
-  }
-
-  return {
-    ...root,
-    directories: root.directories.map((dir) => refreshDirectoryInTree(dir, parentPath, fetched)),
-  };
-}
 
 export const FileExplorerStore = signalStore(
   { providedIn: 'root' },
@@ -83,7 +53,7 @@ export const FileExplorerStore = signalStore(
           return;
         }
         patchState(state, {
-          directory: refreshDirectoryInTree(currentDir, targetPath, fetched),
+          directory: FileUtils.refreshDirectoryInTree(currentDir, targetPath, fetched),
         });
       });
     };
@@ -106,7 +76,7 @@ export const FileExplorerStore = signalStore(
             const dirAfterFetch = state.directory();
             if (dirAfterFetch) {
               patchState(state, {
-                directory: mergeDirectoryIntoTree(dirAfterFetch, fetched.path, fetched),
+                directory: FileUtils.mergeDirectoryIntoTree(dirAfterFetch, fetched.path, fetched),
               });
             }
           }
@@ -141,7 +111,7 @@ export const FileExplorerStore = signalStore(
             }
 
             patchState(state, {
-              directory: mergeDirectoryIntoTree(currentDir, fetched.path, fetched),
+              directory: FileUtils.mergeDirectoryIntoTree(currentDir, fetched.path, fetched),
             });
           }),
         ),

@@ -1,4 +1,8 @@
-export { MonacoUtils as MonacoService, BASE_EDITOR_OPTIONS } from './monaco.utils';
+import { MonacoUtils } from './monaco.utils';
+import { MonacoEditorUtils } from './monaco-editor.utils';
+import { MonacoDiffEditorUtils } from './monaco-diff-editor.utils';
+
+export { BASE_EDITOR_OPTIONS } from './monaco.utils';
 export type {
   CodeEditor,
   DiffEditor,
@@ -7,7 +11,9 @@ export type {
   DiffEditorOptions,
   Disposable,
 } from './monaco.utils';
-export { getMonacoLanguage } from './language-map';
-export { MonacoDiffEditorUtils } from './monaco-diff-editor.utils';
-export { MonacoEditorUtils } from './monaco-editor.utils';
-export type { MonacoFile } from './monaco-diff-editor.utils';
+export type { File, OpenFile } from './monaco.contract';
+export { mapFile } from './monaco.contract';
+
+const loader = new MonacoUtils();
+export const editorUtils = new MonacoEditorUtils(loader);
+export const diffEditorUtils = new MonacoDiffEditorUtils(loader);

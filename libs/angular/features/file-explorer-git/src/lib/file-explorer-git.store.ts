@@ -11,7 +11,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { forkJoin, pipe, switchMap, tap } from 'rxjs';
 import { DirectoryResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
-import { editor, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
+import { IdeStore, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
 import { SnackbarService } from '@org/angular/ui';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
@@ -48,7 +48,7 @@ export const FileExplorerGitStore = signalStore(
     service: inject(GitService),
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
-    editorStore: inject(editor.CodeEditorStore),
+    editorStore: inject(IdeStore.CodeEditorStore),
     snackbar: inject(SnackbarService),
   })),
   withMethods((state) => ({

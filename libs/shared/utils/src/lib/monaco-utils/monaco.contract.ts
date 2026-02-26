@@ -1,4 +1,38 @@
-import { Enums } from '@org/shared/contracts';
+import { Enums, FileResponseDto } from '@org/shared/contracts';
+
+export interface File {
+  path: string;
+  currentContent: string;
+  originalContent: string;
+  language: string;
+  mode: 'regular' | 'diff';
+}
+
+export interface OpenFile extends File {
+  name: string;
+  content: string;
+  type: Enums.FileType;
+  extension?: string;
+  isDirty: boolean;
+  updatedAt: string;
+}
+
+export function mapFile(file: FileResponseDto): OpenFile {
+  const content = file.content ?? '';
+  return {
+    path: file.path,
+    name: file.name,
+    content,
+    currentContent: content,
+    originalContent: '',
+    language: getMonacoLanguage(file.type, file.extension),
+    type: file.type,
+    extension: file.extension,
+    mode: 'regular',
+    isDirty: false,
+    updatedAt: file.updatedAt,
+  };
+}
 
 const FILE_TYPE_TO_LANGUAGE: Record<string, string> = {
   [Enums.FileType.TS]: 'typescript',
@@ -42,7 +76,7 @@ const EXTENSION_TO_LANGUAGE: Record<string, string> = {
   dockerfile: 'dockerfile',
 };
 
-export function getMonacoLanguage(type: Enums.FileType, extension?: string): string {
+function getMonacoLanguage(type: Enums.FileType, extension?: string): string {
   const fromType = FILE_TYPE_TO_LANGUAGE[type];
   if (fromType) return fromType;
 

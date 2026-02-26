@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { editor } from '@org/angular-data-access';
+import { MonacoUtils } from '@org/shared/utils';
 
 @Component({
   selector: 'ide-tab',
@@ -8,7 +8,7 @@ import { editor } from '@org/angular-data-access';
   styleUrls: ['./tab.component.scss'],
 })
 export class TabComponent {
-  readonly file = input.required<editor.OpenFile>();
+  readonly file = input.required<MonacoUtils.OpenFile>();
   readonly isActive = input.required<boolean>();
 
   readonly selected = output<void>();
