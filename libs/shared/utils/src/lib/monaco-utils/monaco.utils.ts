@@ -54,6 +54,21 @@ export class MonacoUtils {
     return this.monaco.KeyCode;
   }
 
+  private configureDiagnostics(): void {
+    const diagnosticsOptions = {
+      noSemanticValidation: true,
+      noSyntaxValidation: false,
+    };
+
+    const ts = (this.monaco.languages as Record<string, unknown>)['typescript'] as {
+      typescriptDefaults: { setDiagnosticsOptions: (opts: typeof diagnosticsOptions) => void };
+      javascriptDefaults: { setDiagnosticsOptions: (opts: typeof diagnosticsOptions) => void };
+    };
+
+    ts.typescriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+    ts.javascriptDefaults.setDiagnosticsOptions(diagnosticsOptions);
+  }
+
   private get monaco(): typeof Monaco {
     if (!this._monaco) {
       throw new Error('Monaco is not loaded yet. Call loadMonaco() first.');
@@ -77,6 +92,7 @@ export class MonacoUtils {
         amdRequire.config({ paths: { vs: baseUrl } });
         amdRequire(['vs/editor/editor.main'], () => {
           this._monaco = win['monaco'] as typeof Monaco;
+          this.configureDiagnostics();
           resolve(this._monaco);
         });
       };
