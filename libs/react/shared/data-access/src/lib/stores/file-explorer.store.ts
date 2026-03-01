@@ -7,17 +7,13 @@ const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
 interface FileExplorerState {
   directory: DirectoryResponseDto | null;
-  expandedPaths: Set<string>;
-  selectedPath: string | null;
   loading: boolean;
 }
 
 interface FileExplorerActions {
   loadDirectory: (path: string) => Promise<void>;
   expandDirectory: (path: string) => Promise<void>;
-  toggleExpanded: (path: string) => void;
-  selectNode: (path: string | null) => void;
-  revealFile: (filePath: string) => Promise<void>;
+  revealFile: (filePath: string) => Promise<{ ancestors: string[]; filePath: string } | null>;
   rename: (payload: RenameRequestDto) => Promise<void>;
   createFile: (path: string) => Promise<FileResponseDto>;
   createDirectory: (path: string) => Promise<DirectoryResponseDto>;
@@ -27,8 +23,6 @@ interface FileExplorerActions {
 
 export const useFileExplorerStore = create<FileExplorerState & FileExplorerActions>((set, get) => ({
   directory: null,
-  expandedPaths: new Set(),
-  selectedPath: null,
   loading: false,
 
   async loadDirectory(path: string): Promise<void> {
@@ -45,19 +39,9 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
     set({ directory: FileUtils.mergeDirectoryIntoTree(currentDir, fetched.path, fetched) });
   },
 
-  toggleExpanded(path: string): void {
-    const expanded = new Set(get().expandedPaths);
-    expanded.has(path) ? expanded.delete(path) : expanded.add(path);
-    set({ expandedPaths: expanded });
-  },
-
-  selectNode(path: string | null): void {
-    set({ selectedPath: path });
-  },
-
-  async revealFile(filePath: string): Promise<void> {
+  async revealFile(filePath: string): Promise<{ ancestors: string[]; filePath: string } | null> {
     const rootPath = get().directory?.path;
-    if (!rootPath) return;
+    if (!rootPath) return null;
 
     const ancestors = FileUtils.getAncestorPaths(rootPath, filePath);
 
@@ -72,9 +56,7 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
       }
     }
 
-    const expanded = new Set(get().expandedPaths);
-    ancestors.forEach((p) => expanded.add(p));
-    set({ expandedPaths: expanded, selectedPath: filePath });
+    return { ancestors, filePath };
   },
 
   async rename(payload: RenameRequestDto): Promise<void> {

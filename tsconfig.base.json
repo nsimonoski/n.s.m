@@ -21,7 +21,8 @@
       "@org/angular-code-editor": ["libs/angular/features/code-editor/src/index.ts"],
       "@org/angular-data-access": ["libs/angular/shared/data-access/src/index.ts"],
       "@org/react-code-editor": ["libs/react/features/code-editor/src/index.ts"],
-      "@org/react-data-access": ["libs/react/shared/data-access/src/index.ts"]
+      "@org/react-data-access": ["libs/react/shared/data-access/src/index.ts"],
+      "@org/react-ui": ["libs/react/shared/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

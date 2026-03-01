@@ -12,6 +12,14 @@ export function getAncestorPaths(rootPath: string, filePath: string): string[] {
   return paths;
 }
 
+export function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
+  const paths = [dir.path];
+  for (const child of dir.directories) {
+    paths.push(...collectDirectoryPaths(child));
+  }
+  return paths;
+}
+
 export function isDirectoryLoaded(root: DirectoryResponseDto, targetPath: string): boolean {
   const node = findDirectory(root, targetPath);
   return !!node && (node.files.length > 0 || node.directories.length > 0);

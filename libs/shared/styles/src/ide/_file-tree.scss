@@ -3,10 +3,12 @@
 .file-tree-container {
   position: relative;
   width: 100%;
+  height: 100%;
   background-color: var(--bg-secondary);
 }
 
 .file-tree {
+  height: 100%;
   overflow-x: hidden;
   padding: 4px 0;
   @include custom-scrollbar;

@@ -1,4 +1,5 @@
 /// <reference types='vitest' />
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
@@ -9,6 +10,13 @@ import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../../../node_modules/.vite/libs/react/features/file-exporer',
+  css: {
+    preprocessorOptions: {
+      scss: {
+        loadPaths: [resolve(import.meta.dirname, '../../../../libs/shared/styles/src')],
+      },
+    },
+  },
   plugins: [
     react(),
     nxViteTsPaths(),

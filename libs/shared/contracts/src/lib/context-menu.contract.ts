@@ -7,6 +7,24 @@ export interface InlineCreateEvent {
   type: 'file' | 'directory';
 }
 
+export type InlineCreate = Omit<InlineCreateEvent, 'name'>;
+
+export function startInlineCreate(
+  node: DirectoryResponseDto | FileResponseDto | null,
+  type: 'file' | 'directory',
+  rootPath: string,
+): InlineCreate {
+  if (!node) {
+    return { parentPath: rootPath, type };
+  }
+
+  if (node.type === 'directory') {
+    return { parentPath: node.path, type };
+  }
+
+  return { parentPath: node.path.substring(0, node.path.lastIndexOf('/')), type };
+}
+
 export interface InlineRenameEvent {
   node: DirectoryResponseDto | FileResponseDto;
   newName: string;
