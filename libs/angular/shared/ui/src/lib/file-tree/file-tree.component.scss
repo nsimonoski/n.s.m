@@ -1,1 +1,6 @@
 @use 'ide/file-tree';
+
+:host {
+  display: block;
+  height: 100%;
+}

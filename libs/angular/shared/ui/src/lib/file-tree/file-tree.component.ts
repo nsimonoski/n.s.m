@@ -11,10 +11,6 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
-import {
-  FileTreeCreateNodeComponent,
-  InlineCreate,
-} from './create-node/file-tree-create-node.component';
 import { ContextMenuState, ContextMenuTemplateContext } from '../context-menu/context-menu.dto';
 import {
   FileIconPipe,
@@ -28,7 +24,6 @@ import {
   standalone: true,
   imports: [
     NgTemplateOutlet,
-    FileTreeCreateNodeComponent,
     FileIconPipe,
     ExpandIconPipe,
     IndentGuidesPipe,
@@ -41,22 +36,19 @@ export class FileTreeComponent {
   readonly DIRECTORY_TYPE = Enums.FileType.DIRECTORY;
 
   rootDirectory = input.required<DirectoryResponseDto>();
-  expandedPaths = input.required<Set<string>>();
-  selectedPath = input.required<string | null>();
   statusMap = input<Record<string, string>>({});
   contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
   nodeActionsTpl =
     contentChild<TemplateRef<{ $implicit: DirectoryResponseDto | FileResponseDto }>>('nodeActions');
+  createNodeTpl = contentChild<TemplateRef<{ level: number; parentPath: string }>>('createNode');
 
-  expandToggled = output<DirectoryResponseDto>();
-  nodeSelected = output<DirectoryResponseDto | FileResponseDto>();
   handleExpand = output<DirectoryResponseDto>();
   handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();
   handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
   handleRename = output<ContextMenu.InlineRenameEvent>();
-  handleInlineCreate = output<ContextMenu.InlineCreateEvent>();
 
-  readonly inlineCreate = signal<InlineCreate | null>(null);
+  readonly expandedPaths = signal<Set<string>>(new Set());
+  readonly selectedPath = signal<string | null>(null);
   readonly renamingNode = signal<DirectoryResponseDto | FileResponseDto | null>(null);
   readonly contextMenu = signal<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
 
@@ -68,13 +60,13 @@ export class FileTreeComponent {
   });
 
   onNodeClick(node: DirectoryResponseDto | FileResponseDto): void {
-    this.nodeSelected.emit(node);
+    this.selectNode(node.path);
 
     if (node.type === Enums.FileType.DIRECTORY) {
       const dir = node as DirectoryResponseDto;
-      this.expandToggled.emit(dir);
-
       const wasExpanded = this.expandedPaths().has(node.path);
+      this.toggleExpanded(dir.path);
+
       if (!wasExpanded && dir.files.length === 0 && dir.directories.length === 0) {
         this.handleExpand.emit(dir);
       }
@@ -92,27 +84,6 @@ export class FileTreeComponent {
       y: event.clientY,
       node,
     });
-  }
-
-  startInlineCreate(
-    node: DirectoryResponseDto | FileResponseDto | null,
-    type: 'file' | 'directory',
-  ): void {
-    let parentPath: string;
-
-    if (!node) {
-      parentPath = this.rootDirectory().path;
-    } else if (node.type === Enums.FileType.DIRECTORY) {
-      parentPath = node.path;
-    } else {
-      parentPath = node.path.substring(0, node.path.lastIndexOf('/'));
-    }
-
-    this.inlineCreate.set({ parentPath, type });
-  }
-
-  cancelInlineCreate(): void {
-    this.inlineCreate.set(null);
   }
 
   onRenameKeydown(event: KeyboardEvent): void {
@@ -147,7 +118,27 @@ export class FileTreeComponent {
     });
   }
 
+  expandPaths(paths: string[]): void {
+    const expanded = new Set(this.expandedPaths());
+    paths.forEach((p) => expanded.add(p));
+    this.expandedPaths.set(expanded);
+  }
+
+  selectNode(path: string | null): void {
+    this.selectedPath.set(path);
+  }
+
   closeContextMenu = (): void => {
     this.contextMenu.update((state) => ({ ...state, visible: false }));
   };
+
+  private toggleExpanded(path: string): void {
+    const expanded = new Set(this.expandedPaths());
+    if (expanded.has(path)) {
+      expanded.delete(path);
+    } else {
+      expanded.add(path);
+    }
+    this.expandedPaths.set(expanded);
+  }
 }

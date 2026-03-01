@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
 import {
   ConfirmationDialogComponent,
   ContextMenuActionEvent,
@@ -45,6 +46,7 @@ const CHANGES_ACTIONS: NodeAction[] = [
 })
 export class FileExplorerGitComponent {
   readonly store = inject(FileExplorerGitStore);
+  readonly fileTreeComponent = viewChild(FileTreeComponent);
 
   readonly headerMenuItems: DropdownMenuItem[] = [
     {
@@ -60,6 +62,17 @@ export class FileExplorerGitComponent {
 
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
+
+  constructor() {
+    effect(() => {
+      const changes = this.store.changesTree();
+      const fileTree = this.fileTreeComponent();
+      if (!changes || !fileTree) {
+        return;
+      }
+      untracked(() => fileTree.expandPaths(FileUtils.collectDirectoryPaths(changes)));
+    });
+  }
 
   getNodeActions(node: DirectoryResponseDto | FileResponseDto): NodeAction[] {
     if (node.path.startsWith('/staged')) return STAGED_ACTIONS;

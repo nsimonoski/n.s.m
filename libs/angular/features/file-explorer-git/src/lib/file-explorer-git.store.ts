@@ -16,14 +16,6 @@ import { SnackbarService } from '@org/angular/ui';
 
 const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
 
-function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
-  const paths = [dir.path];
-  for (const child of dir.directories) {
-    paths.push(...collectDirectoryPaths(child));
-  }
-  return paths;
-}
-
 interface GitExplorerState {
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
@@ -42,7 +34,6 @@ export const FileExplorerGitStore = signalStore(
     behind: 0,
   }),
   partialStore.withLoading(),
-  partialStore.withFileTree(),
   partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
   withProps(() => ({
     service: inject(GitService),
@@ -59,7 +50,6 @@ export const FileExplorerGitStore = signalStore(
         tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
           state.setLoading(false);
           patchState(state, { changesTree, ...rest });
-          state.expandAll(collectDirectoryPaths(changesTree));
         }),
       ),
     ),
@@ -95,7 +85,6 @@ export const FileExplorerGitStore = signalStore(
         switchMap(() => state.wsService.gitChanges$),
         tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
           patchState(state, { changesTree, ...rest });
-          state.expandAll(collectDirectoryPaths(changesTree));
         }),
       ),
     ),

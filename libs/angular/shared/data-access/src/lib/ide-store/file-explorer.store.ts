@@ -12,7 +12,7 @@ import {
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
 import { partialStore } from '@org/angular-utils';
-import { distinctUntilChanged, filter, firstValueFrom, map, pipe, switchMap, tap } from 'rxjs';
+import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
 
@@ -33,7 +33,6 @@ export const FileExplorerStore = signalStore(
   }),
   partialStore.withLoading(),
   partialStore.withDialog(),
-  partialStore.withFileTree(),
   partialStore.withRouting(),
   withProps(() => ({
     service: inject(FileExplorerService),
@@ -63,9 +62,9 @@ export const FileExplorerStore = signalStore(
       navigateToFile: (filePath: string) => {
         state.navigate('/explorer?filePath=' + encodeURIComponent(filePath));
       },
-      revealFile: async (filePath: string) => {
+      revealFile: async (filePath: string): Promise<{ ancestors: string[]; filePath: string } | null> => {
         const rootPath = state.directory()?.path;
-        if (!rootPath) return;
+        if (!rootPath) return null;
 
         const ancestors = FileUtils.getAncestorPaths(rootPath, filePath);
 
@@ -82,9 +81,7 @@ export const FileExplorerStore = signalStore(
           }
         }
 
-        const expanded = new Set(state.expandedPaths());
-        ancestors.forEach((p) => expanded.add(p));
-        patchState(state, { expandedPaths: expanded, selectedPath: filePath });
+        return { ancestors, filePath };
       },
       getDirectory: rxMethod<string>(
         pipe(
@@ -191,28 +188,11 @@ export const FileExplorerStore = signalStore(
       ),
     };
   }),
-  withMethods((state) => ({
-    listenToFileOpen: rxMethod<void>(
-      pipe(
-        switchMap(() =>
-          state.navigationEnd$.pipe(
-            map((event) =>
-              new URL(event.urlAfterRedirects, location.origin).searchParams.get('filePath'),
-            ),
-            filter((filePath): filePath is string => !!filePath),
-            distinctUntilChanged(),
-          ),
-        ),
-        tap((filePath) => state.revealFile(filePath)),
-      ),
-    ),
-  })),
   withHooks({
     onInit(state) {
       state.getDirectory(ROOT_PATH);
       state.wsService.watchPath(ROOT_PATH);
       state.listenToFileChanges();
-      state.listenToFileOpen();
     },
   }),
 );

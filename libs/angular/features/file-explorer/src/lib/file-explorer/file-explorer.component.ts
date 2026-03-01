@@ -1,4 +1,6 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, effect, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, filter, map } from 'rxjs';
 
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import { IdeStore } from '@org/angular-data-access';
@@ -7,25 +9,47 @@ import {
   ContextMenuActionEvent,
   ContextMenuComponent,
   FileTreeComponent,
+  FileTreeCreateNodeComponent,
 } from '@org/angular/ui';
 
 @Component({
   selector: 'ide-file-explorer',
   standalone: true,
-  imports: [FileTreeComponent, ConfirmationDialogComponent, ContextMenuComponent],
+  imports: [
+    FileTreeComponent,
+    FileTreeCreateNodeComponent,
+    ConfirmationDialogComponent,
+    ContextMenuComponent,
+  ],
   templateUrl: './file-explorer.component.html',
   styleUrls: ['./file-explorer.component.scss'],
 })
 export class FileExplorerComponent {
   readonly store = inject(IdeStore.FileExplorerStore);
   readonly fileTree = viewChild.required(FileTreeComponent);
+  readonly inlineCreate = signal<ContextMenu.InlineCreate | null>(null);
 
-  onExpandToggled(node: DirectoryResponseDto): void {
-    this.store.toggleExpanded(node.path);
-  }
+  private readonly revealFilePath = toSignal(
+    this.store.navigationEnd$.pipe(
+      map((event) =>
+        new URL(event.urlAfterRedirects, location.origin).searchParams.get('filePath'),
+      ),
+      filter((filePath): filePath is string => !!filePath),
+      distinctUntilChanged(),
+    ),
+  );
 
-  onNodeSelected(node: DirectoryResponseDto | FileResponseDto): void {
-    this.store.selectNode(node.path);
+  constructor() {
+    effect(async () => {
+      const filePath = this.revealFilePath();
+      if (!filePath) return;
+
+      const result = await this.store.revealFile(filePath);
+      if (!result) return;
+
+      this.fileTree().expandPaths(result.ancestors);
+      this.fileTree().selectNode(result.filePath);
+    });
   }
 
   handleInlineCreate(event: ContextMenu.InlineCreateEvent): void {
@@ -80,10 +104,14 @@ export class FileExplorerComponent {
   onContextMenuAction(event: ContextMenuActionEvent): void {
     switch (event.action) {
       case ContextMenu.Action.NEW_FILE:
-        this.fileTree().startInlineCreate(event.node, 'file');
+        this.inlineCreate.set(
+          ContextMenu.startInlineCreate(event.node, 'file', this.store.directory()!.path),
+        );
         break;
       case ContextMenu.Action.NEW_FOLDER:
-        this.fileTree().startInlineCreate(event.node, 'directory');
+        this.inlineCreate.set(
+          ContextMenu.startInlineCreate(event.node, 'directory', this.store.directory()!.path),
+        );
         break;
       case ContextMenu.Action.RENAME:
         if (event.node) {

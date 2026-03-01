@@ -13,11 +13,7 @@
   @if (store.changesTree()) {
     <ui-file-tree
       [rootDirectory]="store.changesTree()!"
-      [expandedPaths]="store.expandedPaths()"
-      [selectedPath]="store.selectedPath()"
       [statusMap]="store.statusMap()"
-      (expandToggled)="store.toggleExpanded($event.path)"
-      (nodeSelected)="store.selectNode($event.path)"
       (handleOpen)="onFileClick($event)"
     >
       <ng-template #nodeActions let-node>
