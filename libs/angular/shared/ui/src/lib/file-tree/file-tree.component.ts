@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   contentChild,
+  effect,
   ElementRef,
   input,
   output,
@@ -11,6 +12,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
 import { ContextMenuState, ContextMenuTemplateContext } from '../context-menu/context-menu.dto';
 import {
   FileIconPipe,
@@ -22,13 +24,7 @@ import {
 @Component({
   selector: 'ui-file-tree',
   standalone: true,
-  imports: [
-    NgTemplateOutlet,
-    FileIconPipe,
-    ExpandIconPipe,
-    IndentGuidesPipe,
-    FileChildrenPipe,
-  ],
+  imports: [NgTemplateOutlet, FileIconPipe, ExpandIconPipe, IndentGuidesPipe, FileChildrenPipe],
   templateUrl: './file-tree.component.html',
   styleUrls: ['./file-tree.component.scss'],
 })
@@ -54,10 +50,13 @@ export class FileTreeComponent {
 
   renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
-  rootNodes = computed(() => {
-    const root = this.rootDirectory();
-    return [...root.directories, ...root.files];
-  });
+  constructor() {
+    effect(() => {
+      this.focusRenameInputAfterRender();
+    });
+  }
+
+  rootNodes = computed(() => [...this.rootDirectory().directories, ...this.rootDirectory().files]);
 
   onNodeClick(node: DirectoryResponseDto | FileResponseDto): void {
     this.selectNode(node.path);
@@ -104,18 +103,6 @@ export class FileTreeComponent {
 
   startRename(node: DirectoryResponseDto | FileResponseDto): void {
     this.renamingNode.set(node);
-    setTimeout(() => {
-      const input = this.renameInput()?.nativeElement;
-      if (!input) return;
-      input.focus();
-
-      const dotIndex = node.name.lastIndexOf('.');
-      if (dotIndex > 0) {
-        input.setSelectionRange(0, dotIndex);
-      } else {
-        input.select();
-      }
-    });
   }
 
   expandPaths(paths: string[]): void {
@@ -131,6 +118,13 @@ export class FileTreeComponent {
   closeContextMenu = (): void => {
     this.contextMenu.update((state) => ({ ...state, visible: false }));
   };
+
+  private focusRenameInputAfterRender(): void {
+    const node = this.renamingNode();
+    const input = this.renameInput()?.nativeElement;
+    if (!node || !input) return;
+    FileUtils.focusRenameInput(input, node.name);
+  }
 
   private toggleExpanded(path: string): void {
     const expanded = new Set(this.expandedPaths());

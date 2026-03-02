@@ -12,6 +12,16 @@ export function getAncestorPaths(rootPath: string, filePath: string): string[] {
   return paths;
 }
 
+export function focusRenameInput(input: HTMLInputElement, name: string): void {
+  input.focus();
+  const dotIndex = name.lastIndexOf('.');
+  if (dotIndex > 0) {
+    input.setSelectionRange(0, dotIndex);
+  } else {
+    input.select();
+  }
+}
+
 export function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
   const paths = [dir.path];
   for (const child of dir.directories) {

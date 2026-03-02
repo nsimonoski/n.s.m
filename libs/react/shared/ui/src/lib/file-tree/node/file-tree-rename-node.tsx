@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { DirectoryResponseDto, FileResponseDto } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
 import { useFileTreeContext } from '../file-tree.context';
 
 interface FileTreeRenameNodeProps {
@@ -13,14 +14,7 @@ export function FileTreeRenameNode({ node }: FileTreeRenameNodeProps) {
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
-    input.focus();
-
-    const dotIndex = node.name.lastIndexOf('.');
-    if (dotIndex > 0) {
-      input.setSelectionRange(0, dotIndex);
-    } else {
-      input.select();
-    }
+    FileUtils.focusRenameInput(input, node.name);
   }, [node.name]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
