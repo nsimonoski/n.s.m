@@ -1,44 +1,42 @@
 import { execFile } from 'child_process';
-import { promises as fs } from 'fs';
 import { promisify } from 'util';
-import * as path from 'path';
 
 import type { FileResponseDto, DirectoryResponseDto } from '@org/shared/contracts';
 import { Enums } from '@org/shared/contracts';
-import { FileSystemErrorMapper } from '../domain/file-system-error.mapper';
 import { FileSystemProvider } from '../domain/file-system.provider';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { FileUtils } from '@org/shared/utils';
+import { FileSystemService, PathUtils } from '../../common';
 
 const execFileAsync = promisify(execFile);
 
 @Injectable()
 export class LocalFileSystemProvider extends FileSystemProvider {
-  constructor(private readonly errorMapper: FileSystemErrorMapper) {
+  constructor(private readonly fileSystemService: FileSystemService) {
     super();
   }
 
   async readDirectory(dirPath: string): Promise<DirectoryResponseDto> {
-    const stat = await fs.stat(dirPath);
-    const node = this.toDirectoryDto(dirPath, stat);
+    const { mtime, isDirectory } = await this.fileSystemService.getFileMetadata(dirPath);
+    const node = this.toDirectoryDto(dirPath, mtime);
 
-    if (!stat.isDirectory()) {
+    if (!isDirectory) {
       return node;
     }
 
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    const fullPaths = entries.map((e) => path.join(dirPath, e.name));
+    const entries = await this.fileSystemService.listDirectoryWithTypes(dirPath);
+    const fullPaths = entries.map((e) => PathUtils.combine(dirPath, e.name));
     const ignoredPaths = await this.getGitIgnoredPaths(dirPath, fullPaths);
 
     for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
-      const entryStat = await fs.stat(fullPath);
+      const fullPath = PathUtils.combine(dirPath, entry.name);
+      const { mtime } = await this.fileSystemService.getFileMetadata(fullPath);
       const gitIgnored = ignoredPaths.has(fullPath);
 
       if (entry.isFile()) {
-        node.files.push(this.toFileDto(fullPath, entryStat, { gitIgnored }));
+        node.files.push(this.toFileDto(fullPath, mtime, { gitIgnored }));
       } else if (entry.isDirectory()) {
-        node.directories.push(this.toDirectoryDto(fullPath, entryStat, { gitIgnored }));
+        node.directories.push(this.toDirectoryDto(fullPath, mtime, { gitIgnored }));
       }
     }
 
@@ -47,15 +45,15 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
   async getFile(filePath: string): Promise<FileResponseDto | undefined> {
     try {
-      const stat = await fs.stat(filePath);
-      if (!stat.isFile()) {
+      const { mtime, isFile } = await this.fileSystemService.getFileMetadata(filePath);
+      if (!isFile) {
         return undefined;
       }
 
-      const content = await fs.readFile(filePath, 'utf-8');
-      return this.toFileDto(filePath, stat, { content });
+      const content = await this.fileSystemService.readFileContent(filePath);
+      return this.toFileDto(filePath, mtime, { content });
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
@@ -72,81 +70,81 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
   async updateFile(fileDto: FileResponseDto): Promise<FileResponseDto> {
     try {
-      const stat = await fs.stat(fileDto.path);
+      const { isFile } = await this.fileSystemService.getFileMetadata(fileDto.path);
 
-      if (!stat.isFile()) {
+      if (!isFile) {
         throw new BadRequestException(`File not found: ${fileDto.path}`);
       }
 
       const content = await this.formatWithPrettier(fileDto.path, fileDto.content ?? '');
-      await fs.writeFile(fileDto.path, content);
+      await this.fileSystemService.writeFileContent(fileDto.path, content);
 
-      const updatedStat = await fs.stat(fileDto.path);
-      return this.toFileDto(fileDto.path, updatedStat, { content });
+      const { mtime } = await this.fileSystemService.getFileMetadata(fileDto.path);
+      return this.toFileDto(fileDto.path, mtime, { content });
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
   async rename(nodePath: string, newName: string): Promise<{ path: string }> {
     try {
-      await fs.stat(nodePath);
+      await this.fileSystemService.getFileMetadata(nodePath);
 
-      const newPath = path.join(path.dirname(nodePath), newName);
-      await fs.rename(nodePath, newPath);
+      const newPath = PathUtils.combine(PathUtils.getParentDirectory(nodePath), newName);
+      await this.fileSystemService.move(nodePath, newPath);
 
       return { path: newPath };
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
-  async delete(path: string): Promise<{ path: string }> {
+  async delete(nodePath: string): Promise<{ path: string }> {
     try {
-      await fs.rm(path, { recursive: true, force: false });
-      return { path };
+      await this.fileSystemService.remove(nodePath);
+      return { path: nodePath };
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
   async createDirectory(dirPath: string): Promise<DirectoryResponseDto> {
     try {
-      await fs.mkdir(dirPath);
+      await this.fileSystemService.createDirectory(dirPath);
 
-      const stat = await fs.stat(dirPath);
-      return this.toDirectoryDto(dirPath, stat);
+      const { mtime } = await this.fileSystemService.getFileMetadata(dirPath);
+      return this.toDirectoryDto(dirPath, mtime);
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
   async searchFiles(rootPath: string, query: string, limit = 20): Promise<FileResponseDto[]> {
-    return this.walkDirectory(rootPath, query.toLowerCase(), limit);
+    return this.searchDirectoryRecursive(rootPath, query.toLowerCase(), limit);
   }
 
   async createFile(filePath: string, content = ''): Promise<FileResponseDto> {
     try {
-      await fs.writeFile(filePath, content);
+      await this.fileSystemService.writeFileContent(filePath, content);
 
-      const stat = await fs.stat(filePath);
-      return this.toFileDto(filePath, stat, { content });
+      const { mtime } = await this.fileSystemService.getFileMetadata(filePath);
+      return this.toFileDto(filePath, mtime, { content });
     } catch (error) {
-      throw this.errorMapper.mapFsError(error);
+      throw this.fileSystemService.mapToHttpException(error);
     }
   }
 
   private toFileDto(
     filePath: string,
-    stat: { mtime: Date },
+    mtime: Date,
     overrides?: Partial<FileResponseDto>,
   ): FileResponseDto {
-    const ext = path.extname(filePath).slice(1);
+    const ext = PathUtils.getExtension(filePath);
     return {
       id: filePath,
-      name: path.basename(filePath),
+      name: PathUtils.getFileName(filePath),
       path: filePath,
-      updatedAt: stat.mtime.toISOString(),
+      updatedAt: mtime.toISOString(),
       extension: ext || undefined,
       type: FileUtils.getFileTypeFromExtension(ext),
       ...overrides,
@@ -155,22 +153,22 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
   private toDirectoryDto(
     dirPath: string,
-    stat: { mtime: Date },
+    mtime: Date,
     overrides?: Partial<DirectoryResponseDto>,
   ): DirectoryResponseDto {
     return {
       type: Enums.FileType.DIRECTORY,
       id: dirPath,
-      name: path.basename(dirPath),
+      name: PathUtils.getFileName(dirPath),
       path: dirPath,
       files: [],
       directories: [],
-      updatedAt: stat.mtime.toISOString(),
+      updatedAt: mtime.toISOString(),
       ...overrides,
     };
   }
 
-  private async walkDirectory(
+  private async searchDirectoryRecursive(
     dirPath: string,
     query: string,
     limit: number,
@@ -182,28 +180,28 @@ export class LocalFileSystemProvider extends FileSystemProvider {
 
     let entries: string[];
     try {
-      entries = await fs.readdir(dirPath);
+      entries = await this.fileSystemService.listDirectory(dirPath);
     } catch {
       return results;
     }
 
-    const fullPaths = entries.map((name) => path.join(dirPath, name));
+    const fullPaths = entries.map((name) => PathUtils.combine(dirPath, name));
     const ignoredPaths = await this.getGitIgnoredPaths(dirPath, fullPaths);
 
     for (const name of entries) {
       if (results.length >= limit) return results;
 
-      const fullPath = path.join(dirPath, name);
+      const fullPath = PathUtils.combine(dirPath, name);
       if (ignoredPaths.has(fullPath)) continue;
 
-      const stat = await fs.stat(fullPath);
+      const { mtime, isFile, isDirectory } = await this.fileSystemService.getFileMetadata(fullPath);
 
-      if (stat.isFile()) {
+      if (isFile) {
         if (name.toLowerCase().includes(query)) {
-          results.push(this.toFileDto(fullPath, stat));
+          results.push(this.toFileDto(fullPath, mtime));
         }
-      } else if (stat.isDirectory() && !skipDirs.has(name)) {
-        await this.walkDirectory(fullPath, query, limit, results);
+      } else if (isDirectory && !skipDirs.has(name)) {
+        await this.searchDirectoryRecursive(fullPath, query, limit, results);
       }
     }
 

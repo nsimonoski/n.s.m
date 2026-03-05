@@ -1,128 +1,108 @@
 import { OnModuleDestroy, Logger } from '@nestjs/common';
-import * as chokidar from 'chokidar';
-import * as path from 'path';
-import { Server } from 'socket.io';
+import type { FSWatcher } from 'chokidar';
+import { Server, Socket } from 'socket.io';
 import {
   WebSocketGateway,
   WebSocketServer,
   SubscribeMessage,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 
 import { GIT_CHANGE_EVENT, GIT_WATCH_EVENT } from '@org/shared/contracts';
 import { GitTreeUtils } from '@org/shared/utils';
+import { getCorsOrigins, FileWatcherService } from '../common';
 import { GitProvider } from './domain/git.provider';
 
 const THROTTLE_MS = 1000;
 
-const WORKING_TREE_IGNORED = [
-  '/node_modules',
-  '/.git',
-  '/dist',
-  '/.nx',
-  '/.angular',
-  '/.cache',
-  '/tmp',
-];
+interface ClientWatchers {
+  gitWatcher: FSWatcher;
+  workingTreeWatcher: FSWatcher;
+  throttleTimer: ReturnType<typeof setTimeout> | null;
+}
 
 @WebSocketGateway({
-  cors: { origin: ['http://localhost:4200', 'http://localhost:4201'] },
+  cors: { origin: getCorsOrigins() },
 })
 export class GitGateway implements OnModuleDestroy {
   private readonly logger = new Logger(GitGateway.name);
-  private gitWatcher: chokidar.FSWatcher | null = null;
-  private workingTreeWatcher: chokidar.FSWatcher | null = null;
-  private throttleTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly clientWatchers = new Map<string, ClientWatchers>();
 
-  constructor(private readonly gitProvider: GitProvider) {}
+  constructor(
+    private readonly gitProvider: GitProvider,
+    private readonly fileWatcherService: FileWatcherService,
+  ) {}
 
   @WebSocketServer()
   server!: Server;
 
   @SubscribeMessage(GIT_WATCH_EVENT)
-  handleWatch(@MessageBody() repoPath: string) {
-    this.closeWatchers();
+  watchRepository(@MessageBody() repoPath: string, @ConnectedSocket() client: Socket) {
+    this.stopWatching(client.id);
 
-    this.logger.log(`Watching git repo at ${repoPath}`);
+    this.logger.log(`[${client.id}] Watching git repo at ${repoPath}`);
 
-    // Watch .git internals — catches stage, unstage, commit, branch switch
-    const gitDir = path.join(repoPath, '.git');
-    this.gitWatcher = chokidar.watch(
-      [
-        path.join(gitDir, 'index'),
-        path.join(gitDir, 'HEAD'),
-        path.join(gitDir, 'refs'),
-        path.join(gitDir, 'MERGE_HEAD'),
-        path.join(gitDir, 'REBASE_HEAD'),
-      ],
-      {
-        ignoreInitial: true,
-        persistent: true,
-        ignored: (filePath: string) => filePath.endsWith('.lock'),
-        depth: 3,
-      },
-    );
+    const gitWatcher = this.fileWatcherService.watchGitForChanges(repoPath);
+    const workingTreeWatcher = this.fileWatcherService.watchRepositoryForChanges(repoPath);
 
-    // Watch working tree — catches new untracked files, modifications, deletions
-    this.workingTreeWatcher = chokidar.watch(repoPath, {
-      ignoreInitial: true,
-      persistent: true,
-      ignored: (filePath: string) => WORKING_TREE_IGNORED.some((dir) => filePath.includes(dir)),
-      depth: 10,
-      usePolling: true,
-      interval: 1000,
+    const watchers: ClientWatchers = { gitWatcher, workingTreeWatcher, throttleTimer: null };
+    this.clientWatchers.set(client.id, watchers);
+
+    const scheduleEmit = () => {
+      if (watchers.throttleTimer) return;
+      watchers.throttleTimer = setTimeout(async () => {
+        watchers.throttleTimer = null;
+        if (!this.clientWatchers.has(client.id)) return;
+        try {
+          const status = await this.gitProvider.status(repoPath);
+          const payload = {
+            branch: status.branch,
+            tree: GitTreeUtils.buildGitChangesTree(status),
+            statusMap: GitTreeUtils.buildGitStatusMap(status),
+            ahead: status.ahead,
+            behind: status.behind,
+            stagedCount: status.staged.length,
+            changesCount: status.unstaged.length + status.untracked.length,
+          };
+          client.emit(GIT_CHANGE_EVENT, payload);
+        } catch {
+          this.stopWatching(client.id);
+        }
+      }, THROTTLE_MS);
+    };
+
+    gitWatcher.on('all', (event, filePath) => {
+      this.logger.debug(`[${client.id}] Git internal: ${event} ${filePath}`);
+      scheduleEmit();
     });
 
-    this.gitWatcher.on('all', (event, filePath) => {
-      this.logger.debug(`Git internal: ${event} ${filePath}`);
-      this.scheduleEmit(repoPath);
-    });
-
-    this.workingTreeWatcher.on('all', (event, filePath) => {
-      this.logger.debug(`Working tree: ${event} ${filePath}`);
-      this.scheduleEmit(repoPath);
+    workingTreeWatcher.on('all', (event, filePath) => {
+      this.logger.debug(`[${client.id}] Working tree: ${event} ${filePath}`);
+      scheduleEmit();
     });
   }
 
-  private scheduleEmit(repoPath: string) {
-    if (this.throttleTimer) return;
-    this.throttleTimer = setTimeout(async () => {
-      this.throttleTimer = null;
-      try {
-        const status = await this.gitProvider.status(repoPath);
-        const payload = {
-          branch: status.branch,
-          tree: GitTreeUtils.buildGitChangesTree(status),
-          statusMap: GitTreeUtils.buildGitStatusMap(status),
-          ahead: status.ahead,
-          behind: status.behind,
-          stagedCount: status.staged.length,
-          changesCount: status.unstaged.length + status.untracked.length,
-        };
-        this.server.emit(GIT_CHANGE_EVENT, payload);
-      } catch (error) {
-        this.logger.error('Failed to compute git status for WS event', error);
-      }
-    }, THROTTLE_MS);
-  }
-
-  private closeWatchers() {
-    if (this.throttleTimer) {
-      clearTimeout(this.throttleTimer);
-      this.throttleTimer = null;
-    }
-    if (this.gitWatcher) {
-      this.gitWatcher.close();
-      this.gitWatcher = null;
-    }
-    if (this.workingTreeWatcher) {
-      this.workingTreeWatcher.close();
-      this.workingTreeWatcher = null;
-    }
+  handleDisconnect(client: Socket) {
+    this.stopWatching(client.id);
   }
 
   onModuleDestroy() {
-    this.closeWatchers();
-    this.logger.log('Git watchers closed');
+    for (const clientId of this.clientWatchers.keys()) {
+      this.stopWatching(clientId);
+    }
+    this.logger.log('All git watchers closed');
+  }
+
+  private stopWatching(clientId: string): void {
+    const watchers = this.clientWatchers.get(clientId);
+    if (!watchers) return;
+
+    if (watchers.throttleTimer) {
+      clearTimeout(watchers.throttleTimer);
+    }
+    watchers.gitWatcher.close();
+    watchers.workingTreeWatcher.close();
+    this.clientWatchers.delete(clientId);
   }
 }

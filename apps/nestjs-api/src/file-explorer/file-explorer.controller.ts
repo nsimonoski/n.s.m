@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 
 import type {
@@ -14,9 +15,13 @@ import type {
   DirectoryResponseDto,
   RenameRequestDto,
 } from '@org/shared/contracts';
+import { Permission } from '@org/shared/contracts';
 
+import { PermissionGuard } from '../common';
+import { AuthGuard } from '../auth/auth.guard';
 import { FileSystemProvider } from './domain/file-system.provider';
 
+@UseGuards(AuthGuard)
 @Controller('file-explorer')
 export class FileExplorerController {
   constructor(private readonly service: FileSystemProvider) {}
@@ -68,11 +73,13 @@ export class FileExplorerController {
   }
 
   @Put('file')
+  @UseGuards(PermissionGuard(Permission.FileWrite))
   async updateFile(@Body() fileDto: FileResponseDto): Promise<FileResponseDto> {
     return this.service.updateFile(fileDto);
   }
 
   @Put('rename')
+  @UseGuards(PermissionGuard(Permission.FileWrite))
   async rename(@Body() body: RenameRequestDto): Promise<{ path: string }> {
     const { path, newName } = body;
 
@@ -84,6 +91,7 @@ export class FileExplorerController {
   }
 
   @Post('file')
+  @UseGuards(PermissionGuard(Permission.FileWrite))
   async createFile(
     @Body('path') path: string,
     @Body('content') content?: string,
@@ -96,6 +104,7 @@ export class FileExplorerController {
   }
 
   @Post('directory')
+  @UseGuards(PermissionGuard(Permission.FileWrite))
   async createDirectory(@Body('path') path: string): Promise<DirectoryResponseDto> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -105,6 +114,7 @@ export class FileExplorerController {
   }
 
   @Delete()
+  @UseGuards(PermissionGuard(Permission.FileWrite))
   async delete(@Body('path') path: string): Promise<{ path: string }> {
     if (!path) {
       throw new BadRequestException('Path is required');

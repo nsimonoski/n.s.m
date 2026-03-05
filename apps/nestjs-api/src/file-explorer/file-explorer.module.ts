@@ -3,16 +3,19 @@ import { FileExplorerController } from './file-explorer.controller';
 import { FileExplorerGateway } from './file-explorer.gateway';
 import { FileSystemProvider } from './domain/file-system.provider';
 import { LocalFileSystemProvider } from './infrasturcure/local-file-system.provider';
-import { FileSystemErrorMapper } from './domain/file-system-error.mapper';
+import { FileSystemService, FileWatcherService } from '../common';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [FileExplorerController],
   providers: [
     {
       provide: FileSystemProvider,
       useClass: LocalFileSystemProvider,
     },
-    FileSystemErrorMapper,
+    FileSystemService,
+    FileWatcherService,
     FileExplorerGateway,
   ],
 })

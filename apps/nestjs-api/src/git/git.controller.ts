@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import { Permission } from '@org/shared/contracts';
 import type {
   GitBranchDto,
   GitCheckoutRequestDto,
@@ -13,8 +14,11 @@ import type {
   GitStatusTreeResponseDto,
 } from '@org/shared/contracts';
 import { GitTreeUtils } from '@org/shared/utils';
+import { PermissionGuard } from '../common';
+import { AuthGuard } from '../auth/auth.guard';
 import { GitProvider } from './domain/git.provider';
 
+@UseGuards(AuthGuard)
 @Controller('git')
 export class GitController {
   constructor(private readonly service: GitProvider) {}
@@ -68,6 +72,7 @@ export class GitController {
   }
 
   @Post('clone')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async clone(@Body() body: GitCloneRequestDto): Promise<void> {
     if (!body.url || !body.path) {
       throw new BadRequestException('URL and path are required');
@@ -77,6 +82,7 @@ export class GitController {
   }
 
   @Post('checkout')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async checkout(@Query('path') path: string, @Body() body: GitCheckoutRequestDto): Promise<void> {
     if (!path || !body.branch) {
       throw new BadRequestException('Path and branch are required');
@@ -86,6 +92,7 @@ export class GitController {
   }
 
   @Post('fetch')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async fetch(@Query('path') path: string): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -95,6 +102,7 @@ export class GitController {
   }
 
   @Post('pull')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async pull(@Query('path') path: string, @Body() body: GitPullRequestDto): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -104,6 +112,7 @@ export class GitController {
   }
 
   @Post('push')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async push(@Query('path') path: string, @Body() body: GitPushRequestDto): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -113,6 +122,7 @@ export class GitController {
   }
 
   @Post('commit')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async commit(
     @Query('path') path: string,
     @Body() body: GitCommitRequestDto,
@@ -125,6 +135,7 @@ export class GitController {
   }
 
   @Post('stage')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async stage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
@@ -134,6 +145,7 @@ export class GitController {
   }
 
   @Post('unstage')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async unstage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
@@ -143,6 +155,7 @@ export class GitController {
   }
 
   @Post('discard')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async discard(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
     if (!path || !body.paths?.length) {
       throw new BadRequestException('Path and file paths are required');
@@ -152,6 +165,7 @@ export class GitController {
   }
 
   @Post('stash')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async stash(@Query('path') path: string): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -161,6 +175,7 @@ export class GitController {
   }
 
   @Post('stash/pop')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async stashPop(@Query('path') path: string): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -170,6 +185,7 @@ export class GitController {
   }
 
   @Post('stash/apply')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async stashApply(@Query('path') path: string): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
@@ -193,6 +209,7 @@ export class GitController {
   }
 
   @Post('undo-commit')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
   async undoCommit(@Query('path') path: string): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
