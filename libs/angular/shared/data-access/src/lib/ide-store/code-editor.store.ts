@@ -12,7 +12,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { distinctUntilChanged, EMPTY, filter, map, pipe, switchMap, tap } from 'rxjs';
 import { FileResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
-import { MonacoUtils } from '@org/shared/utils';
+import { AppRoutes, MonacoUtils } from '@org/shared/utils';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
 
@@ -48,9 +48,9 @@ export const CodeEditorStore = signalStore(
         activeFilePath: activePath,
       });
       if (activePath) {
-        state.navigate('/explorer?filePath=' + encodeURIComponent(activePath));
+        state.navigate(AppRoutes.ide.explorerWithFile(activePath));
       } else {
-        state.navigate('/explorer');
+        state.navigate(AppRoutes.ide.explorer);
       }
     };
 
@@ -101,7 +101,7 @@ export const CodeEditorStore = signalStore(
       },
 
       setActiveFile(path: string): void {
-        state.navigate('/explorer?filePath=' + encodeURIComponent(path));
+        state.navigate(AppRoutes.ide.explorerWithFile(path));
       },
 
       closeOthers(path: string): void {
@@ -113,6 +113,10 @@ export const CodeEditorStore = signalStore(
       closeAll(): void {
         patchState(state, { openFiles: [] });
         syncAfterClose([], null);
+      },
+
+      reset(): void {
+        patchState(state, { openFiles: [], openFilePaths: [], activeFilePath: null });
       },
 
       closeSaved(): void {
@@ -202,8 +206,8 @@ export const CodeEditorStore = signalStore(
           patchState(state, { openFiles });
           if (activePath) {
             state.saveToStorage({ activeFilePath: activePath });
-            if (state.currentUrl().startsWith('/explorer')) {
-              state.navigate('/explorer?filePath=' + encodeURIComponent(activePath));
+            if (state.currentUrl().startsWith(AppRoutes.ide.explorer)) {
+              state.navigate(AppRoutes.ide.explorerWithFile(activePath));
             }
           }
         }),

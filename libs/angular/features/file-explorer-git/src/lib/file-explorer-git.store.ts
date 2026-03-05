@@ -14,9 +14,8 @@ import { partialStore } from '@org/angular-utils';
 import { IdeStore, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
 import { SnackbarService } from '@org/angular/ui';
 
-const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
-
 interface GitExplorerState {
+  rootPath: string;
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
   commitMessage: string;
@@ -27,6 +26,7 @@ interface GitExplorerState {
 export const FileExplorerGitStore = signalStore(
   { providedIn: 'root' },
   withState<GitExplorerState>({
+    rootPath: '',
     changesTree: null,
     statusMap: {},
     commitMessage: '',
@@ -36,6 +36,7 @@ export const FileExplorerGitStore = signalStore(
   partialStore.withLoading(),
   partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
   withProps(() => ({
+    authStore: inject(IdeStore.AuthStore),
     service: inject(GitService),
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
@@ -54,20 +55,20 @@ export const FileExplorerGitStore = signalStore(
       ),
     ),
     stage: rxMethod<string[]>(
-      pipe(switchMap((paths: string[]) => state.service.stage(ROOT_PATH, paths))),
+      pipe(switchMap((paths: string[]) => state.service.stage(state.rootPath(), paths))),
     ),
     unstage: rxMethod<string[]>(
-      pipe(switchMap((paths: string[]) => state.service.unstage(ROOT_PATH, paths))),
+      pipe(switchMap((paths: string[]) => state.service.unstage(state.rootPath(), paths))),
     ),
     discard: rxMethod<string[]>(
-      pipe(switchMap((paths: string[]) => state.service.discard(ROOT_PATH, paths))),
+      pipe(switchMap((paths: string[]) => state.service.discard(state.rootPath(), paths))),
     ),
     setCommitMessage: (commitMessage: string) => {
       state.saveToStorage({ commitMessage });
     },
     commit: rxMethod<string>(
       pipe(
-        switchMap((message: string) => state.service.commit(ROOT_PATH, message)),
+        switchMap((message: string) => state.service.commit(state.rootPath(), message)),
         tap(() => {
           state.saveToStorage({ commitMessage: '' });
           state.snackbar.success('Committed!');
@@ -76,7 +77,7 @@ export const FileExplorerGitStore = signalStore(
     ),
     sync: rxMethod<void>(
       pipe(
-        switchMap(() => state.service.push(ROOT_PATH)),
+        switchMap(() => state.service.push(state.rootPath())),
         tap(() => state.snackbar.success('Pushed!')),
       ),
     ),
@@ -90,19 +91,19 @@ export const FileExplorerGitStore = signalStore(
     ),
     stash: rxMethod<void>(
       pipe(
-        switchMap(() => state.service.stash(ROOT_PATH)),
+        switchMap(() => state.service.stash(state.rootPath())),
         tap(() => state.snackbar.success('Stashed!')),
       ),
     ),
     stashPop: rxMethod<void>(
       pipe(
-        switchMap(() => state.service.stashPop(ROOT_PATH)),
+        switchMap(() => state.service.stashPop(state.rootPath())),
         tap(() => state.snackbar.success('Stash popped!')),
       ),
     ),
     stashApply: rxMethod<void>(
       pipe(
-        switchMap(() => state.service.stashApply(ROOT_PATH)),
+        switchMap(() => state.service.stashApply(state.rootPath())),
         tap(() => state.snackbar.success('Stash applied!')),
       ),
     ),
@@ -110,8 +111,8 @@ export const FileExplorerGitStore = signalStore(
       pipe(
         switchMap((filePath: string) =>
           forkJoin({
-            headContent: state.service.showDiff(ROOT_PATH, filePath),
-            currentFile: state.fileService.getFile(`${ROOT_PATH}/${filePath}`),
+            headContent: state.service.showDiff(state.rootPath(), filePath),
+            currentFile: state.fileService.getFile(`${state.rootPath()}/${filePath}`),
           }),
         ),
         tap(({ headContent, currentFile }) => {
@@ -122,9 +123,11 @@ export const FileExplorerGitStore = signalStore(
   })),
   withHooks({
     onInit(state) {
+      const rootPath = state.authStore.workspace()?.rootPath ?? '';
+      patchState(state, { rootPath });
       state.loadFromStorage();
-      state.getStatus(ROOT_PATH);
-      state.wsService.watchPath(ROOT_PATH);
+      state.getStatus(rootPath);
+      state.wsService.watchRepositoryForChanges(rootPath);
       state.listenToGitChanges();
     },
   }),

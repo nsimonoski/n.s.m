@@ -1,3 +1,5 @@
+export { AuthService } from './lib/auth.service';
+export { WorkspaceService } from './lib/workspace.service';
 export { FileExplorerService } from './lib/file-explorer.service';
 export { FileExplorerWsService } from './lib/file-explorer-ws.service';
 export { GitService } from './lib/git.service';

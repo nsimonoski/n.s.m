@@ -10,7 +10,7 @@ export class FileExplorerWsService {
 
   fileChanges$: Observable<FileChangeEvent> = this.socket.on<FileChangeEvent>(FILE_CHANGE_EVENT);
 
-  watchPath(path: string) {
+  watchDirectoryForChanges(path: string) {
     this.socket.watch(FILE_WATCH_EVENT, path);
   }
 }

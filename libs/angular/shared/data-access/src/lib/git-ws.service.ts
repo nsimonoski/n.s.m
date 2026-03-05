@@ -10,7 +10,7 @@ export class GitWsService {
 
   gitChanges$: Observable<GitStatusTreeResponseDto> = this.socket.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT);
 
-  watchPath(path: string) {
+  watchRepositoryForChanges(path: string) {
     this.socket.watch(GIT_WATCH_EVENT, path);
   }
 }

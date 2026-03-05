@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { IdeStore } from '@org/angular-data-access';
 import { BranchPickerComponent } from '../branch-picker/branch-picker.component';
 import { FileExplorerCoreStore } from '../file-explorer-core.store';
 
@@ -11,6 +12,7 @@ import { FileExplorerCoreStore } from '../file-explorer-core.store';
 })
 export class FooterComponent {
   readonly coreStore = inject(FileExplorerCoreStore);
+  readonly authStore = inject(IdeStore.AuthStore);
   readonly branchPickerOpen = signal(false);
 
   openBranchPicker(): void {
@@ -25,5 +27,9 @@ export class FooterComponent {
 
   closeBranchPicker(): void {
     this.branchPickerOpen.set(false);
+  }
+
+  logout(): void {
+    this.authStore.logout();
   }
 }

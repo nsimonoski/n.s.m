@@ -10,23 +10,24 @@ import {
 } from '@ngrx/signals';
 
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
-import { FileUtils } from '@org/shared/utils';
+import { AppRoutes, FileUtils } from '@org/shared/utils';
 import { partialStore } from '@org/angular-utils';
 import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
+import { AuthStore } from './auth.store';
 
 interface FileExplorerComponentState {
+  rootPath: string;
   directory: DirectoryResponseDto | null;
   file: FileResponseDto | null;
   loading: boolean;
 }
 
-const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
-
 export const FileExplorerStore = signalStore(
   { providedIn: 'root' },
   withState<FileExplorerComponentState>({
+    rootPath: '',
     directory: null,
     file: null,
     loading: false,
@@ -35,6 +36,7 @@ export const FileExplorerStore = signalStore(
   partialStore.withDialog(),
   partialStore.withRouting(),
   withProps(() => ({
+    authStore: inject(AuthStore),
     service: inject(FileExplorerService),
     wsService: inject(FileExplorerWsService),
   })),
@@ -60,9 +62,11 @@ export const FileExplorerStore = signalStore(
     return {
       refreshParentDirectory,
       navigateToFile: (filePath: string) => {
-        state.navigate('/explorer?filePath=' + encodeURIComponent(filePath));
+        state.navigate(AppRoutes.ide.explorerWithFile(filePath));
       },
-      revealFile: async (filePath: string): Promise<{ ancestors: string[]; filePath: string } | null> => {
+      revealFile: async (
+        filePath: string,
+      ): Promise<{ ancestors: string[]; filePath: string } | null> => {
         const rootPath = state.directory()?.path;
         if (!rootPath) return null;
 
@@ -190,8 +194,10 @@ export const FileExplorerStore = signalStore(
   }),
   withHooks({
     onInit(state) {
-      state.getDirectory(ROOT_PATH);
-      state.wsService.watchPath(ROOT_PATH);
+      const rootPath = state.authStore.workspace()?.rootPath ?? '';
+      patchState(state, { rootPath });
+      state.getDirectory(rootPath);
+      state.wsService.watchDirectoryForChanges(rootPath);
       state.listenToFileChanges();
     },
   }),

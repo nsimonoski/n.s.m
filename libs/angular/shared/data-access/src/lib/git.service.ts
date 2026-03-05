@@ -8,12 +8,13 @@ import {
   GitStatusDto,
   GitStatusTreeResponseDto,
 } from '@org/shared/contracts';
+import { Environment } from '@org/shared/utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GitService {
-  private readonly API_BASE = 'http://localhost:3000/api/git';
+  private readonly API_BASE = `${Environment.API_BASE_URL}/git`;
 
   constructor(private readonly http: HttpClient) {}
 

@@ -38,7 +38,7 @@ export class GitGateway implements OnModuleDestroy {
   server!: Server;
 
   @SubscribeMessage(GIT_WATCH_EVENT)
-  watchRepository(@MessageBody() repoPath: string, @ConnectedSocket() client: Socket) {
+  watchRepositoryForChanges(@MessageBody() repoPath: string, @ConnectedSocket() client: Socket) {
     this.stopWatching(client.id);
 
     this.logger.log(`[${client.id}] Watching git repo at ${repoPath}`);

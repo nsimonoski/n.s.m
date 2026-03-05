@@ -6,8 +6,9 @@ import {
   GitStatusDto,
   GitStatusTreeResponseDto,
 } from '@org/shared/contracts';
+import { Environment } from '@org/shared/utils';
 
-const API = 'http://localhost:3000/api/git';
+const API = `${Environment.API_BASE_URL}/git`;
 
 export const gitService = {
   getStatus: (path: string) =>

@@ -1,11 +1,12 @@
 import { io, Socket } from 'socket.io-client';
+import { Environment } from '@org/shared/utils';
 
 class SocketService {
   private socket: Socket;
   private watchEvents: { event: string; data: unknown }[] = [];
 
   constructor() {
-    this.socket = io('http://localhost:3000');
+    this.socket = io(Environment.WS_BASE_URL);
 
     this.socket.on('connect', () => {
       for (const { event, data } of this.watchEvents) {

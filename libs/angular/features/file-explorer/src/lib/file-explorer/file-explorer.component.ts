@@ -1,4 +1,4 @@
-import { Component, effect, inject, viewChild, signal } from '@angular/core';
+import { Component, effect, inject, untracked, viewChild, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 
@@ -40,15 +40,11 @@ export class FileExplorerComponent {
   );
 
   constructor() {
-    effect(async () => {
+    effect(() => {
       const filePath = this.revealFilePath();
-      if (!filePath) return;
-
-      const result = await this.store.revealFile(filePath);
-      if (!result) return;
-
-      this.fileTree().expandPaths(result.ancestors);
-      this.fileTree().selectNode(result.filePath);
+      if (filePath) {
+        untracked(() => this.revealAndSelectFile(filePath));
+      }
     });
   }
 
@@ -125,5 +121,13 @@ export class FileExplorerComponent {
         if (event.node) this.store.navigateToFile(event.node.path);
         break;
     }
+  }
+
+  private async revealAndSelectFile(filePath: string): Promise<void> {
+    const result = await this.store.revealFile(filePath);
+    if (!result) return;
+
+    this.fileTree().expandPaths(result.ancestors);
+    this.fileTree().selectNode(result.filePath);
   }
 }

@@ -8,10 +8,8 @@
 }
 
 .file-tree {
-  height: 100%;
   overflow-x: hidden;
   padding: 4px 0;
-  @include custom-scrollbar;
 }
 
 .tree-node {

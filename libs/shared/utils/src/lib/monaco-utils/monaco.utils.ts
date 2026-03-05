@@ -78,7 +78,7 @@ export class MonacoUtils {
 
   private load(): Promise<typeof Monaco> {
     return new Promise((resolve, reject) => {
-      const baseUrl = 'monaco-editor/min/vs';
+      const baseUrl = '/monaco-editor/min/vs';
 
       const script = document.createElement('script');
       script.src = `${baseUrl}/loader.js`;

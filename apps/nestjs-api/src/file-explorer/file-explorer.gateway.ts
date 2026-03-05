@@ -32,7 +32,7 @@ export class FileExplorerGateway implements OnModuleDestroy {
   server!: Server;
 
   @SubscribeMessage(FILE_WATCH_EVENT)
-  watchDirectory(@MessageBody() watchPath: string, @ConnectedSocket() client: Socket) {
+  watchDirectoryForChanges(@MessageBody() watchPath: string, @ConnectedSocket() client: Socket) {
     // Close any existing watcher for this client before creating a new one
     this.stopWatching(client.id);
 

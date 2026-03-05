@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
+import { Environment } from '@org/shared/utils';
 
-const API = 'http://localhost:3000/api/file-explorer';
+const API = `${Environment.API_BASE_URL}/file-explorer`;
 
 export const fileExplorerService = {
   readDirectory: (path: string) =>

@@ -72,7 +72,10 @@
           "buildTarget": "angular-ide:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/angular-ide/proxy.conf.json"
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"

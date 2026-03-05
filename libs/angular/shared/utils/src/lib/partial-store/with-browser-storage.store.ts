@@ -6,6 +6,11 @@ interface BrowserStorageConfig {
   debounce?: number;
 }
 
+export function clearBrowserStorage(): void {
+  localStorage.clear();
+  sessionStorage.clear();
+}
+
 export const withBrowserStorage = (config: BrowserStorageConfig) => {
   const storage = config.type === 'session' ? sessionStorage : localStorage;
   const debounceMs = config.debounce ?? 0;

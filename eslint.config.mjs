@@ -23,7 +23,13 @@ export default [
           depConstraints: [
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:model', 'type:ui', 'type:util', 'type:domain'],
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:model',
+                'type:ui',
+                'type:util',
+                'type:domain',
+              ],
             },
             {
               sourceTag: 'type:ui',
