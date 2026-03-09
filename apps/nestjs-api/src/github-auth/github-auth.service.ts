@@ -25,8 +25,8 @@ export class GithubAuthService {
   ) {}
 
   getAuthorizationUrl(): string {
-    const clientId = this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CLIENT_ID);
-    const callbackUrl = this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CALLBACK_URL);
+    const clientId = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_ID);
+    const callbackUrl = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CALLBACK_URL);
     return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=repo`;
   }
 
@@ -69,8 +69,8 @@ export class GithubAuthService {
   }
 
   private async revokeGithubGrant(token: string): Promise<void> {
-    const clientId = this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CLIENT_ID);
-    const clientSecret = this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CLIENT_SECRET);
+    const clientId = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_ID);
+    const clientSecret = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_SECRET);
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     await fetch(`https://api.github.com/applications/${clientId}/grant`, {
@@ -93,8 +93,8 @@ export class GithubAuthService {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        client_id: this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CLIENT_ID),
-        client_secret: this.config.getOrThrow<string>(EnvironmentVariables.GITHUB_CLIENT_SECRET),
+        client_id: this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_ID),
+        client_secret: this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_SECRET),
         code,
       }),
     });

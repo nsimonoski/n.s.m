@@ -24,7 +24,8 @@ export class LocalFileSystemProvider extends FileSystemProvider {
       return node;
     }
 
-    const entries = await this.fileSystemService.listDirectoryWithTypes(dirPath);
+    const allEntries = await this.fileSystemService.listDirectoryWithTypes(dirPath);
+    const entries = allEntries.filter((e) => e.name !== '.git');
     const fullPaths = entries.map((e) => PathUtils.combine(dirPath, e.name));
     const ignoredPaths = await this.getGitIgnoredPaths(dirPath, fullPaths);
 

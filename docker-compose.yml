@@ -1,0 +1,35 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGINS=https://kod3.dev
+      - FRONTEND_URL=https://kod3.dev
+      - OAUTH_CALLBACK_URL=https://kod3.dev/api/auth/github/callback
+      - WORKSPACE_BASE_DIR=/data/workspaces
+      - DEMO_WORKSPACE_PATH=/data/demo
+    env_file:
+      - .env.production
+    volumes:
+      - workspace-data:/data/workspaces
+      - demo-data:/data/demo
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+  workspace-data:
+  demo-data:

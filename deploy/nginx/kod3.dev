@@ -1,0 +1,40 @@
+server {
+    listen 80;
+    server_name kod3.dev;
+
+    # Angular SPA
+    location /ang/ {
+        alias /var/www/kod3.dev/angular/;
+        try_files $uri $uri/ /ang/index.html;
+    }
+
+    # React SPA (later)
+    location /rct/ {
+        alias /var/www/kod3.dev/react/;
+        try_files $uri $uri/ /rct/index.html;
+    }
+
+    # NestJS API
+    location /api/ {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # WebSocket (socket.io)
+    location /socket.io/ {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Root redirect to Angular
+    location = / {
+        return 302 /ang/;
+    }
+}
