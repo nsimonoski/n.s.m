@@ -4,7 +4,7 @@ import { partialStore } from '@org/angular-utils';
 import { filter, from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
-const SNACKBAR_DELAY = 2000;
+const SNACKBAR_DELAY = 5000;
 
 export const DeploymentVersionStore = signalStore(
   { providedIn: 'root' },
