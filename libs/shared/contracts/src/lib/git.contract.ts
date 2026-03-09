@@ -26,13 +26,19 @@ export enum GitFileStatus {
 export interface GitLogEntryDto {
   hash: string;
   message: string;
+  body: string;
   author: string;
   date: string;
+  filesChanged: number;
+  insertions: number;
+  deletions: number;
 }
 
 export interface GitBranchDto {
   name: string;
   current: boolean;
+  remote: boolean;
+  lastCommit: GitLogEntryDto;
 }
 
 export interface GitCloneRequestDto {

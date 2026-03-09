@@ -1,0 +1,45 @@
+<div class="clone-repo-page">
+  <div class="clone-repo-card">
+    <div class="header">
+      <h1 class="title">Clone a Repository</h1>
+      @if (profile(); as profile) {
+        <div class="user-info">
+          @if (profile.avatarUrl) {
+            <img [src]="profile.avatarUrl" [alt]="profile.username" class="avatar" />
+          }
+          <span class="username">{{ profile.username }}</span>
+          <button class="btn-link" (click)="logout()">Sign out</button>
+        </div>
+      }
+    </div>
+
+    <div class="clone-form">
+      <label class="label" for="repoUrl">GitHub repository URL</label>
+      <div class="input-row">
+        <input
+          id="repoUrl"
+          type="text"
+          class="input"
+          placeholder="https://github.com/owner/repo"
+          [formControl]="repoUrl"
+          (keydown.enter)="clone()"
+        />
+        <button
+          class="btn btn-primary"
+          (click)="clone()"
+          [disabled]="isLoading() || !repoUrl.value"
+        >
+          @if (isLoading()) {
+            Cloning...
+          } @else {
+            Clone
+          }
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <p class="error">{{ errorMessage() }}</p>
+      }
+    </div>
+  </div>
+</div>

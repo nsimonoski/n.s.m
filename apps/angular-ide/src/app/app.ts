@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
-
-import { FileExplorerCoreComponent } from '@org/angular-file-explorer-core';
-import { CodeEditorComponent } from '@org/angular-code-editor';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [FileExplorerCoreComponent, CodeEditorComponent],
+  imports: [RouterOutlet],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',

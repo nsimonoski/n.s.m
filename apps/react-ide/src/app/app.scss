@@ -1,0 +1,19 @@
+.ide-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-placeholder {
+  width: 48px;
+  background: var(--bg-tertiary);
+  border-right: 1px solid var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.editor-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}

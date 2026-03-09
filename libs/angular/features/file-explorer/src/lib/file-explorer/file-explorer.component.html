@@ -6,19 +6,22 @@
   @if (store.directory()) {
     <ui-file-tree
       [rootDirectory]="store.directory()!"
-      [expandedPaths]="store.expandedPaths()"
-      [selectedPath]="store.selectedPath()"
-      (expandToggled)="onExpandToggled($event)"
-      (nodeSelected)="onNodeSelected($event)"
       (handleDelete)="handleDelete($event)"
-      (handleOpen)="store.getFile($event!.path)"
+      (handleOpen)="store.navigateToFile($event!.path)"
       (handleRename)="store.rename({ path: $event.node.path, newName: $event.newName })"
       (handleExpand)="store.expandDirectory($event.path)"
-      (handleInlineCreate)="handleInlineCreate($event)"
     >
+      <ng-template #createNode let-level="level" let-parentPath="parentPath">
+        @if (inlineCreate()?.parentPath === parentPath) {
+          <ui-file-tree-create-node
+            [level]="level"
+            [inlineCreate]="inlineCreate()!"
+            (confirmed)="handleInlineCreate($event)"
+            (cancelled)="inlineCreate.set(null)"
+          />
+        }
+      </ng-template>
 
-
-    
       <ng-template #contextMenu let-ctx let-close="close">
         <ui-context-menu
           [x]="ctx.x"

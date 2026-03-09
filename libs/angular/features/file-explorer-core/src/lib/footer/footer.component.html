@@ -1,6 +1,27 @@
 <div class="footer">
-  <span class="branch">
+  <span class="branch" (click)="openBranchPicker()">
     <img class="branch-icon" src="icons/git-branch.svg" alt="branch" />
-    {{ gitStore.branch() }}
+    {{ coreStore.branch() }}
   </span>
+
+  <span class="spacer"></span>
+
+  <span class="user-info">
+    {{ authStore.profile()?.username }}
+    @if (authStore.profile()?.isGuest) {
+      <span class="badge">guest</span>
+    }
+  </span>
+
+  <button class="footer-btn" (click)="logout()" title="Logout">
+    <i class="codicon codicon-sign-out"></i>
+  </button>
 </div>
+
+@if (branchPickerOpen()) {
+  <ide-branch-picker
+    [branches]="coreStore.branches()"
+    (branchSelected)="onBranchSelected($event)"
+    (closed)="closeBranchPicker()"
+  />
+}

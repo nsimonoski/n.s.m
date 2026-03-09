@@ -1,0 +1,49 @@
+.commit-input {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-input {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
+  border-radius: 2px;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  overflow: hidden;
+
+  &:focus {
+    border-color: var(--accent-focus);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder);
+  }
+}
+
+.commit-button {
+  width: 100%;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: var(--text-white);
+  background-color: var(--accent-button);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--accent-button-hover);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}

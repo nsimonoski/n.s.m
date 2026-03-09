@@ -1,0 +1,11 @@
+@use 'components/dropdown-menu';
+
+:host {
+  display: block;
+  padding: 4px 0;
+}
+
+// Nested panels get deeper indentation
+:host ::ng-deep ui-dropdown-menu-panel .dropdown-item {
+  padding-left: 36px;
+}

@@ -1,0 +1,6 @@
+@if (state().visible) {
+  <div class="snackbar" [class]="state().type">
+    <span class="snackbar-message">{{ state().message }}</span>
+    <button class="snackbar-dismiss" (click)="dismiss()">×</button>
+  </div>
+}

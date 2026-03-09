@@ -1,0 +1,8 @@
+<ui-command-palette
+  [items]="items()"
+  [loading]="loading()"
+  placeholder="Go to file..."
+  (searchChanged)="onSearchChanged($event)"
+  (itemSelected)="onItemSelected($event)"
+  (closed)="closed.emit()"
+/>

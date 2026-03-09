@@ -1,6 +1,8 @@
 /// <reference types='vitest' />
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -13,11 +15,14 @@ export default defineConfig(() => ({
     port: 4201,
     host: 'localhost',
   },
-  plugins: [react()],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [],
-  // },
+  plugins: [nxViteTsPaths(), react()],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        loadPaths: [resolve(import.meta.dirname, '../../libs/shared/styles/src')],
+      },
+    },
+  },
   build: {
     outDir: './dist',
     emptyOutDir: true,

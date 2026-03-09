@@ -1,26 +1,35 @@
-import { Component, inject, signal } from '@angular/core';
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
+import { Component, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
 import {
+  CollapsibleSectionComponent,
   ConfirmationDialogComponent,
-  ContextMenuAction,
   ContextMenuActionEvent,
   ContextMenuComponent,
-  ContextMenuItem,
+  DropdownMenuComponent,
+  DropdownMenuItem,
   FileTreeComponent,
   FileTreeNodeActionComponent,
-  GIT_CONTEXT_MENU_ITEMS,
   NodeAction,
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
+import { CommitHistoryComponent } from './commit-history/commit-history.component';
+
+enum HeaderAction {
+  Stash = 'stash',
+  StashAll = 'stash-all',
+  StashPop = 'stash-pop',
+  StashApply = 'stash-apply',
+}
 
 const STAGED_ACTIONS: NodeAction[] = [
-  { id: ContextMenuAction.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
+  { id: ContextMenu.Action.UNSTAGE, icon: 'codicon-dash', tooltip: 'Unstage Changes' },
 ];
 
 const CHANGES_ACTIONS: NodeAction[] = [
-  { id: ContextMenuAction.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
-  { id: ContextMenuAction.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
+  { id: ContextMenu.Action.STAGE, icon: 'codicon-add', tooltip: 'Stage Changes' },
+  { id: ContextMenu.Action.DISCARD, icon: 'codicon-discard', tooltip: 'Discard Changes' },
 ];
 
 @Component({
@@ -31,17 +40,43 @@ const CHANGES_ACTIONS: NodeAction[] = [
     FileTreeNodeActionComponent,
     ContextMenuComponent,
     ConfirmationDialogComponent,
+    DropdownMenuComponent,
     FileExplorerGitSyncComponent,
+    CollapsibleSectionComponent,
+    CommitHistoryComponent,
   ],
   templateUrl: './file-explorer-git.component.html',
   styleUrls: ['./file-explorer-git.component.scss'],
-  providers: [FileExplorerGitStore],
 })
 export class FileExplorerGitComponent {
   readonly store = inject(FileExplorerGitStore);
+  readonly fileTreeComponent = viewChild(FileTreeComponent);
+
+  readonly headerMenuItems: DropdownMenuItem[] = [
+    {
+      id: HeaderAction.Stash,
+      label: 'Stash',
+      children: [
+        { id: HeaderAction.StashAll, label: 'Stash All Changes' },
+        { id: HeaderAction.StashPop, label: 'Pop Stash' },
+        { id: HeaderAction.StashApply, label: 'Apply Stash' },
+      ],
+    },
+  ];
 
   discardDialogOpen = signal(false);
   private pendingDiscardPaths: string[] = [];
+
+  constructor() {
+    effect(() => {
+      const changes = this.store.changesTree();
+      const fileTree = this.fileTreeComponent();
+      if (!changes || !fileTree) {
+        return;
+      }
+      untracked(() => fileTree.expandPaths(FileUtils.collectDirectoryPaths(changes)));
+    });
+  }
 
   getNodeActions(node: DirectoryResponseDto | FileResponseDto): NodeAction[] {
     if (node.path.startsWith('/staged')) return STAGED_ACTIONS;
@@ -49,18 +84,18 @@ export class FileExplorerGitComponent {
     return [];
   }
 
-  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenuItem[] {
+  getMenuItems(node: DirectoryResponseDto | FileResponseDto | null): ContextMenu.Item[] {
     if (!node) {
       return [];
     }
 
     return [
-      GIT_CONTEXT_MENU_ITEMS.STAGE,
-      GIT_CONTEXT_MENU_ITEMS.UNSTAGE,
-      GIT_CONTEXT_MENU_ITEMS.SEPARATOR,
-      GIT_CONTEXT_MENU_ITEMS.DISCARD,
-      GIT_CONTEXT_MENU_ITEMS.SEPARATOR,
-      GIT_CONTEXT_MENU_ITEMS.OPEN,
+      ContextMenu.GIT_ITEMS.STAGE,
+      ContextMenu.GIT_ITEMS.UNSTAGE,
+      ContextMenu.GIT_ITEMS.SEPARATOR,
+      ContextMenu.GIT_ITEMS.DISCARD,
+      ContextMenu.GIT_ITEMS.SEPARATOR,
+      ContextMenu.GIT_ITEMS.OPEN,
     ];
   }
 
@@ -76,27 +111,27 @@ export class FileExplorerGitComponent {
   }
 
   onNodeAction(actionId: string, node: DirectoryResponseDto | FileResponseDto): void {
-    this.handleAction(actionId as ContextMenuAction, node);
+    this.handleAction(actionId as ContextMenu.Action, node);
   }
 
   private handleAction(
-    action: ContextMenuAction,
+    action: ContextMenu.Action,
     node: DirectoryResponseDto | FileResponseDto,
   ): void {
     const paths = this.getFilePaths(node);
 
     switch (action) {
-      case ContextMenuAction.STAGE:
+      case ContextMenu.Action.STAGE:
         this.store.stage(paths);
         break;
-      case ContextMenuAction.UNSTAGE:
+      case ContextMenu.Action.UNSTAGE:
         this.store.unstage(paths);
         break;
-      case ContextMenuAction.DISCARD:
+      case ContextMenu.Action.DISCARD:
         this.pendingDiscardPaths = paths;
         this.discardDialogOpen.set(true);
         break;
-      case ContextMenuAction.OPEN:
+      case ContextMenu.Action.OPEN:
         if (node.type !== Enums.FileType.DIRECTORY) {
           this.store.openDiff(node.path);
         }
@@ -107,6 +142,20 @@ export class FileExplorerGitComponent {
   onDiscardConfirmed(): void {
     this.store.discard(this.pendingDiscardPaths);
     this.closeDiscardDialog();
+  }
+
+  onHeaderAction(id: string): void {
+    switch (id) {
+      case HeaderAction.StashAll:
+        this.store.stash();
+        break;
+      case HeaderAction.StashPop:
+        this.store.stashPop();
+        break;
+      case HeaderAction.StashApply:
+        this.store.stashApply();
+        break;
+    }
   }
 
   closeDiscardDialog(): void {

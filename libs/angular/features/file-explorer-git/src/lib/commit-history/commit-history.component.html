@@ -1,0 +1,22 @@
+<div class="commit-list">
+  @for (entry of displayEntries(); track entry.hash) {
+    <div
+      class="commit-entry"
+      (mouseenter)="onEntryEnter($event, entry)"
+      (mouseleave)="onEntryLeave()"
+    >
+      <div class="commit-info">
+        <span class="commit-message">{{ entry.message }}</span>
+        <span class="commit-meta">
+          <span class="commit-author">{{ entry.initials }}</span>
+        </span>
+      </div>
+    </div>
+  } @empty {
+    <div class="empty-state">No commits</div>
+  }
+</div>
+
+@if (tooltip(); as t) {
+  <ide-commit-history-tooltip [entry]="t.entry" [top]="t.top" [left]="t.left" />
+}

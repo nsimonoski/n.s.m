@@ -24,6 +24,14 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# env files
+.env
+*.env.local
+.env.production
+docs/deployment-guide.md
+docs/deployment-guide.html
+docs/deployment-guide-print.html
+
 # misc
 /.sass-cache
 /connect.lock

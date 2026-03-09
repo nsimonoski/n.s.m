@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { simpleGit, SimpleGit } from 'simple-git';
-import type { GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type { GitBranchDto, GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
 import { GitFileStatus } from '@org/shared/contracts';
 import { GitProvider } from '../domain/git.provider';
 
@@ -22,11 +22,13 @@ export class SimpleGitProvider extends GitProvider {
           result.files
             .filter((f) => f.index !== ' ' && f.index !== '?')
             .map((f) => ({ path: f.path, index: f.index, working_dir: f.working_dir })),
+          'index',
         ),
         unstaged: this.mapFileChanges(
           result.files
             .filter((f) => f.working_dir !== ' ' && f.working_dir !== '?')
             .map((f) => ({ path: f.path, index: f.index, working_dir: f.working_dir })),
+          'working_dir',
         ),
         untracked: result.not_added,
       };
@@ -35,15 +37,56 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async listBranches(repoPath: string): Promise<GitBranchDto[]> {
+    try {
+      const git = this.git(repoPath);
+      const result = await git.branch(['-a']);
+
+      const branches = await Promise.all(
+        result.all.map(async (name) => {
+          const log = await git.log({ maxCount: 1, from: name });
+          const latest = log.latest;
+
+          return {
+            name: name.replace(/^remotes\//, ''),
+            current: name === result.current,
+            remote: name.startsWith('remotes/'),
+            lastCommit: {
+              hash: latest?.hash ?? '',
+              message: latest?.message ?? '',
+              body: latest?.body ?? '',
+              author: latest?.author_name ?? '',
+              date: latest?.date ?? '',
+              filesChanged: latest?.diff?.changed ?? 0,
+              insertions: latest?.diff?.insertions ?? 0,
+              deletions: latest?.diff?.deletions ?? 0,
+            },
+          };
+        }),
+      );
+
+      return branches;
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async log(repoPath: string, limit = 20): Promise<GitLogEntryDto[]> {
     try {
-      const result = await this.git(repoPath).log({ maxCount: limit });
+      const result = await this.git(repoPath).log({
+        maxCount: limit,
+        '--stat': null,
+      });
 
       return result.all.map((entry) => ({
         hash: entry.hash,
         message: entry.message,
+        body: entry.body,
         author: entry.author_name,
         date: entry.date,
+        filesChanged: entry.diff?.changed ?? 0,
+        insertions: entry.diff?.insertions ?? 0,
+        deletions: entry.diff?.deletions ?? 0,
       }));
     } catch (error) {
       throw this.mapError(error);
@@ -60,7 +103,18 @@ export class SimpleGitProvider extends GitProvider {
 
   async checkout(repoPath: string, branch: string): Promise<void> {
     try {
-      await this.git(repoPath).checkout(branch);
+      const git = this.git(repoPath);
+      const localName = branch.replace(/^origin\//, '');
+
+      if (localName !== branch) {
+        const locals = await git.branchLocal();
+        if (!locals.all.includes(localName)) {
+          await git.checkout(['-b', localName, branch]);
+          return;
+        }
+      }
+
+      await git.checkout(localName);
     } catch (error) {
       throw this.mapError(error);
     }
@@ -100,8 +154,12 @@ export class SimpleGitProvider extends GitProvider {
       return {
         hash: latest?.hash ?? result.commit,
         message: latest?.message ?? message,
+        body: latest?.body ?? '',
         author: latest?.author_name ?? '',
         date: latest?.date ?? new Date().toISOString(),
+        filesChanged: latest?.diff?.changed ?? 0,
+        insertions: latest?.diff?.insertions ?? 0,
+        deletions: latest?.diff?.deletions ?? 0,
       };
     } catch (error) {
       throw this.mapError(error);
@@ -151,6 +209,30 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async stash(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['push']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stashPop(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['pop']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
+  async stashApply(repoPath: string): Promise<void> {
+    try {
+      await this.git(repoPath).stash(['apply']);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async showDiff(repoPath: string, filePath: string, ref = 'HEAD'): Promise<string> {
     try {
       return await this.git(repoPath).show([`${ref}:${filePath}`]);
@@ -161,10 +243,11 @@ export class SimpleGitProvider extends GitProvider {
 
   private mapFileChanges(
     files: { path: string; index: string; working_dir: string }[],
+    source: 'index' | 'working_dir',
   ): GitFileChange[] {
     return files.map((file) => ({
       path: file.path,
-      status: this.mapStatusCode(file.index || file.working_dir),
+      status: this.mapStatusCode(file[source]),
     }));
   }
 

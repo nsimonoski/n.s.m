@@ -1,11 +1,9 @@
 <div class="file-tree-container">
   <div class="file-tree" (contextmenu)="onContextMenu($event, null)">
-    @if (inlineCreate()?.parentPath === rootDirectory().path) {
-      <ui-file-tree-create-node
-        [level]="0"
-        [inlineCreate]="inlineCreate()!"
-        (confirmed)="handleInlineCreate.emit($event)"
-        (cancelled)="cancelInlineCreate()"
+    @if (createNodeTpl()) {
+      <ng-container
+        [ngTemplateOutlet]="createNodeTpl()!"
+        [ngTemplateOutletContext]="{ level: 0, parentPath: rootDirectory().path }"
       />
     }
 
@@ -65,18 +63,16 @@
         <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: node }" />
       }
       @if (statusMap()[node.path]; as status) {
-        <span class="status-badge">{{ status }}</span>
+        <span class="status-badge status-{{ status }}">{{ status }}</span>
       }
     }
   </div>
 
   @if (node.type === DIRECTORY_TYPE && expandedPaths().has(node.path)) {
-    @if (inlineCreate()?.parentPath === node.path) {
-      <ui-file-tree-create-node
-        [level]="level + 1"
-        [inlineCreate]="inlineCreate()!"
-        (confirmed)="handleInlineCreate.emit($event)"
-        (cancelled)="cancelInlineCreate()"
+    @if (createNodeTpl()) {
+      <ng-container
+        [ngTemplateOutlet]="createNodeTpl()!"
+        [ngTemplateOutletContext]="{ level: level + 1, parentPath: node.path }"
       />
     }
 

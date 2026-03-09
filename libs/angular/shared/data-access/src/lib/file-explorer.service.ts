@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
+import { Environment } from '@org/shared/utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileExplorerService {
-  private readonly API_BASE = 'http://localhost:3000/api/file-explorer';
+  private readonly API_BASE = `${Environment.API_BASE_URL}/file-explorer`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -18,6 +19,12 @@ export class FileExplorerService {
   getFile(path: string): Observable<FileResponseDto> {
     return this.http.get<FileResponseDto>(`${this.API_BASE}/file`, {
       params: { path: encodeURIComponent(path) },
+    });
+  }
+
+  getFiles(paths: string[]): Observable<FileResponseDto[]> {
+    return this.http.post<FileResponseDto[]>(`${this.API_BASE}/files`, {
+      paths: paths.map(encodeURIComponent),
     });
   }
 

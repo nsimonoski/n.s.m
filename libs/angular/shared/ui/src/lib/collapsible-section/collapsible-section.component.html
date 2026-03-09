@@ -1,0 +1,19 @@
+<div class="section-header">
+  <div class="section-header-left" (click)="toggle()">
+    <i
+      class="codicon"
+      [class.codicon-chevron-right]="collapsed()"
+      [class.codicon-chevron-down]="!collapsed()"
+    ></i>
+    <span class="section-title">{{ title() }}</span>
+  </div>
+  <div class="section-header-actions" (click)="$event.stopPropagation()">
+    <ng-content select="[header]" />
+  </div>
+</div>
+
+@if (!collapsed()) {
+  <div class="section-content">
+    <ng-content />
+  </div>
+}

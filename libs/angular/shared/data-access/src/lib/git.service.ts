@@ -1,0 +1,122 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import {
+  GitBranchDto,
+  GitLogEntryDto,
+  GitShowResponseDto,
+  GitStatusDto,
+  GitStatusTreeResponseDto,
+} from '@org/shared/contracts';
+import { Environment } from '@org/shared/utils';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class GitService {
+  private readonly API_BASE = `${Environment.API_BASE_URL}/git`;
+
+  constructor(private readonly http: HttpClient) {}
+
+  getStatus(path: string): Observable<GitStatusDto> {
+    return this.http.get<GitStatusDto>(`${this.API_BASE}/status`, {
+      params: { path },
+    });
+  }
+
+  getStatusTree(path: string): Observable<GitStatusTreeResponseDto> {
+    return this.http.get<GitStatusTreeResponseDto>(`${this.API_BASE}/status/tree`, {
+      params: { path },
+    });
+  }
+
+  stage(repoPath: string, paths: string[]): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/stage`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+
+  unstage(repoPath: string, paths: string[]): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/unstage`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+
+  discard(repoPath: string, paths: string[]): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/discard`,
+      { paths },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+
+  commit(repoPath: string, message: string): Observable<GitLogEntryDto> {
+    return this.http.post<GitLogEntryDto>(
+      `${this.API_BASE}/commit`,
+      { message },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+
+  push(repoPath: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/push`,
+      {},
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+
+  showDiff(repoPath: string, filePath: string): Observable<GitShowResponseDto> {
+    return this.http.get<GitShowResponseDto>(`${this.API_BASE}/show`, {
+      params: { path: repoPath, filePath },
+    });
+  }
+
+  stash(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash`, {}, { params: { path: repoPath } });
+  }
+
+  stashPop(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash/pop`, {}, { params: { path: repoPath } });
+  }
+
+  stashApply(repoPath: string): Observable<void> {
+    return this.http.post<void>(`${this.API_BASE}/stash/apply`, {}, { params: { path: repoPath } });
+  }
+
+  listBranches(path: string): Observable<GitBranchDto[]> {
+    return this.http.get<GitBranchDto[]>(`${this.API_BASE}/branches`, {
+      params: { path },
+    });
+  }
+
+  getLog(path: string, limit?: number): Observable<GitLogEntryDto[]> {
+    return this.http.get<GitLogEntryDto[]>(`${this.API_BASE}/log`, {
+      params: limit ? { path, limit: limit.toString() } : { path },
+    });
+  }
+
+  checkout(repoPath: string, branch: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/checkout`,
+      { branch },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
+}

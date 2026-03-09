@@ -12,6 +12,24 @@ export function getAncestorPaths(rootPath: string, filePath: string): string[] {
   return paths;
 }
 
+export function focusRenameInput(input: HTMLInputElement, name: string): void {
+  input.focus();
+  const dotIndex = name.lastIndexOf('.');
+  if (dotIndex > 0) {
+    input.setSelectionRange(0, dotIndex);
+  } else {
+    input.select();
+  }
+}
+
+export function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
+  const paths = [dir.path];
+  for (const child of dir.directories) {
+    paths.push(...collectDirectoryPaths(child));
+  }
+  return paths;
+}
+
 export function isDirectoryLoaded(root: DirectoryResponseDto, targetPath: string): boolean {
   const node = findDirectory(root, targetPath);
   return !!node && (node.files.length > 0 || node.directories.length > 0);
@@ -29,4 +47,34 @@ export function findDirectory(
   }
 
   return null;
+}
+
+export function mergeDirectoryIntoTree(
+  root: DirectoryResponseDto,
+  targetPath: string,
+  fetched: DirectoryResponseDto,
+): DirectoryResponseDto {
+  if (root.path === targetPath) {
+    return { ...root, files: fetched.files, directories: fetched.directories };
+  }
+
+  return {
+    ...root,
+    directories: root.directories.map((dir) => mergeDirectoryIntoTree(dir, targetPath, fetched)),
+  };
+}
+
+export function refreshDirectoryInTree(
+  root: DirectoryResponseDto,
+  parentPath: string,
+  fetched: DirectoryResponseDto,
+): DirectoryResponseDto {
+  if (root.path === parentPath) {
+    return fetched;
+  }
+
+  return {
+    ...root,
+    directories: root.directories.map((dir) => refreshDirectoryInTree(dir, parentPath, fetched)),
+  };
 }

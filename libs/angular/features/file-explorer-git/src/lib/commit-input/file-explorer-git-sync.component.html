@@ -14,7 +14,11 @@
       {{ syncLabel() }}
     </button>
   } @else {
-    <button class="commit-button" [disabled]="!store.commitMessage().trim()" (click)="onCommit()">
+    <button
+      class="commit-button"
+      [disabled]="!store.commitMessage().trim() || !hasStagedFiles()"
+      (click)="onCommit()"
+    >
       Commit
     </button>
   }

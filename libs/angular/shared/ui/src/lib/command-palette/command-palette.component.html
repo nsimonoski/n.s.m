@@ -1,0 +1,41 @@
+<div class="backdrop" (click)="onBackdropClick()">
+  <div class="command-palette-panel" (click)="$event.stopPropagation()">
+    <input
+      type="text"
+      class="search-input"
+      [placeholder]="placeholder()"
+      [formControl]="searchControl"
+      (keydown)="onKeydown($event)"
+      autocomplete="off"
+      spellcheck="false"
+      autofocus
+    />
+
+    @if (loading()) {
+      <div class="status-message">Searching...</div>
+    }
+
+    <div class="results-list">
+      @for (item of filteredItems(); track item.id) {
+        @if (item.divider) {
+          <hr class="divider" />
+        }
+        <div
+          class="result-item"
+          [class.active]="filteredItems()[activeIndex()] === item"
+          [class.disabled]="item.disabled"
+          (click)="selectItem(item)"
+        >
+          <span class="item-label">{{ item.label }}</span>
+          @if (item.description) {
+            <span class="item-description">{{ item.description }}</span>
+          }
+        </div>
+      }
+
+      @if (!loading() && filteredItems().length === 0 && searchControl.value) {
+        <div class="status-message">No results found</div>
+      }
+    </div>
+  </div>
+</div>

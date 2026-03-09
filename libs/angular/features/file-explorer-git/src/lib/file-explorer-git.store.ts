@@ -8,157 +8,141 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { forkJoin, pipe, switchMap, tap } from 'rxjs';
-import { DirectoryResponseDto } from '@org/shared/contracts';
-import { editor, partialStore } from '@org/angular-utils';
-import { FileExplorerService } from '@org/angular-data-access';
-import { GitService } from './data-access/git.service';
-import { GitWsService } from './data-access/git-ws.service';
-
-const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
-
-function collectDirectoryPaths(dir: DirectoryResponseDto): string[] {
-  const paths = [dir.path];
-  for (const child of dir.directories) {
-    paths.push(...collectDirectoryPaths(child));
-  }
-  return paths;
-}
+import { debounceTime, distinctUntilChanged, forkJoin, pipe, switchMap, tap } from 'rxjs';
+import { DirectoryResponseDto, GitLogEntryDto } from '@org/shared/contracts';
+import { partialStore } from '@org/angular-utils';
+import { IdeStore, FileExplorerService, GitService, GitWsService } from '@org/angular-data-access';
+import { SnackbarService } from '@org/angular/ui';
 
 interface GitExplorerState {
-  branch: string;
+  rootPath: string;
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
   commitMessage: string;
+  commitHistory: GitLogEntryDto[];
   ahead: number;
   behind: number;
-  stagedCount: number;
-  changesCount: number;
 }
 
 export const FileExplorerGitStore = signalStore(
   { providedIn: 'root' },
   withState<GitExplorerState>({
-    branch: '',
+    rootPath: '',
     changesTree: null,
     statusMap: {},
     commitMessage: '',
+    commitHistory: [],
     ahead: 0,
     behind: 0,
-    stagedCount: 0,
-    changesCount: 0,
   }),
   partialStore.withLoading(),
-  partialStore.withFileTree(),
-  partialStore.withBrowserStorage({ key: 'git-explorer', debounce: 300 }),
+  partialStore.withBrowserStorage({ key: 'git-explorer' }),
   withProps(() => ({
+    authStore: inject(IdeStore.AuthStore),
     service: inject(GitService),
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
-    editorStore: inject(editor.EditorStore),
+    editorStore: inject(IdeStore.CodeEditorStore),
+    snackbar: inject(SnackbarService),
   })),
-  withMethods((state) => {
-    const refreshStatus = () => {
-      state.service.getStatusTree(ROOT_PATH).subscribe(({ tree: changesTree, ...rest }) => {
-        patchState(state, { changesTree, ...rest });
-        state.expandAll(collectDirectoryPaths(changesTree));
-      });
-    };
-
-    return {
-      getStatus: rxMethod<string>(
-        pipe(
-          tap(() => state.setLoading()),
-          switchMap((path: string) => state.service.getStatusTree(path)),
-          tap(({ tree: changesTree, ...rest }) => {
-            state.setLoading(false);
-            patchState(state, { changesTree, ...rest });
-            state.expandAll(collectDirectoryPaths(changesTree));
+  withMethods((state) => ({
+    getStatus: rxMethod<string>(
+      pipe(
+        tap(() => state.setLoading()),
+        switchMap((path: string) => state.service.getStatusTree(path)),
+        tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
+          state.setLoading(false);
+          patchState(state, { changesTree, ...rest });
+        }),
+      ),
+    ),
+    stage: rxMethod<string[]>(
+      pipe(switchMap((paths: string[]) => state.service.stage(state.rootPath(), paths))),
+    ),
+    unstage: rxMethod<string[]>(
+      pipe(switchMap((paths: string[]) => state.service.unstage(state.rootPath(), paths))),
+    ),
+    discard: rxMethod<string[]>(
+      pipe(switchMap((paths: string[]) => state.service.discard(state.rootPath(), paths))),
+    ),
+    setCommitMessage: rxMethod<string>(
+      pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap((commitMessage) => state.saveToStorage({ commitMessage })),
+      ),
+    ),
+    commit: rxMethod<string>(
+      pipe(
+        switchMap((message: string) => state.service.commit(state.rootPath(), message)),
+        tap(() => {
+          state.saveToStorage({ commitMessage: '' });
+          state.snackbar.success('Committed!');
+        }),
+      ),
+    ),
+    sync: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.push(state.rootPath())),
+        tap(() => state.snackbar.success('Pushed!')),
+      ),
+    ),
+    fetchLog: rxMethod<string>(
+      pipe(
+        switchMap((path: string) => state.service.getLog(path)),
+        tap((commitHistory) => patchState(state, { commitHistory })),
+      ),
+    ),
+    listenToGitChanges: rxMethod<void>(
+      pipe(
+        switchMap(() => state.wsService.gitChanges$),
+        tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
+          patchState(state, { changesTree, ...rest });
+        }),
+        switchMap(() => state.service.getLog(state.rootPath())),
+        tap((commitHistory) => patchState(state, { commitHistory })),
+      ),
+    ),
+    stash: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stash(state.rootPath())),
+        tap(() => state.snackbar.success('Stashed!')),
+      ),
+    ),
+    stashPop: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stashPop(state.rootPath())),
+        tap(() => state.snackbar.success('Stash popped!')),
+      ),
+    ),
+    stashApply: rxMethod<void>(
+      pipe(
+        switchMap(() => state.service.stashApply(state.rootPath())),
+        tap(() => state.snackbar.success('Stash applied!')),
+      ),
+    ),
+    openDiff: rxMethod<string>(
+      pipe(
+        switchMap((filePath: string) =>
+          forkJoin({
+            headContent: state.service.showDiff(state.rootPath(), filePath),
+            currentFile: state.fileService.getFile(`${state.rootPath()}/${filePath}`),
           }),
         ),
+        tap(({ headContent, currentFile }) => {
+          state.editorStore.openDiff(currentFile, headContent.content);
+        }),
       ),
-      stage: rxMethod<string[]>(
-        pipe(
-          switchMap((paths: string[]) => state.service.stage(ROOT_PATH, paths)),
-          tap(() => refreshStatus()),
-        ),
-      ),
-      unstage: rxMethod<string[]>(
-        pipe(
-          switchMap((paths: string[]) => state.service.unstage(ROOT_PATH, paths)),
-          tap(() => refreshStatus()),
-        ),
-      ),
-      discard: rxMethod<string[]>(
-        pipe(
-          switchMap((paths: string[]) => state.service.discard(ROOT_PATH, paths)),
-          tap(() => refreshStatus()),
-        ),
-      ),
-      setCommitMessage: (commitMessage: string) => {
-        state.saveToStorage({ commitMessage });
-      },
-      commit: rxMethod<string>(
-        pipe(
-          switchMap((message: string) =>
-            state.service
-              .commit(ROOT_PATH, message)
-              .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
-          ),
-          tap(({ tree: changesTree, ...rest }) => {
-            state.saveToStorage({ commitMessage: '' });
-            patchState(state, { changesTree, ...rest });
-            state.expandAll(collectDirectoryPaths(changesTree));
-          }),
-        ),
-      ),
-      sync: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            state.service
-              .push(ROOT_PATH)
-              .pipe(switchMap(() => state.service.getStatusTree(ROOT_PATH))),
-          ),
-          tap(({ tree: changesTree, ...rest }) => {
-            patchState(state, { changesTree, ...rest });
-            state.expandAll(collectDirectoryPaths(changesTree));
-          }),
-        ),
-      ),
-      listenToGitChanges: rxMethod<void>(
-        pipe(
-          switchMap(() => state.wsService.gitChanges$),
-          tap(() => refreshStatus()),
-        ),
-      ),
-      openDiff: rxMethod<string>(
-        pipe(
-          switchMap((filePath: string) =>
-            forkJoin({
-              headContent: state.service.showDiff(ROOT_PATH, filePath),
-              currentFile: state.fileService.getFile(`${ROOT_PATH}/${filePath}`),
-            }),
-          ),
-          tap(({ headContent, currentFile }) => {
-            const ext = currentFile.extension ?? currentFile.name.split('.').pop() ?? '';
-            const language = editor.getMonacoLanguage(currentFile.type, ext);
-            state.editorStore.openDiff(
-              currentFile.path,
-              currentFile.name,
-              headContent.content,
-              currentFile.content ?? '',
-              language,
-            );
-          }),
-        ),
-      ),
-    };
-  }),
+    ),
+  })),
   withHooks({
     onInit(state) {
       state.loadFromStorage();
-      state.getStatus(ROOT_PATH);
-      state.wsService.watchPath(ROOT_PATH);
+      const rootPath = state.authStore.workspace()?.rootPath ?? '';
+      patchState(state, { rootPath });
+      state.getStatus(rootPath);
+      state.fetchLog(rootPath);
+      state.wsService.watchRepositoryForChanges(rootPath);
       state.listenToGitChanges();
     },
   }),

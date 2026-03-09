@@ -2,20 +2,15 @@
   <div class="main-area">
     <ide-activity-bar />
     <div class="panel-content" [style.width.px]="coreStore.width()">
-      @switch (coreStore.activePanel()) {
-        @case ('explorer') {
-          <ide-file-explorer />
-        }
-        @case ('git') {
-          <ide-file-explorer-git />
-        }
-      }
+      <router-outlet />
       <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
     </div>
   </div>
   <ide-footer />
 </div>
 
-@if (showGoToFile()) {
-  <ui-go-to-file (fileSelected)="onFileSelected($event)" (closed)="onGoToFileClosed()" />
+@if (showFilePicker()) {
+  <ide-file-picker (fileSelected)="onFileSelected($event)" (closed)="onFilePickerClosed()" />
 }
+
+<ui-snackbar />

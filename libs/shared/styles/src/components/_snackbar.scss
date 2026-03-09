@@ -1,0 +1,56 @@
+.snackbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-family);
+  color: var(--text-white);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-input);
+  box-shadow: 0 4px 12px var(--shadow);
+  pointer-events: auto;
+  animation: slide-in 0.2s ease-out;
+
+  &.success {
+    border-left: 3px solid #4ec9b0;
+  }
+
+  &.error {
+    border-left: 3px solid #f44747;
+  }
+
+  &.info {
+    border-left: 3px solid var(--accent-primary);
+  }
+}
+
+.snackbar-message {
+  flex: 1;
+}
+
+.snackbar-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 2px;
+  line-height: 1;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

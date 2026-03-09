@@ -1,0 +1,44 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1 class="title">kode.dev</h1>
+    <p class="subtitle">A browser-based IDE built with Angular, NestJS & Monaco Editor</p>
+
+    <div class="actions">
+      <button class="btn btn-primary" (click)="signInWithGithub()" [disabled]="isLoading()">
+        <i class="codicon codicon-github"></i>
+        Sign in with GitHub
+      </button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <button class="btn btn-secondary" (click)="tryDemo()" [disabled]="isLoading()">
+        <i class="codicon codicon-play"></i>
+        Continue as Guest
+      </button>
+    </div>
+
+    <p class="note">
+      Guest mode opens the source code of this IDE in read-only mode. Sign in with GitHub to clone
+      your own repos with full read/write access.
+    </p>
+
+    <div class="developer">
+      <span>Built by</span>
+      <a
+        href="https://www.linkedin.com/in/nenad-simonoski-nsm/"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><span>Nenad Simonoski</span></a
+      >
+      <span>|</span>
+      <a
+        href="https://github.com/nsimonoski/n.s.m"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><i class="codicon codicon-github"></i><span>Source Code</span></a
+      >
+    </div>
+  </div>
+</div>

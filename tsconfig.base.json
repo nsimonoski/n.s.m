@@ -19,7 +19,11 @@
       "@org/angular-file-explorer-core": ["libs/angular/features/file-explorer-core/src/index.ts"],
       "@org/angular-file-explorer-git": ["libs/angular/features/file-explorer-git/src/index.ts"],
       "@org/angular-code-editor": ["libs/angular/features/code-editor/src/index.ts"],
-      "@org/angular-data-access": ["libs/angular/shared/data-access/src/index.ts"]
+      "@org/angular-data-access": ["libs/angular/shared/data-access/src/index.ts"],
+      "@org/react-code-editor": ["libs/react/features/code-editor/src/index.ts"],
+      "@org/react-data-access": ["libs/react/shared/data-access/src/index.ts"],
+      "@org/react-ui": ["libs/react/shared/ui/src/index.ts"],
+      "@org/angular-auth": ["libs/angular/features/auth/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

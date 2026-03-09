@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   contentChild,
+  effect,
   ElementRef,
   input,
   output,
@@ -10,17 +11,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
-import {
-  FileTreeCreateNodeComponent,
-  InlineCreate,
-} from './create-node/file-tree-create-node.component';
-import {
-  ContextMenuState,
-  ContextMenuTemplateContext,
-  InlineCreateEvent,
-  InlineRenameEvent,
-} from '../context-menu/context-menu.dto';
+import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
+import { FileUtils } from '@org/shared/utils';
+import { ContextMenuState, ContextMenuTemplateContext } from '../context-menu/context-menu.dto';
 import {
   FileIconPipe,
   ExpandIconPipe,
@@ -31,14 +24,7 @@ import {
 @Component({
   selector: 'ui-file-tree',
   standalone: true,
-  imports: [
-    NgTemplateOutlet,
-    FileTreeCreateNodeComponent,
-    FileIconPipe,
-    ExpandIconPipe,
-    IndentGuidesPipe,
-    FileChildrenPipe,
-  ],
+  imports: [NgTemplateOutlet, FileIconPipe, ExpandIconPipe, IndentGuidesPipe, FileChildrenPipe],
   templateUrl: './file-tree.component.html',
   styleUrls: ['./file-tree.component.scss'],
 })
@@ -46,40 +32,40 @@ export class FileTreeComponent {
   readonly DIRECTORY_TYPE = Enums.FileType.DIRECTORY;
 
   rootDirectory = input.required<DirectoryResponseDto>();
-  expandedPaths = input.required<Set<string>>();
-  selectedPath = input.required<string | null>();
   statusMap = input<Record<string, string>>({});
   contextMenuTpl = contentChild.required<TemplateRef<ContextMenuTemplateContext>>('contextMenu');
   nodeActionsTpl =
     contentChild<TemplateRef<{ $implicit: DirectoryResponseDto | FileResponseDto }>>('nodeActions');
+  createNodeTpl = contentChild<TemplateRef<{ level: number; parentPath: string }>>('createNode');
 
-  expandToggled = output<DirectoryResponseDto>();
-  nodeSelected = output<DirectoryResponseDto | FileResponseDto>();
   handleExpand = output<DirectoryResponseDto>();
   handleOpen = output<DirectoryResponseDto | FileResponseDto | null>();
   handleDelete = output<DirectoryResponseDto | FileResponseDto | null>();
-  handleRename = output<InlineRenameEvent>();
-  handleInlineCreate = output<InlineCreateEvent>();
+  handleRename = output<ContextMenu.InlineRenameEvent>();
 
-  readonly inlineCreate = signal<InlineCreate | null>(null);
+  readonly expandedPaths = signal<Set<string>>(new Set());
+  readonly selectedPath = signal<string | null>(null);
   readonly renamingNode = signal<DirectoryResponseDto | FileResponseDto | null>(null);
   readonly contextMenu = signal<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
 
   renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
 
-  rootNodes = computed(() => {
-    const root = this.rootDirectory();
-    return [...root.directories, ...root.files];
-  });
+  constructor() {
+    effect(() => {
+      this.focusRenameInputAfterRender();
+    });
+  }
+
+  rootNodes = computed(() => [...this.rootDirectory().directories, ...this.rootDirectory().files]);
 
   onNodeClick(node: DirectoryResponseDto | FileResponseDto): void {
-    this.nodeSelected.emit(node);
+    this.selectNode(node.path);
 
     if (node.type === Enums.FileType.DIRECTORY) {
       const dir = node as DirectoryResponseDto;
-      this.expandToggled.emit(dir);
-
       const wasExpanded = this.expandedPaths().has(node.path);
+      this.toggleExpanded(dir.path);
+
       if (!wasExpanded && dir.files.length === 0 && dir.directories.length === 0) {
         this.handleExpand.emit(dir);
       }
@@ -97,27 +83,6 @@ export class FileTreeComponent {
       y: event.clientY,
       node,
     });
-  }
-
-  startInlineCreate(
-    node: DirectoryResponseDto | FileResponseDto | null,
-    type: 'file' | 'directory',
-  ): void {
-    let parentPath: string;
-
-    if (!node) {
-      parentPath = this.rootDirectory().path;
-    } else if (node.type === Enums.FileType.DIRECTORY) {
-      parentPath = node.path;
-    } else {
-      parentPath = node.path.substring(0, node.path.lastIndexOf('/'));
-    }
-
-    this.inlineCreate.set({ parentPath, type });
-  }
-
-  cancelInlineCreate(): void {
-    this.inlineCreate.set(null);
   }
 
   onRenameKeydown(event: KeyboardEvent): void {
@@ -138,21 +103,36 @@ export class FileTreeComponent {
 
   startRename(node: DirectoryResponseDto | FileResponseDto): void {
     this.renamingNode.set(node);
-    setTimeout(() => {
-      const input = this.renameInput()?.nativeElement;
-      if (!input) return;
-      input.focus();
+  }
 
-      const dotIndex = node.name.lastIndexOf('.');
-      if (dotIndex > 0) {
-        input.setSelectionRange(0, dotIndex);
-      } else {
-        input.select();
-      }
-    });
+  expandPaths(paths: string[]): void {
+    const expanded = new Set(this.expandedPaths());
+    paths.forEach((p) => expanded.add(p));
+    this.expandedPaths.set(expanded);
+  }
+
+  selectNode(path: string | null): void {
+    this.selectedPath.set(path);
   }
 
   closeContextMenu = (): void => {
     this.contextMenu.update((state) => ({ ...state, visible: false }));
   };
+
+  private focusRenameInputAfterRender(): void {
+    const node = this.renamingNode();
+    const input = this.renameInput()?.nativeElement;
+    if (!node || !input) return;
+    FileUtils.focusRenameInput(input, node.name);
+  }
+
+  private toggleExpanded(path: string): void {
+    const expanded = new Set(this.expandedPaths());
+    if (expanded.has(path)) {
+      expanded.delete(path);
+    } else {
+      expanded.add(path);
+    }
+    this.expandedPaths.set(expanded);
+  }
 }

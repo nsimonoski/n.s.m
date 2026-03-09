@@ -7,13 +7,8 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Enums } from '@org/shared/contracts';
+import { Enums, ContextMenu } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
-
-export interface InlineCreate {
-  parentPath: string;
-  type: 'file' | 'directory';
-}
 
 @Component({
   selector: 'ui-file-tree-create-node',
@@ -23,7 +18,7 @@ export interface InlineCreate {
 })
 export class FileTreeCreateNodeComponent {
   level = input<number>(0);
-  inlineCreate = input.required<InlineCreate>();
+  inlineCreate = input.required<ContextMenu.InlineCreate>();
 
   confirmed = output<{ parentPath: string; name: string; type: 'file' | 'directory' }>();
   cancelled = output<void>();

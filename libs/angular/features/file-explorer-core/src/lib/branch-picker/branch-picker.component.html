@@ -1,0 +1,6 @@
+<ui-command-palette
+  [items]="items()"
+  placeholder="Switch branch..."
+  (itemSelected)="onItemSelected($event)"
+  (closed)="closed.emit()"
+/>

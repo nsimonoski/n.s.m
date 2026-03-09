@@ -1,43 +1,50 @@
 <div class="git-explorer">
-  <ide-file-explorer-git-sync />
+  <ui-collapsible-section id="git-changes" title="Changes">
+    <ui-dropdown-menu
+      header
+      [items]="headerMenuItems"
+      (actionClicked)="onHeaderAction($event)"
+    />
+    <ide-file-explorer-git-sync />
 
-  @if (store.isLoading()) {
-    <div class="loading">Loading...</div>
-  }
+    @if (store.isLoading()) {
+      <div class="loading">Loading...</div>
+    }
 
-  @if (store.changesTree()) {
-    <ui-file-tree
-      [rootDirectory]="store.changesTree()!"
-      [expandedPaths]="store.expandedPaths()"
-      [selectedPath]="store.selectedPath()"
-      [statusMap]="store.statusMap()"
-      (expandToggled)="store.toggleExpanded($event.path)"
-      (nodeSelected)="store.selectNode($event.path)"
-      (handleOpen)="onFileClick($event)"
-    >
-      <ng-template #nodeActions let-node>
-        @if (getNodeActions(node); as actions) {
-          @if (actions.length > 0) {
-            <ui-file-tree-node-action
-              [actions]="actions"
-              (actionClicked)="onNodeAction($event, node)"
-            />
+    @if (store.changesTree()) {
+      <ui-file-tree
+        [rootDirectory]="store.changesTree()!"
+        [statusMap]="store.statusMap()"
+        (handleOpen)="onFileClick($event)"
+      >
+        <ng-template #nodeActions let-node>
+          @if (getNodeActions(node); as actions) {
+            @if (actions.length > 0) {
+              <ui-file-tree-node-action
+                [actions]="actions"
+                (actionClicked)="onNodeAction($event, node)"
+              />
+            }
           }
-        }
-      </ng-template>
+        </ng-template>
 
-      <ng-template #contextMenu let-ctx let-close="close">
-        <ui-context-menu
-          [x]="ctx.x"
-          [y]="ctx.y"
-          [node]="ctx.node"
-          [menuConfig]="getMenuItems(ctx.node)"
-          (itemClicked)="onContextMenuAction($event); close()"
-          (closed)="close()"
-        />
-      </ng-template>
-    </ui-file-tree>
-  }
+        <ng-template #contextMenu let-ctx let-close="close">
+          <ui-context-menu
+            [x]="ctx.x"
+            [y]="ctx.y"
+            [node]="ctx.node"
+            [menuConfig]="getMenuItems(ctx.node)"
+            (itemClicked)="onContextMenuAction($event); close()"
+            (closed)="close()"
+          />
+        </ng-template>
+      </ui-file-tree>
+    }
+  </ui-collapsible-section>
+
+  <ui-collapsible-section id="git-history" title="Commit History">
+    <ide-commit-history [entries]="store.commitHistory()" />
+  </ui-collapsible-section>
 
   <ui-confirmation-dialog
     [isOpen]="discardDialogOpen()"
