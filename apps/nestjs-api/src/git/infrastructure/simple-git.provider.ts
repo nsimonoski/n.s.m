@@ -54,8 +54,12 @@ export class SimpleGitProvider extends GitProvider {
             lastCommit: {
               hash: latest?.hash ?? '',
               message: latest?.message ?? '',
+              body: latest?.body ?? '',
               author: latest?.author_name ?? '',
               date: latest?.date ?? '',
+              filesChanged: latest?.diff?.changed ?? 0,
+              insertions: latest?.diff?.insertions ?? 0,
+              deletions: latest?.diff?.deletions ?? 0,
             },
           };
         }),
@@ -69,13 +73,20 @@ export class SimpleGitProvider extends GitProvider {
 
   async log(repoPath: string, limit = 20): Promise<GitLogEntryDto[]> {
     try {
-      const result = await this.git(repoPath).log({ maxCount: limit });
+      const result = await this.git(repoPath).log({
+        maxCount: limit,
+        '--stat': null,
+      });
 
       return result.all.map((entry) => ({
         hash: entry.hash,
         message: entry.message,
+        body: entry.body,
         author: entry.author_name,
         date: entry.date,
+        filesChanged: entry.diff?.changed ?? 0,
+        insertions: entry.diff?.insertions ?? 0,
+        deletions: entry.diff?.deletions ?? 0,
       }));
     } catch (error) {
       throw this.mapError(error);
@@ -143,8 +154,12 @@ export class SimpleGitProvider extends GitProvider {
       return {
         hash: latest?.hash ?? result.commit,
         message: latest?.message ?? message,
+        body: latest?.body ?? '',
         author: latest?.author_name ?? '',
         date: latest?.date ?? new Date().toISOString(),
+        filesChanged: latest?.diff?.changed ?? 0,
+        insertions: latest?.diff?.insertions ?? 0,
+        deletions: latest?.diff?.deletions ?? 0,
       };
     } catch (error) {
       throw this.mapError(error);

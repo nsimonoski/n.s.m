@@ -2,6 +2,7 @@ import { Component, effect, inject, signal, untracked, viewChild } from '@angula
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
 import {
+  CollapsibleSectionComponent,
   ConfirmationDialogComponent,
   ContextMenuActionEvent,
   ContextMenuComponent,
@@ -13,6 +14,7 @@ import {
 } from '@org/angular/ui';
 import { FileExplorerGitStore } from './file-explorer-git.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
+import { CommitHistoryComponent } from './commit-history/commit-history.component';
 
 enum HeaderAction {
   Stash = 'stash',
@@ -40,6 +42,8 @@ const CHANGES_ACTIONS: NodeAction[] = [
     ConfirmationDialogComponent,
     DropdownMenuComponent,
     FileExplorerGitSyncComponent,
+    CollapsibleSectionComponent,
+    CommitHistoryComponent,
   ],
   templateUrl: './file-explorer-git.component.html',
   styleUrls: ['./file-explorer-git.component.scss'],

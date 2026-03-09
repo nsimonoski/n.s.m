@@ -3,7 +3,6 @@ import {
   patchState,
   signalStore,
   withComputed,
-  withHooks,
   withMethods,
   withProps,
   withState,
@@ -113,10 +112,6 @@ export const CodeEditorStore = signalStore(
       closeAll(): void {
         patchState(state, { openFiles: [] });
         syncAfterClose([], null);
-      },
-
-      reset(): void {
-        patchState(state, { openFiles: [], openFilePaths: [], activeFilePath: null });
       },
 
       closeSaved(): void {
@@ -251,12 +246,12 @@ export const CodeEditorStore = signalStore(
       ),
     ),
   })),
-  withHooks({
-    onInit(state) {
+  withMethods((state) => ({
+    initialize(): void {
       state.loadFromStorage();
       state.restoreOpenFiles();
       state.listenToFileChanges();
       state.listenToFileOpen();
     },
-  }),
+  })),
 );

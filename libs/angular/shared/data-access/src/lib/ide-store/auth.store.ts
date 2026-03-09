@@ -14,7 +14,6 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
 import { AuthService } from '../auth.service';
 import { WorkspaceService } from '../workspace.service';
-import { CodeEditorStore } from './code-editor.store';
 
 interface AuthState {
   profile: UserProfileDto | null;
@@ -42,7 +41,6 @@ export const AuthStore = signalStore(
     authService: inject(AuthService),
     workspaceService: inject(WorkspaceService),
     socketService: inject(sockets.SocketService),
-    codeEditorStore: inject(CodeEditorStore),
   })),
 
   withMethods((state) => ({
@@ -108,7 +106,6 @@ export const AuthStore = signalStore(
         tap(() => state.socketService.disconnect()),
         switchMap(() => state.authService.logout().pipe(catchError(() => of(void 0)))),
         tap(() => {
-          state.codeEditorStore.reset();
           patchState(state, { profile: null, workspace: null });
           partialStore.clearBrowserStorage();
           state.navigate(AppRoutes.login);

@@ -104,6 +104,12 @@ export class GitService {
     });
   }
 
+  getLog(path: string, limit?: number): Observable<GitLogEntryDto[]> {
+    return this.http.get<GitLogEntryDto[]>(`${this.API_BASE}/log`, {
+      params: limit ? { path, limit: limit.toString() } : { path },
+    });
+  }
+
   checkout(repoPath: string, branch: string): Observable<void> {
     return this.http.post<void>(
       `${this.API_BASE}/checkout`,

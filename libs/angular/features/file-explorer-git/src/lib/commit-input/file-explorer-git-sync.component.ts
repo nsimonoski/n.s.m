@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, viewChild } from '@angular/core';
+import { afterNextRender, Component, computed, ElementRef, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FileExplorerGitStore } from '../file-explorer-git.store';
 
@@ -18,6 +18,10 @@ export class FileExplorerGitSyncComponent {
   });
   readonly hasPendingSync = computed(() => this.store.ahead() > 0 && !this.hasStagedFiles());
   readonly syncLabel = computed(() => `Push (${this.store.ahead()})`);
+
+  constructor() {
+    this.restoreTextareaHeight();
+  }
 
   onSync(): void {
     if (this.hasPendingSync()) {
@@ -43,6 +47,15 @@ export class FileExplorerGitSyncComponent {
     if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
       this.onCommit();
     }
+  }
+
+  private restoreTextareaHeight(): void {
+    afterNextRender(() => {
+      requestAnimationFrame(() => {
+        const el = this.textarea()?.nativeElement;
+        if (el && el.value) this.autoResize(el);
+      });
+    });
   }
 
   private resetTextareaHeight(): void {

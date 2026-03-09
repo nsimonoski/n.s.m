@@ -39,7 +39,7 @@ export const FileExplorerCoreStore = signalStore(
     stagedCount: 0,
     changesCount: 0,
   }),
-  partialStore.withBrowserStorage({ key: 'file-explorer-core', debounce: 300 }),
+  partialStore.withBrowserStorage({ key: 'file-explorer-core' }),
   partialStore.withRouting(),
   withProps(() => ({
     authStore: inject(IdeStore.AuthStore),

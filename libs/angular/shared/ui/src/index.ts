@@ -11,3 +11,5 @@ export * from './lib/snackbar/snackbar.service';
 export * from './lib/snackbar/snackbar.component';
 export * from './lib/dropdown-menu/dropdown-menu.component';
 export * from './lib/dropdown-menu/dropdown-menu-panel.component';
+export * from './lib/collapsible-section/collapsible-section.component';
+export * from './lib/collapsible-section/collapsible-section.store';
