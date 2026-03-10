@@ -2,9 +2,9 @@ const IDE_BASE = '/ide';
 
 export const AppRoutes = {
   login: '/login',
-  cloneRepo: '/clone-repo',
   ide: {
     root: IDE_BASE,
+    cloneRepo: `${IDE_BASE}/clone-repo`,
     explorer: `${IDE_BASE}/explorer`,
     git: `${IDE_BASE}/git`,
     ai: `${IDE_BASE}/ai`,

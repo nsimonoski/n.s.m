@@ -29,7 +29,7 @@ export class GithubAuthController {
       EnvironmentVariables.FRONTEND_URL,
       'http://localhost:4200',
     );
-    res.redirect(`${frontendUrl}/clone-repo`);
+    res.redirect(`${frontendUrl}/ide/clone-repo`);
   }
 
   @Get('guest')

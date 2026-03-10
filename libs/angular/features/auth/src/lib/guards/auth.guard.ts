@@ -4,7 +4,7 @@ import { IdeStore } from '@org/angular-data-access';
 import { AppRoutes } from '@org/shared/utils';
 import { map } from 'rxjs';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authStore = inject(IdeStore.AuthStore);
 
   return authStore.getLoginInfo().pipe(
@@ -13,11 +13,14 @@ export const authGuard: CanActivateFn = () => {
         return authStore.router.createUrlTree([AppRoutes.login]);
       }
 
-      if (authStore.profile()?.isGuest || authStore.workspace()?.ready) {
+      const needsWorkspace = !authStore.profile()?.isGuest && !authStore.workspace()?.ready;
+      const isCloneRepoPage = state.url.startsWith(AppRoutes.ide.cloneRepo);
+
+      if (!needsWorkspace || isCloneRepoPage) {
         return true;
       }
 
-      return authStore.router.createUrlTree([AppRoutes.cloneRepo]);
+      return authStore.router.createUrlTree([AppRoutes.ide.cloneRepo]);
     }),
   );
 };
