@@ -22,7 +22,7 @@ jobs:
         run: npx nx run-many -t lint
 
       - name: Build Angular
-        run: npx nx build angular-ide --configuration=production --base-href=/ang/
+        run: npx nx build angular-ide --configuration=production --base-href=/angular/
 
       - name: Build NestJS API
         run: npx nx build nestjs-api

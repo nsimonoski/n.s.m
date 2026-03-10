@@ -28,7 +28,7 @@ export const CollapsibleSectionStore = signalStore(
     },
 
     isCollapsed(id: string): boolean {
-      return state.sections()[id] ?? false;
+      return state.sections()[id] ?? true;
     },
 
     toggle(id: string): void {
