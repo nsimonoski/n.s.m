@@ -7,6 +7,7 @@ import { GithubAuthModule } from '../github-auth/github-auth.module';
 import { WorkspaceModule } from '../workspace/workspace.module';
 import { FileExplorerModule } from '../file-explorer/file-explorer.module';
 import { GitModule } from '../git/git.module';
+import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GitModule } from '../git/git.module';
     WorkspaceModule,
     FileExplorerModule,
     GitModule,
+    AiModule,
   ],
 })
 export class AppModule implements NestModule {
