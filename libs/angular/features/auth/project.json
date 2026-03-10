@@ -4,7 +4,7 @@
   "sourceRoot": "libs/angular/features/auth/src",
   "prefix": "ide",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:angular", "type:feature"],
   "targets": {
     "test": {
       "executor": "@nx/vitest:test",

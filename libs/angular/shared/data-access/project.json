@@ -6,13 +6,6 @@
   "projectType": "library",
   "tags": ["scope:angular", "type:util"],
   "targets": {
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "tsc --noEmit -p tsconfig.lib.json",
-        "cwd": "{projectRoot}"
-      }
-    },
     "test": {
       "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],

@@ -1,0 +1,5 @@
+{
+  "name": "@org/react-ide",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "tags": ["type:app"]
+}

@@ -8,8 +8,7 @@ import {
   withProps,
   withState,
 } from '@ngrx/signals';
-import { Ai } from '@org/shared/contracts';
-import { SnackbarService } from '@org/angular/ui';
+import { Ai, FileResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
 import { AiService } from '../ai.service';
 import { CodeEditorStore } from './code-editor.store';
@@ -35,10 +34,10 @@ export const AiChatStore = signalStore(
     isStreaming: false,
   }),
   partialStore.withBrowserStorage({ key: 'ai-chat' }),
+  partialStore.withSnackbar(),
   withProps(() => ({
     aiService: inject(AiService),
     editorStore: inject(CodeEditorStore),
-    snackbar: inject(SnackbarService),
   })),
   withComputed((state) => ({
     history: computed((): Ai.HistoryEntry[] =>
@@ -119,7 +118,7 @@ export const AiChatStore = signalStore(
             );
           patchState(store, { messages, isStreaming: false });
           store.saveToStorage({ messages });
-          store.snackbar.error('AI request failed');
+          store.showSnackBar('AI request failed');
         },
       });
     },
@@ -160,8 +159,15 @@ function openDiffWithModifiedContent(
   const activeFile = editorStore.activeFile();
   if (!activeFile) return;
 
-  editorStore.openDiff(
-    { ...activeFile, content: modifiedContent } as any,
-    activeFile.currentContent,
-  );
+  const diffFile: FileResponseDto = {
+    id: activeFile.tabId,
+    name: activeFile.name,
+    path: activeFile.path,
+    content: modifiedContent,
+    type: activeFile.type,
+    extension: activeFile.extension,
+    updatedAt: activeFile.updatedAt,
+  };
+
+  editorStore.openDiff(diffFile, activeFile.currentContent);
 }

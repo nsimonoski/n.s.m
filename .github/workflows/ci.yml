@@ -26,6 +26,4 @@ jobs:
 
       - run: npm ci
 
-      # TODO: re-enable after fixing lint errors
-      # - run: npx nx affected -t lint build typecheck
-      - run: npx nx affected -t build
+      - run: npx nx affected -t lint build

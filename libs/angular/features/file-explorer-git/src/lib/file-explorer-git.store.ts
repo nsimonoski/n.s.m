@@ -50,7 +50,7 @@ export const FileExplorerGitStore = signalStore(
       pipe(
         tap(() => state.setLoading()),
         switchMap((path: string) => state.service.getStatusTree(path)),
-        tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
+        tap(({ tree: changesTree, ...rest }) => {
           state.setLoading(false);
           patchState(state, { changesTree, ...rest });
         }),
@@ -96,7 +96,7 @@ export const FileExplorerGitStore = signalStore(
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => state.wsService.gitChanges$),
-        tap(({ tree: changesTree, branch, stagedCount, changesCount, ...rest }) => {
+        tap(({ tree: changesTree, ...rest }) => {
           patchState(state, { changesTree, ...rest });
         }),
         switchMap(() => state.service.getLog(state.rootPath())),
