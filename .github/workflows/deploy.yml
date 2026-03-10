@@ -18,9 +18,8 @@ jobs:
 
       - run: npm ci
 
-      # TODO: re-enable after fixing lint errors
-      # - name: Lint
-      #   run: npx nx run-many -t lint
+      - name: Lint
+        run: npx nx run-many -t lint
 
       - name: Build Angular
         run: npx nx build angular-ide --configuration=production --base-href=/ang/
@@ -46,6 +45,7 @@ jobs:
       - name: Create .env.production on server
         run: |
           ssh root@204.168.150.34 "cat > /opt/kode/.env.production << 'EOF'
+          FRONTEND_URL=https://kod3.dev/ang
           OAUTH_CLIENT_ID=${{ secrets.OAUTH_CLIENT_ID }}
           OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}
           DEMO_REPO_URL=${{ secrets.DEMO_REPO_URL }}

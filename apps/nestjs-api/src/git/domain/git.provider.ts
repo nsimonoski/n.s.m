@@ -18,4 +18,5 @@ export abstract class GitProvider {
   abstract stash(repoPath: string): Promise<void>;
   abstract stashPop(repoPath: string): Promise<void>;
   abstract stashApply(repoPath: string): Promise<void>;
+  abstract configUser(repoPath: string, name: string, email: string): Promise<void>;
 }
