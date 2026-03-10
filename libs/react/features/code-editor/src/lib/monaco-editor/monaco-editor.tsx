@@ -21,7 +21,7 @@ export function MonacoEditor() {
 
   useEffect(() => {
     MonacoUtils.editorUtils.switchToFile(activeFile, handleContentChange);
-  }, [activeFile?.path]);
+  }, [activeFile]);
 
   return <div ref={containerRef} className="editor-container" />;
 }

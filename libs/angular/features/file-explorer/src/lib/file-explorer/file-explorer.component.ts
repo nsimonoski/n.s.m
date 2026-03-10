@@ -98,15 +98,18 @@ export class FileExplorerComponent {
   }
 
   onContextMenuAction(event: ContextMenuActionEvent): void {
+    const directory = this.store.directory();
+    if (!directory) return;
+
     switch (event.action) {
       case ContextMenu.Action.NEW_FILE:
         this.inlineCreate.set(
-          ContextMenu.startInlineCreate(event.node, 'file', this.store.directory()!.path),
+          ContextMenu.startInlineCreate(event.node, 'file', directory.path),
         );
         break;
       case ContextMenu.Action.NEW_FOLDER:
         this.inlineCreate.set(
-          ContextMenu.startInlineCreate(event.node, 'directory', this.store.directory()!.path),
+          ContextMenu.startInlineCreate(event.node, 'directory', directory.path),
         );
         break;
       case ContextMenu.Action.RENAME:
