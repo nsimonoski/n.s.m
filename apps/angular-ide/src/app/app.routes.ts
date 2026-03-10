@@ -7,9 +7,19 @@ export const appRoutes: Route[] = [
   ...authRoutes,
   {
     path: 'ide',
-    component: IdeShellComponent,
     canActivate: [authGuard],
-    children: fileExplorerCoreRoutes,
+    children: [
+      {
+        path: 'clone-repo',
+        loadComponent: () =>
+          import('@org/angular-auth').then((m) => m.CloneRepoComponent),
+      },
+      {
+        path: '',
+        component: IdeShellComponent,
+        children: fileExplorerCoreRoutes,
+      },
+    ],
   },
   {
     path: '**',

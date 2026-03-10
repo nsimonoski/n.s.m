@@ -14,7 +14,7 @@ export class CloneRepoComponent {
   readonly profile = this.authStore.profile;
   readonly isLoading = this.authStore.isLoading;
   readonly errorMessage = this.authStore.errorMessage;
-  readonly repoUrl = new FormControl('');
+  readonly repoUrl = new FormControl('https://github.com/nsimonoski/n.s.m');
 
   clone(): void {
     const url = this.repoUrl.value?.trim();
