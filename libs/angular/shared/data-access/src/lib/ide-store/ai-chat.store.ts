@@ -50,6 +50,7 @@ export const AiChatStore = signalStore(
     isLimitReached: computed(
       () => state.messages().filter((m) => m.role === 'user').length >= QUESTION_LIMIT,
     ),
+    hasActiveFile: computed(() => !!state.editorStore.activeFile()),
   })),
   withMethods((store) => ({
     sendMessage(userMessage: string, command: Ai.CommandType = 'chat'): void {

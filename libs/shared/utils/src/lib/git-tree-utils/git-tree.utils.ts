@@ -52,7 +52,7 @@ function treeNodeToDirectory(node: TreeNode, path: string): DirectoryResponseDto
     id: path,
     name: node.name,
     path,
-    files: node.files,
+    files: node.files.map((f) => ({ ...f, path: `${path}/${f.name}` })),
     directories,
     updatedAt: new Date().toISOString(),
   };
@@ -131,16 +131,20 @@ export function buildGitStatusMap(status: GitStatusDto): Record<string, string> 
   const map: Record<string, string> = {};
 
   for (const file of status.staged) {
-    map[file.path] = STATUS_LETTER[file.status] ?? '?';
+    map[`/staged/${file.path}`] = STATUS_LETTER[file.status] ?? '?';
   }
 
   for (const file of status.unstaged) {
-    map[file.path] = STATUS_LETTER[file.status] ?? '?';
+    map[`/changes/${file.path}`] = STATUS_LETTER[file.status] ?? '?';
   }
 
   for (const path of status.untracked) {
-    map[path] = 'U';
+    map[`/changes/${path}`] = 'U';
   }
 
   return map;
+}
+
+export function stripGitSectionPrefix(filePath: string): string {
+  return filePath.replace(/^\/(staged|changes)\//, '');
 }
