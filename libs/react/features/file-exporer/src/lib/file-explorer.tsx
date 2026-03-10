@@ -50,13 +50,14 @@ export function FileExplorer() {
   function handleContextMenuAction(action: ContextMenu.Action) {
     const node = contextMenu?.node ?? null;
     setContextMenu(null);
+    if (!directory) return;
 
     switch (action) {
       case ContextMenu.Action.NEW_FILE:
-        setInlineCreate(ContextMenu.startInlineCreate(node, 'file', directory!.path));
+        setInlineCreate(ContextMenu.startInlineCreate(node, 'file', directory.path));
         break;
       case ContextMenu.Action.NEW_FOLDER:
-        setInlineCreate(ContextMenu.startInlineCreate(node, 'directory', directory!.path));
+        setInlineCreate(ContextMenu.startInlineCreate(node, 'directory', directory.path));
         break;
       case ContextMenu.Action.RENAME:
         if (node) setRenamingNode(node);
