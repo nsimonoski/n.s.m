@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
-import { FileUtils } from '@org/shared/utils';
+import { FileUtils, GitTreeUtils } from '@org/shared/utils';
 import {
   CollapsibleSectionComponent,
   ConfirmationDialogComponent,
@@ -101,7 +101,7 @@ export class FileExplorerGitComponent {
 
   onFileClick(node: DirectoryResponseDto | FileResponseDto | null): void {
     if (node && node.type !== Enums.FileType.DIRECTORY) {
-      this.store.openDiff(node.path);
+      this.store.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
     }
   }
 
@@ -133,7 +133,7 @@ export class FileExplorerGitComponent {
         break;
       case ContextMenu.Action.OPEN:
         if (node.type !== Enums.FileType.DIRECTORY) {
-          this.store.openDiff(node.path);
+          this.store.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
         }
         break;
     }
@@ -165,11 +165,11 @@ export class FileExplorerGitComponent {
 
   private getFilePaths(node: DirectoryResponseDto | FileResponseDto): string[] {
     if (node.type !== Enums.FileType.DIRECTORY) {
-      return [node.path];
+      return [GitTreeUtils.stripGitSectionPrefix(node.path)];
     }
     const dir = node as DirectoryResponseDto;
     return [
-      ...dir.files.map((f) => f.path),
+      ...dir.files.map((f) => GitTreeUtils.stripGitSectionPrefix(f.path)),
       ...dir.directories.flatMap((d) => this.getFilePaths(d)),
     ];
   }
