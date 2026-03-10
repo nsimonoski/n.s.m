@@ -12,7 +12,7 @@ export type {
   Disposable,
 } from './monaco.utils';
 export type { File, OpenFile } from './monaco.contract';
-export { mapFile } from './monaco.contract';
+export { mapFile, createTabId } from './monaco.contract';
 
 const loader = new MonacoUtils();
 export const editorUtils = new MonacoEditorUtils(loader);

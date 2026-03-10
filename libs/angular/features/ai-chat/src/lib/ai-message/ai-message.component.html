@@ -1,0 +1,14 @@
+<div
+  class="message"
+  [class.user]="message().role === 'user'"
+  [class.assistant]="message().role === 'assistant'"
+>
+  @if (message().role === 'user') {
+    <div class="content">{{ message().content }}</div>
+  } @else {
+    <div class="content markdown" [innerHTML]="renderedHtml()"></div>
+    @if (message().isStreaming) {
+      <span class="cursor">|</span>
+    }
+  }
+</div>

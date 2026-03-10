@@ -1,3 +1,5 @@
+export { AiService } from './lib/ai.service';
+export type { ChatMessage } from './lib/ide-store/ai-chat.store';
 export { AuthService } from './lib/auth.service';
 export { WorkspaceService } from './lib/workspace.service';
 export { FileExplorerService } from './lib/file-explorer.service';

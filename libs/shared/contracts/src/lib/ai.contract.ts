@@ -1,0 +1,27 @@
+export type Role = 'user' | 'assistant';
+export type CommandType = 'chat' | 'explain' | 'modify';
+
+export interface FileContext {
+  filePath: string;
+  language: string;
+  content: string;
+}
+
+export interface ChatRequestDto {
+  message: string;
+  command: CommandType;
+  fileContext: FileContext | null;
+  history: HistoryEntry[];
+}
+
+export interface HistoryEntry {
+  role: Role;
+  content: string;
+}
+
+export interface StreamChunk {
+  delta: string;
+  done: boolean;
+  modifiedContent?: string;
+  error?: string;
+}

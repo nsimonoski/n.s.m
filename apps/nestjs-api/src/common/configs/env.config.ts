@@ -10,4 +10,5 @@ export enum EnvironmentVariables {
   DEMO_REPO_URL = 'DEMO_REPO_URL',
   DEMO_WORKSPACE_PATH = 'DEMO_WORKSPACE_PATH',
   NODE_ENV = 'NODE_ENV',
+  GROQ_API_KEY = 'GROQ_API_KEY',
 }

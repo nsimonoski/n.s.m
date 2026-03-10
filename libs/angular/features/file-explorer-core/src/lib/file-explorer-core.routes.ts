@@ -10,5 +10,9 @@ export const fileExplorerCoreRoutes: Route[] = [
     loadComponent: () =>
       import('@org/angular-file-explorer-git').then((m) => m.FileExplorerGitComponent),
   },
+  {
+    path: 'ai',
+    loadComponent: () => import('@org/angular-ai-chat').then((m) => m.AiChatComponent),
+  },
   { path: '', redirectTo: 'explorer', pathMatch: 'full' },
 ];

@@ -21,5 +21,6 @@ export class ActivityBarComponent {
   readonly panels: PanelDefinition[] = [
     { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },
     { id: 'git', icon: 'icons/source-control.svg', tooltip: 'Source Control' },
+    { id: 'ai', icon: 'icons/ai.svg', tooltip: 'AI Assistant' },
   ];
 }

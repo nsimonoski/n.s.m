@@ -49,9 +49,12 @@ export const FileExplorerCoreStore = signalStore(
     snackbar: inject(SnackbarService),
   })),
   withComputed((store) => ({
-    activePanel: computed(() =>
-      store.currentUrl().startsWith(AppRoutes.ide.git) ? 'git' : 'explorer',
-    ),
+    activePanel: computed(() => {
+      const url = store.currentUrl();
+      if (url.startsWith(AppRoutes.ide.git)) return 'git';
+      if (url.startsWith(AppRoutes.ide.ai)) return 'ai';
+      return 'explorer';
+    }),
   })),
   withMethods((store) => ({
     setWidth: (width: number) => {

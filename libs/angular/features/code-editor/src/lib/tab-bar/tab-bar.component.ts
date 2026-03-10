@@ -14,11 +14,11 @@ import { TabComponent } from './tab/tab.component';
 export class TabBarComponent {
   readonly store = inject(IdeStore.CodeEditorStore);
   readonly menuItems = ContextMenu.TAB_ITEMS;
-  readonly contextMenu = signal<{ x: number; y: number; path: string } | null>(null);
+  readonly contextMenu = signal<{ x: number; y: number; tabId: string } | null>(null);
 
-  onContextMenu(event: MouseEvent, path: string): void {
+  onContextMenu(event: MouseEvent, tabId: string): void {
     event.preventDefault();
-    this.contextMenu.set({ x: event.clientX, y: event.clientY, path });
+    this.contextMenu.set({ x: event.clientX, y: event.clientY, tabId });
   }
 
   closeContextMenu(): void {
@@ -33,11 +33,11 @@ export class TabBarComponent {
 
     switch (event.action) {
       case ContextMenu.Action.CLOSE:
-        return this.store.closeFile(menu.path);
+        return this.store.closeFile(menu.tabId);
       case ContextMenu.Action.CLOSE_OTHERS:
-        return this.store.closeOthers(menu.path);
+        return this.store.closeOthers(menu.tabId);
       case ContextMenu.Action.CLOSE_TO_THE_RIGHT:
-        return this.store.closeToTheRight(menu.path);
+        return this.store.closeToTheRight(menu.tabId);
       case ContextMenu.Action.CLOSE_SAVED:
         return this.store.closeSaved();
       case ContextMenu.Action.CLOSE_ALL:
