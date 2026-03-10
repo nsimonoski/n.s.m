@@ -1,0 +1,20 @@
+{
+  "name": "ai-chat",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/angular/features/ai-chat/src",
+  "prefix": "ide",
+  "projectType": "library",
+  "tags": ["scope:angular", "type:feature"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../../coverage/libs/angular/features/ai-chat"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -1,0 +1,69 @@
+<div class="ai-chat">
+  <div class="header">
+    <span class="title">AI Assistant</span>
+    <div class="actions">
+      <button
+        class="action-btn"
+        (click)="onExplain()"
+        [disabled]="store.isStreaming() || store.isLimitReached()"
+        title="Explain current file"
+      >
+        Explain File
+      </button>
+      <button
+        class="action-btn ghost"
+        (click)="onClear()"
+        [disabled]="store.isLimitReached()"
+        title="Clear chat"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="messages" #messagesContainer>
+    @if (store.messages().length === 0) {
+      <div class="empty">
+        <p>Ask anything about your code, or use the buttons above.</p>
+        <p class="hint">
+          Tip: Use "Explain File" to explain the active file, or type a change instruction and click
+          "Modify".
+        </p>
+      </div>
+    }
+    @for (message of store.messages(); track message.id) {
+      <ide-ai-message [message]="message" />
+    }
+  </div>
+  @if (store.isLimitReached()) {
+    <div class="limit-message">Session limit reached. Clear the chat to continue.</div>
+  }
+  <div class="input-area">
+    <textarea
+      class="chat-input"
+      [(ngModel)]="inputValue"
+      placeholder="Ask AI or describe a change... (Ctrl+Enter to send)"
+      rows="3"
+      [disabled]="store.isStreaming() || store.isLimitReached()"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+
+    <div class="input-actions">
+      <button
+        class="send-btn"
+        (click)="onSend()"
+        [disabled]="store.isStreaming() || store.isLimitReached() || !inputValue.trim()"
+      >
+        Send
+      </button>
+      <button
+        class="modify-btn"
+        (click)="onModify()"
+        [disabled]="store.isStreaming() || store.isLimitReached() || !inputValue.trim()"
+        title="Apply instruction as code change (opens diff view)"
+      >
+        Modify
+      </button>
+    </div>
+  </div>
+</div>

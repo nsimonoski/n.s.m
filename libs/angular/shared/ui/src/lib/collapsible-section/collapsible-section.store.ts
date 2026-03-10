@@ -23,6 +23,10 @@ export const CollapsibleSectionStore = signalStore(
       state.registeredIds.add(id);
     },
 
+    unregister(id: string): void {
+      state.registeredIds.delete(id);
+    },
+
     isCollapsed(id: string): boolean {
       return state.sections()[id] ?? false;
     },

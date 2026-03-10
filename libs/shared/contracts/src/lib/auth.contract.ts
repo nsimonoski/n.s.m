@@ -5,7 +5,7 @@ export enum Permission {
   GitWrite = 'git:write',
 }
 
-export const GUEST_PERMISSIONS = [Permission.FileRead, Permission.GitRead];
+export const GUEST_PERMISSIONS = [Permission.FileRead, Permission.FileWrite, Permission.GitRead];
 export const AUTH_PERMISSIONS = Object.values(Permission);
 
 export interface UserProfileDto {

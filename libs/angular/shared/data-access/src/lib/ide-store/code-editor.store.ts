@@ -18,7 +18,7 @@ import { FileExplorerWsService } from '../file-explorer-ws.service';
 interface State {
   openFiles: MonacoUtils.OpenFile[];
   openFilePaths: string[];
-  activeFilePath: string | null;
+  activeTabId: string | null;
 }
 
 export const CodeEditorStore = signalStore(
@@ -26,7 +26,7 @@ export const CodeEditorStore = signalStore(
   withState<State>({
     openFiles: [],
     openFilePaths: [],
-    activeFilePath: null,
+    activeTabId: null,
   }),
   partialStore.withBrowserStorage({ key: 'editor' }),
   partialStore.withRouting(),
@@ -36,16 +36,17 @@ export const CodeEditorStore = signalStore(
   })),
   withComputed((state) => ({
     activeFile: computed(() => {
-      const path = state.activeFilePath();
-      return state.openFiles().find((f) => f.path === path) ?? null;
+      const tabId = state.activeTabId();
+      return state.openFiles().find((f) => f.tabId === tabId) ?? null;
     }),
   })),
   withMethods((state) => {
-    const syncAfterClose = (files: MonacoUtils.OpenFile[], activePath: string | null) => {
+    const syncAfterClose = (files: MonacoUtils.OpenFile[], activeTabId: string | null) => {
       state.saveToStorage({
-        openFilePaths: files.map((f) => f.path),
-        activeFilePath: activePath,
+        openFilePaths: files.filter((f) => f.mode === 'regular').map((f) => f.path),
+        activeTabId,
       });
+      const activePath = files.find((f) => f.tabId === activeTabId)?.path ?? null;
       if (activePath) {
         state.navigate(AppRoutes.ide.explorerWithFile(activePath));
       } else {
@@ -55,58 +56,69 @@ export const CodeEditorStore = signalStore(
 
     return {
       openFile(file: FileResponseDto): void {
-        if (state.openFilePaths().includes(file.path)) {
-          state.saveToStorage({ activeFilePath: file.path });
+        const tabId = MonacoUtils.createTabId(file.path, 'regular');
+        const existing = state.openFiles().find((f) => f.tabId === tabId);
+        if (existing) {
+          state.saveToStorage({ activeTabId: tabId });
           return;
         }
 
         patchState(state, { openFiles: [...state.openFiles(), MonacoUtils.mapFile(file)] });
         state.saveToStorage({
           openFilePaths: [...state.openFilePaths(), file.path],
-          activeFilePath: file.path,
+          activeTabId: tabId,
         });
       },
 
       openDiff(file: FileResponseDto, originalContent: string): void {
-        const existing = state.openFiles().find((f) => f.path === file.path && f.mode === 'diff');
+        const tabId = MonacoUtils.createTabId(file.path, 'diff');
+        const existing = state.openFiles().find((f) => f.tabId === tabId);
         if (existing) {
-          patchState(state, { activeFilePath: file.path });
+          patchState(state, { activeTabId: tabId });
           return;
         }
 
         const openFile: MonacoUtils.OpenFile = {
           ...MonacoUtils.mapFile(file),
+          tabId,
           originalContent,
           mode: 'diff',
         };
 
         patchState(state, {
           openFiles: [...state.openFiles(), openFile],
-          activeFilePath: file.path,
+          activeTabId: tabId,
         });
       },
 
-      closeFile(path: string): void {
-        const files = state.openFiles().filter((f) => f.path !== path);
-        let activePath = state.activeFilePath();
+      closeFile(tabId: string): void {
+        const files = state.openFiles().filter((f) => f.tabId !== tabId);
+        let activeTabId = state.activeTabId();
 
-        if (activePath === path) {
-          const closedIndex = state.openFiles().findIndex((f) => f.path === path);
-          activePath = files[Math.min(closedIndex, files.length - 1)]?.path ?? null;
+        if (activeTabId === tabId) {
+          const closedIndex = state.openFiles().findIndex((f) => f.tabId === tabId);
+          activeTabId = files[Math.min(closedIndex, files.length - 1)]?.tabId ?? null;
         }
 
         patchState(state, { openFiles: files });
-        syncAfterClose(files, activePath);
+        syncAfterClose(files, activeTabId);
       },
 
-      setActiveFile(path: string): void {
-        state.navigate(AppRoutes.ide.explorerWithFile(path));
+      setActiveFile(tabId: string): void {
+        const file = state.openFiles().find((f) => f.tabId === tabId);
+        if (file) {
+          const isOnExplorer = state.currentUrl().startsWith(AppRoutes.ide.explorer);
+          if (isOnExplorer) {
+            state.navigate(AppRoutes.ide.explorerWithFile(file.path));
+          }
+          patchState(state, { activeTabId: tabId });
+        }
       },
 
-      closeOthers(path: string): void {
-        const kept = state.openFiles().filter((f) => f.path === path);
+      closeOthers(tabId: string): void {
+        const kept = state.openFiles().filter((f) => f.tabId === tabId);
         patchState(state, { openFiles: kept });
-        syncAfterClose(kept, path);
+        syncAfterClose(kept, tabId);
       },
 
       closeAll(): void {
@@ -116,23 +128,23 @@ export const CodeEditorStore = signalStore(
 
       closeSaved(): void {
         const dirty = state.openFiles().filter((f) => f.isDirty);
-        const activePath = state.activeFilePath();
-        const activeStillOpen = dirty.some((f) => f.path === activePath);
-        const newActivePath = activeStillOpen ? activePath : (dirty[0]?.path ?? null);
+        const activeTabId = state.activeTabId();
+        const activeStillOpen = dirty.some((f) => f.tabId === activeTabId);
+        const newActiveTabId = activeStillOpen ? activeTabId : (dirty[0]?.tabId ?? null);
 
         patchState(state, { openFiles: dirty });
-        syncAfterClose(dirty, newActivePath);
+        syncAfterClose(dirty, newActiveTabId);
       },
 
-      closeToTheRight(path: string): void {
-        const idx = state.openFiles().findIndex((f) => f.path === path);
+      closeToTheRight(tabId: string): void {
+        const idx = state.openFiles().findIndex((f) => f.tabId === tabId);
         const kept = state.openFiles().slice(0, idx + 1);
-        const activePath = state.activeFilePath();
-        const activeStillOpen = kept.some((f) => f.path === activePath);
-        const newActivePath = activeStillOpen ? activePath : path;
+        const activeTabId = state.activeTabId();
+        const activeStillOpen = kept.some((f) => f.tabId === activeTabId);
+        const newActiveTabId = activeStillOpen ? activeTabId : tabId;
 
         patchState(state, { openFiles: kept });
-        syncAfterClose(kept, newActivePath);
+        syncAfterClose(kept, newActiveTabId);
       },
 
       updateContent(path: string, content: string): void {
@@ -140,7 +152,7 @@ export const CodeEditorStore = signalStore(
           openFiles: state
             .openFiles()
             .map((f) =>
-              f.path === path
+              f.path === path && f.mode === 'regular'
                 ? { ...f, currentContent: content, isDirty: content !== f.content }
                 : f,
             ),
@@ -150,7 +162,7 @@ export const CodeEditorStore = signalStore(
       saveFile: rxMethod<string>(
         pipe(
           switchMap((path: string) => {
-            const file = state.openFiles().find((f) => f.path === path);
+            const file = state.openFiles().find((f) => f.path === path && f.mode === 'regular');
             if (!file) return EMPTY;
 
             return state.service
@@ -164,7 +176,7 @@ export const CodeEditorStore = signalStore(
                 tap((saved) => {
                   patchState(state, {
                     openFiles: state.openFiles().map((f) =>
-                      f.path === saved.path
+                      f.path === saved.path && f.mode === 'regular'
                         ? {
                             ...f,
                             content: saved.content ?? f.currentContent,
@@ -191,7 +203,6 @@ export const CodeEditorStore = signalStore(
           return state.service.getFiles(paths).pipe(map((files) => ({ paths, files })));
         }),
         tap(({ paths, files }) => {
-          const activePath = state.activeFilePath() ?? paths[0];
           const fileMap = new Map(files.map((f) => [f.path, f]));
           const openFiles = paths
             .map((path) => fileMap.get(path))
@@ -199,10 +210,14 @@ export const CodeEditorStore = signalStore(
             .map(MonacoUtils.mapFile);
 
           patchState(state, { openFiles });
-          if (activePath) {
-            state.saveToStorage({ activeFilePath: activePath });
-            if (state.currentUrl().startsWith(AppRoutes.ide.explorer)) {
-              state.navigate(AppRoutes.ide.explorerWithFile(activePath));
+
+          const storedTabId = state.activeTabId();
+          const activeTabId = storedTabId ?? (openFiles[0]?.tabId ?? null);
+          if (activeTabId) {
+            const activeFile = openFiles.find((f) => f.tabId === activeTabId);
+            state.saveToStorage({ activeTabId });
+            if (activeFile && state.currentUrl().startsWith(AppRoutes.ide.explorer)) {
+              state.navigate(AppRoutes.ide.explorerWithFile(activeFile.path));
             }
           }
         }),
@@ -219,7 +234,9 @@ export const CodeEditorStore = signalStore(
           patchState(state, {
             openFiles: state
               .openFiles()
-              .map((f) => (f.path === file.path ? { ...f, ...mapped } : f)),
+              .map((f) =>
+                f.path === file.path && f.mode === 'regular' ? { ...f, ...mapped } : f,
+              ),
           });
         }),
       ),
@@ -236,9 +253,10 @@ export const CodeEditorStore = signalStore(
           ),
         ),
         switchMap((filePath) => {
-          const existing = state.openFiles().find((f) => f.path === filePath);
+          const tabId = MonacoUtils.createTabId(filePath, 'regular');
+          const existing = state.openFiles().find((f) => f.tabId === tabId);
           if (existing) {
-            state.saveToStorage({ activeFilePath: filePath });
+            state.saveToStorage({ activeTabId: tabId });
             return [];
           }
           return state.service.getFile(filePath).pipe(tap((file) => state.openFile(file)));

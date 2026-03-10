@@ -1,11 +1,11 @@
 <div class="tab-bar">
-  @for (tab of store.openFiles(); track tab.path) {
+  @for (tab of store.openFiles(); track tab.tabId) {
     <ide-tab
       [file]="tab"
-      [isActive]="tab.path === store.activeFilePath()"
-      (selected)="store.setActiveFile(tab.path)"
-      (closed)="store.closeFile(tab.path)"
-      (contextmenu)="onContextMenu($event, tab.path)"
+      [isActive]="tab.tabId === store.activeTabId()"
+      (selected)="store.setActiveFile(tab.tabId)"
+      (closed)="store.closeFile(tab.tabId)"
+      (contextmenu)="onContextMenu($event, tab.tabId)"
     />
   }
 </div>

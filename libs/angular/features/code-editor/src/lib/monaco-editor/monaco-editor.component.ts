@@ -42,7 +42,7 @@ export class MonacoEditorComponent implements OnDestroy {
   }
 
   private save = (): void => {
-    const path = this.store.activeFilePath();
+    const path = this.store.activeFile()?.path;
     if (path) this.store.saveFile(path);
   };
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { CollapsibleSectionStore } from './collapsible-section.store';
 
 @Component({
@@ -7,7 +7,7 @@ import { CollapsibleSectionStore } from './collapsible-section.store';
   templateUrl: './collapsible-section.component.html',
   styleUrls: ['./collapsible-section.component.scss'],
 })
-export class CollapsibleSectionComponent implements OnInit {
+export class CollapsibleSectionComponent implements OnInit, OnDestroy {
   readonly id = input.required<string>();
   readonly title = input.required<string>();
 
@@ -17,6 +17,10 @@ export class CollapsibleSectionComponent implements OnInit {
   ngOnInit(): void {
     this.store.loadFromStorage();
     this.store.register(this.id());
+  }
+
+  ngOnDestroy(): void {
+    this.store.unregister(this.id());
   }
 
   toggle(): void {

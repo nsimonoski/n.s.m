@@ -9,6 +9,7 @@ export interface File {
 }
 
 export interface OpenFile extends File {
+  tabId: string;
   name: string;
   content: string;
   type: Enums.FileType;
@@ -17,9 +18,14 @@ export interface OpenFile extends File {
   updatedAt: string;
 }
 
+export function createTabId(path: string, mode: 'regular' | 'diff'): string {
+  return mode === 'diff' ? `${path}::diff` : path;
+}
+
 export function mapFile(file: FileResponseDto): OpenFile {
   const content = file.content ?? '';
   return {
+    tabId: createTabId(file.path, 'regular'),
     path: file.path,
     name: file.name,
     content,
