@@ -47,10 +47,11 @@ export const CodeEditorStore = signalStore(
         activeTabId,
       });
       const activePath = files.find((f) => f.tabId === activeTabId)?.path ?? null;
+      const currentUrl = state.currentUrl();
       if (activePath) {
-        state.navigate(AppRoutes.ide.explorerWithFile(activePath));
+        state.navigate(AppRoutes.ide.withFile(currentUrl, activePath));
       } else {
-        state.navigate(AppRoutes.ide.explorer);
+        state.navigate(currentUrl.split('?')[0]);
       }
     };
 
@@ -107,9 +108,9 @@ export const CodeEditorStore = signalStore(
       setActiveFile(tabId: string): void {
         const file = state.openFiles().find((f) => f.tabId === tabId);
         if (file) {
-          const isOnExplorer = state.currentUrl().startsWith(AppRoutes.ide.explorer);
-          if (isOnExplorer) {
-            state.navigate(AppRoutes.ide.explorerWithFile(file.path));
+          const currentUrl = state.currentUrl();
+          if (currentUrl.startsWith(AppRoutes.ide.root)) {
+            state.navigate(AppRoutes.ide.withFile(currentUrl, file.path));
           }
           patchState(state, { activeTabId: tabId });
         }
@@ -216,8 +217,8 @@ export const CodeEditorStore = signalStore(
           if (activeTabId) {
             const activeFile = openFiles.find((f) => f.tabId === activeTabId);
             state.saveToStorage({ activeTabId });
-            if (activeFile && state.currentUrl().startsWith(AppRoutes.ide.explorer)) {
-              state.navigate(AppRoutes.ide.explorerWithFile(activeFile.path));
+            if (activeFile && state.currentUrl().startsWith(AppRoutes.ide.root)) {
+              state.navigate(AppRoutes.ide.withFile(state.currentUrl(), activeFile.path));
             }
           }
         }),

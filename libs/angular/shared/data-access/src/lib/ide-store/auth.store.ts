@@ -107,7 +107,8 @@ export const AuthStore = signalStore(
         switchMap(() => state.authService.logout().pipe(catchError(() => of(void 0)))),
         tap(() => {
           partialStore.clearBrowserStorage();
-          window.location.href = AppRoutes.login;
+          state.navigate(AppRoutes.login);
+          window.location.reload();
         }),
       ),
     ),

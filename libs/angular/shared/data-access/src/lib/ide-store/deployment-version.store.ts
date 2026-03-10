@@ -1,7 +1,7 @@
 import { signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { partialStore } from '@org/angular-utils';
-import { filter, from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
+import { from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
 const SNACKBAR_DELAY = 5000;
