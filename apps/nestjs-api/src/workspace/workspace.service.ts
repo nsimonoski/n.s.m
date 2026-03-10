@@ -34,6 +34,11 @@ export class WorkspaceService {
 
     this.logger.log(`Cloning ${repoUrl} into ${session.workspacePath}`);
     await this.gitProvider.clone(authedUrl, session.workspacePath);
+    await this.gitProvider.configUser(
+      session.workspacePath,
+      session.githubUsername,
+      `${session.githubUsername}@users.noreply.github.com`,
+    );
 
     session.repoUrl = repoUrl;
     await this.sessionService.save(session);

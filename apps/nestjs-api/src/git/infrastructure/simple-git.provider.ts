@@ -233,6 +233,16 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async configUser(repoPath: string, name: string, email: string): Promise<void> {
+    try {
+      const git = this.git(repoPath);
+      await git.addConfig('user.name', name);
+      await git.addConfig('user.email', email);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async showDiff(repoPath: string, filePath: string, ref = 'HEAD'): Promise<string> {
     try {
       return await this.git(repoPath).show([`${ref}:${filePath}`]);
