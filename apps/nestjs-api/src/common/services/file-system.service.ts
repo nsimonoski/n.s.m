@@ -54,6 +54,10 @@ export class FileSystemService {
     return fs.rename(oldPath, newPath);
   }
 
+  copyDirectory(source: string, destination: string): Promise<void> {
+    return fs.cp(source, destination, { recursive: true });
+  }
+
   mapToHttpException(error: unknown): HttpException {
     if (error instanceof Error) {
       switch ((error as NodeJS.ErrnoException).code) {
