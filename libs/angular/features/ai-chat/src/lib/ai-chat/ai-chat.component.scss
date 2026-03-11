@@ -34,7 +34,7 @@
   padding: 2px 8px;
   font-size: 12px;
   background: var(--accent-button);
-  color: var(--text-primary);
+  color: var(--text-white);
   border: none;
   border-radius: 2px;
   cursor: pointer;
@@ -128,7 +128,7 @@
   border: none;
   border-radius: 2px;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--text-white);
 
   &:disabled {
     opacity: 0.5;

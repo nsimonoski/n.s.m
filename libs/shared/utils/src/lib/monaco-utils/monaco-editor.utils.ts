@@ -72,6 +72,10 @@ export class MonacoEditorUtils {
     }
   }
 
+  setTheme(theme: 'vs' | 'vs-dark'): void {
+    this.loader.setTheme(theme);
+  }
+
   dispose(): void {
     this.onDidChangeDisposable?.dispose();
     this.models.forEach((model) => model.dispose());

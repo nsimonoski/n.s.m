@@ -5,9 +5,13 @@ interface BrowserStorageConfig {
   type?: 'local' | 'session';
 }
 
+const PRESERVED_KEYS = ['ide-theme'];
+
 export function clearBrowserStorage(): void {
+  const preserved = PRESERVED_KEYS.map((key) => [key, localStorage.getItem(key)] as const);
   localStorage.clear();
   sessionStorage.clear();
+  preserved.forEach(([key, value]) => value && localStorage.setItem(key, value));
 }
 
 export const withBrowserStorage = (config: BrowserStorageConfig) => {

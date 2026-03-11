@@ -16,24 +16,30 @@ import { SnackbarService } from '@org/angular/ui';
 
 interface GitExplorerState {
   rootPath: string;
+  branch: string;
   changesTree: DirectoryResponseDto | null;
   statusMap: Record<string, string>;
   commitMessage: string;
   commitHistory: GitLogEntryDto[];
   ahead: number;
   behind: number;
+  stagedCount: number;
+  changesCount: number;
 }
 
 export const FileExplorerGitStore = signalStore(
   { providedIn: 'root' },
   withState<GitExplorerState>({
     rootPath: '',
+    branch: '',
     changesTree: null,
     statusMap: {},
     commitMessage: '',
     commitHistory: [],
     ahead: 0,
     behind: 0,
+    stagedCount: 0,
+    changesCount: 0,
   }),
   partialStore.withLoading(),
   partialStore.withBrowserStorage({ key: 'git-explorer' }),
