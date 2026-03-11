@@ -35,7 +35,51 @@
   --indent-guide-hover: rgba(255, 255, 255, 0.2);
   --shadow: rgba(0, 0, 0, 0.15);
 
+  // Icons
+  --icon-filter: invert(1);
+
   // Font
   --font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+:root[data-theme='light'] {
+  // Backgrounds
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --bg-input: #ffffff;
+  --bg-selected: #d6ebff;
+  --bg-hover: rgba(0, 0, 0, 0.06);
+  --bg-backdrop: rgba(0, 0, 0, 0.3);
+
+  // Accent
+  --accent-primary: #005fb8;
+  --accent-focus: #0066cc;
+  --accent-button: #3b3b3b;
+  --accent-button-hover: #505050;
+  --accent-button-active: #2d2d2d;
+
+  // Text
+  --text-primary: #3b3b3b;
+  --text-secondary: #616161;
+  --text-muted: #848484;
+  --text-placeholder: #a0a0a0;
+  --text-white: #ffffff;
+
+  // Borders
+  --border-primary: #e0e0e0;
+  --border-input: #cecece;
+
+  // Scrollbar
+  --scrollbar-thumb: rgba(100, 100, 100, 0.3);
+  --scrollbar-thumb-hover: rgba(100, 100, 100, 0.5);
+
+  // Misc
+  --indent-guide: rgba(0, 0, 0, 0.1);
+  --indent-guide-hover: rgba(0, 0, 0, 0.2);
+  --shadow: rgba(0, 0, 0, 0.1);
+
+  // Icons
+  --icon-filter: brightness(0) saturate(100%) opacity(0.7);
 }

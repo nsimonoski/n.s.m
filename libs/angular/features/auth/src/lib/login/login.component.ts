@@ -8,6 +8,7 @@ import { IdeStore } from '@org/angular-data-access';
 })
 export class LoginComponent {
   private readonly authStore = inject(IdeStore.AuthStore);
+  private readonly themeStore = inject(IdeStore.ThemeStore);
 
   readonly isLoading = this.authStore.isLoading;
 

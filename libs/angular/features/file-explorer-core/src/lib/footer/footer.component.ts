@@ -13,6 +13,7 @@ import { FileExplorerCoreStore } from '../file-explorer-core.store';
 export class FooterComponent {
   readonly coreStore = inject(FileExplorerCoreStore);
   readonly authStore = inject(IdeStore.AuthStore);
+  readonly themeStore = inject(IdeStore.ThemeStore);
   readonly branchPickerOpen = signal(false);
 
   openBranchPicker(): void {

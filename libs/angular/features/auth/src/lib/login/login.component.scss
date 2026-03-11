@@ -22,7 +22,7 @@
 .title {
   font-size: 28px;
   font-weight: 600;
-  color: var(--text-white);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -117,7 +117,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--accent-button);
+    color: var(--accent-primary);
     text-decoration: none;
 
     &:hover span {

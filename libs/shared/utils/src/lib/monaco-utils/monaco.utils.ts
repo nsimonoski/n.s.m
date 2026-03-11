@@ -7,8 +7,14 @@ export type EditorOptions = Monaco.editor.IStandaloneEditorConstructionOptions;
 export type DiffEditorOptions = Monaco.editor.IStandaloneDiffEditorConstructionOptions;
 export type Disposable = Monaco.IDisposable;
 
+export function getMonacoTheme(): 'vs' | 'vs-dark' {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'vs' : 'vs-dark';
+}
+
 export const BASE_EDITOR_OPTIONS: EditorOptions = {
-  theme: 'vs-dark',
+  get theme() {
+    return getMonacoTheme();
+  },
   automaticLayout: true,
   fontSize: 13,
   scrollBeyondLastLine: false,
@@ -52,6 +58,10 @@ export class MonacoUtils {
 
   getKeyCode(): typeof Monaco.KeyCode {
     return this.monaco.KeyCode;
+  }
+
+  setTheme(theme: 'vs' | 'vs-dark'): void {
+    this.monaco.editor.setTheme(theme);
   }
 
   private configureDiagnostics(): void {

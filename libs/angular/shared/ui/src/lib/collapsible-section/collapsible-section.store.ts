@@ -32,7 +32,8 @@ export const CollapsibleSectionStore = signalStore(
     },
 
     toggle(id: string): void {
-      state.saveToStorage({ sections: { ...state.sections(), [id]: !state.sections()[id] } });
+      const current = state.sections()[id] ?? true;
+      state.saveToStorage({ sections: { ...state.sections(), [id]: !current } });
     },
   })),
 );

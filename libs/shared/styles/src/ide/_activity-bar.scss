@@ -22,7 +22,7 @@
     width: 24px;
     height: 24px;
     opacity: 0.6;
-    filter: invert(1);
+    filter: var(--icon-filter);
   }
 
   &:hover .icon {
