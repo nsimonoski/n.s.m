@@ -7,6 +7,10 @@ export const authRoutes: Route[] = [
     loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
     canActivate: [loginGuard],
   },
+  {
+    path: 'cv',
+    loadComponent: () => import('./cv/cv.component').then((m) => m.CvComponent),
+  },
 ];
 
 export const cloneRepoRoute: Route = {
