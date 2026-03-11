@@ -13,10 +13,9 @@ export const authGuard: CanActivateFn = (route, state) => {
         return authStore.router.createUrlTree([AppRoutes.login]);
       }
 
-      const needsWorkspace = !authStore.profile()?.isGuest && !authStore.workspace()?.ready;
       const isCloneRepoPage = state.url.startsWith(AppRoutes.ide.cloneRepo);
 
-      if (!needsWorkspace || isCloneRepoPage) {
+      if (isCloneRepoPage || authStore.workspace()?.ready) {
         return true;
       }
 
