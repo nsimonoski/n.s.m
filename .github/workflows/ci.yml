@@ -26,4 +26,4 @@ jobs:
 
       - run: npm ci
 
-      - run: npx nx affected -t lint build
+      - run: npx nx affected -t lint build --base=$NX_BASE --head=$NX_HEAD
