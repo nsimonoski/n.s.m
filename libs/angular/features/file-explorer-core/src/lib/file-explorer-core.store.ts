@@ -43,6 +43,7 @@ export const FileExplorerCoreStore = signalStore(
   partialStore.withRouting(),
   withProps(() => ({
     authStore: inject(IdeStore.AuthStore),
+    editorStore: inject(IdeStore.CodeEditorStore),
     gitService: inject(GitService),
     fileService: inject(FileExplorerService),
     wsService: inject(GitWsService),
@@ -61,7 +62,8 @@ export const FileExplorerCoreStore = signalStore(
       store.saveToStorage({ width });
     },
     setActivePanel: (panel: string) => {
-      store.navigate(AppRoutes.ide.panel(panel));
+      const filePath = store.editorStore.activeFile()?.path;
+      store.navigate(AppRoutes.ide.panel(panel, filePath));
     },
     openFile: (path: string) => {
       store.navigate(AppRoutes.ide.explorerWithFile(path));
