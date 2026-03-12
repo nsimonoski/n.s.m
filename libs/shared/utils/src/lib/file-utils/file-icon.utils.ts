@@ -8,59 +8,59 @@ export interface FileIconConfig {
 const FILE_ICON_MAP: Record<Enums.FileType, FileIconConfig> = {
   [Enums.FileType.DIRECTORY]: {
     iconClass: 'codicon-folder',
-    color: '#dcb67a',
+    color: 'var(--icon-folder)',
   },
   [Enums.FileType.TS]: {
     iconClass: 'codicon-symbol-method',
-    color: '#3178c6',
+    color: 'var(--icon-ts)',
   },
   [Enums.FileType.JS]: {
     iconClass: 'codicon-symbol-method',
-    color: '#f1dd3f',
+    color: 'var(--icon-js)',
   },
   [Enums.FileType.HTML]: {
     iconClass: 'codicon-code',
-    color: '#e34c26',
+    color: 'var(--icon-html)',
   },
   [Enums.FileType.CSS]: {
     iconClass: 'codicon-symbol-color',
-    color: '#563d7c',
+    color: 'var(--icon-css)',
   },
   [Enums.FileType.SCSS]: {
     iconClass: 'codicon-symbol-color',
-    color: '#563d7c',
+    color: 'var(--icon-css)',
   },
   [Enums.FileType.JSON]: {
     iconClass: 'codicon-json',
-    color: '#89e051',
+    color: 'var(--icon-json)',
   },
   [Enums.FileType.MD]: {
     iconClass: 'codicon-markdown',
-    color: '#519aba',
+    color: 'var(--icon-md)',
   },
   [Enums.FileType.TXT]: {
     iconClass: 'codicon-file',
-    color: '#c5c5c5',
+    color: 'var(--icon-txt)',
   },
   [Enums.FileType.PNG]: {
     iconClass: 'codicon-file-media',
-    color: '#a074c4',
+    color: 'var(--icon-image)',
   },
   [Enums.FileType.JPG]: {
     iconClass: 'codicon-file-media',
-    color: '#a074c4',
+    color: 'var(--icon-image)',
   },
   [Enums.FileType.SVG]: {
     iconClass: 'codicon-symbol-color',
-    color: '#ffb13b',
+    color: 'var(--icon-svg)',
   },
   [Enums.FileType.PDF]: {
     iconClass: 'codicon-file-pdf',
-    color: '#e53935',
+    color: 'var(--icon-pdf)',
   },
   [Enums.FileType.OTHER]: {
     iconClass: 'codicon-file',
-    color: '#c5c5c5',
+    color: 'var(--icon-txt)',
   },
 };
 
@@ -68,7 +68,7 @@ export const getFileIcon = (fileType: Enums.FileType, isExpanded?: boolean): Fil
   if (fileType === Enums.FileType.DIRECTORY) {
     return {
       iconClass: isExpanded ? 'codicon-folder-opened' : 'codicon-folder',
-      color: '#dcb67a',
+      color: 'var(--icon-folder)',
     };
   }
 
