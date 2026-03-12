@@ -1,6 +1,11 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { simpleGit, SimpleGit } from 'simple-git';
-import type { GitBranchDto, GitFileChange, GitLogEntryDto, GitStatusDto } from '@org/shared/contracts';
+import type {
+  GitBranchDto,
+  GitFileChange,
+  GitLogEntryDto,
+  GitStatusDto,
+} from '@org/shared/contracts';
 import { GitFileStatus } from '@org/shared/contracts';
 import { GitProvider } from '../domain/git.provider';
 
@@ -243,6 +248,29 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async checkoutOrCreateBranch(repoPath: string, branch: string): Promise<void> {
+    try {
+      const git = this.git(repoPath);
+      const locals = await git.branchLocal();
+
+      if (locals.all.includes(branch)) {
+        await git.checkout(branch);
+        return;
+      }
+
+      const remotes = await git.branch(['-r']);
+      if (remotes.all.includes(`origin/${branch}`)) {
+        await git.checkout(['-b', branch, `origin/${branch}`]);
+        return;
+      }
+
+      await git.checkoutLocalBranch(branch);
+      await git.push(['--set-upstream', 'origin', branch]);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async showDiff(repoPath: string, filePath: string, ref = 'HEAD'): Promise<string> {
     try {
       return await this.git(repoPath).show([`${ref}:${filePath}`]);
@@ -278,8 +306,18 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
-  private mapError(error: unknown): InternalServerErrorException {
+  private mapError(error: unknown): ForbiddenException | InternalServerErrorException {
     const message = error instanceof Error ? error.message : 'Unknown git error';
+    const lower = message.toLowerCase();
+
+    if (
+      lower.includes('permission') ||
+      lower.includes('denied') ||
+      lower.includes('protected branch')
+    ) {
+      return new ForbiddenException('Insufficient permissions to perform this git operation');
+    }
+
     return new InternalServerErrorException(message);
   }
 }
