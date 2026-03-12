@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { IdeStore } from '@org/angular-data-access';
 import { BranchPickerComponent } from '../branch-picker/branch-picker.component';
-import { FileExplorerCoreStore } from '../file-explorer-core.store';
 
 @Component({
   selector: 'ide-footer',
@@ -11,19 +10,19 @@ import { FileExplorerCoreStore } from '../file-explorer-core.store';
   styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent {
-  readonly coreStore = inject(FileExplorerCoreStore);
+  readonly gitStatusStore = inject(IdeStore.GitStatusStore);
   readonly authStore = inject(IdeStore.AuthStore);
   readonly themeStore = inject(IdeStore.ThemeStore);
   readonly branchPickerOpen = signal(false);
 
   openBranchPicker(): void {
-    this.coreStore.listBranches();
+    this.gitStatusStore.listBranches();
     this.branchPickerOpen.set(true);
   }
 
   onBranchSelected(branchName: string): void {
     this.branchPickerOpen.set(false);
-    this.coreStore.checkout(branchName);
+    this.gitStatusStore.checkout(branchName);
   }
 
   closeBranchPicker(): void {

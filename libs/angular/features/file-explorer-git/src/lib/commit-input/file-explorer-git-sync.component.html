@@ -2,8 +2,8 @@
   <textarea
     class="message-input"
     placeholder="Message (Ctrl+Enter to commit)"
-    [ngModel]="store.commitMessage()"
-    (ngModelChange)="store.setCommitMessage($event)"
+    [ngModel]="commitStore.commitMessage()"
+    (ngModelChange)="commitStore.setCommitMessage($event)"
     (keydown)="onKeydown($event)"
     rows="1"
   ></textarea>
@@ -14,7 +14,7 @@
   } @else {
     <button
       class="commit-button"
-      [disabled]="!store.commitMessage().trim() || !hasStagedFiles()"
+      [disabled]="!commitStore.commitMessage().trim() || !hasStagedFiles()"
       (click)="onCommit()"
     >
       Commit

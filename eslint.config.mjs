@@ -28,6 +28,7 @@ export default [
                 'type:model',
                 'type:ui',
                 'type:util',
+                'type:data-access',
                 'type:domain',
               ],
             },
@@ -40,12 +41,17 @@ export default [
               onlyDependOnLibsWithTags: ['type:util', 'type:domain'],
             },
             {
+              sourceTag: 'type:data-access',
+              onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:domain'],
+            },
+            {
               sourceTag: 'type:feature',
               onlyDependOnLibsWithTags: [
                 'type:feature',
                 'type:model',
                 'type:ui',
                 'type:util',
+                'type:data-access',
                 'type:domain',
               ],
             },

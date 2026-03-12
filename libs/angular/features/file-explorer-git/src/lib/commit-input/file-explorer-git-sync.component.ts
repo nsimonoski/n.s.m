@@ -1,6 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FileExplorerGitStore } from '../file-explorer-git.store';
+import { GitStatusStore } from '@org/angular-data-access';
+import { GitChangesStore } from '../git-changes.store';
+import { GitCommitStore } from '../git-commit.store';
 
 @Component({
   selector: 'ide-file-explorer-git-sync',
@@ -10,26 +12,29 @@ import { FileExplorerGitStore } from '../file-explorer-git.store';
   styleUrls: ['./file-explorer-git-sync.component.scss'],
 })
 export class FileExplorerGitSyncComponent {
-  readonly store = inject(FileExplorerGitStore);
+  readonly gitStatusStore = inject(GitStatusStore);
+  readonly changesStore = inject(GitChangesStore);
+  readonly commitStore = inject(GitCommitStore);
+
   readonly hasStagedFiles = computed(() => {
-    const tree = this.store.changesTree();
+    const tree = this.changesStore.changesTree();
     return tree?.directories.some((d) => d.path === '/staged') ?? false;
   });
-  readonly hasPendingSync = computed(() => this.store.ahead() > 0 && !this.hasStagedFiles());
-  readonly syncLabel = computed(() => `Push (${this.store.ahead()})`);
+  readonly hasPendingSync = computed(() => this.gitStatusStore.ahead() > 0 && !this.hasStagedFiles());
+  readonly syncLabel = computed(() => `Push (${this.gitStatusStore.ahead()})`);
 
   onSync(): void {
     if (this.hasPendingSync()) {
-      this.store.sync();
+      this.commitStore.sync();
     } else {
       this.onCommit();
     }
   }
 
   onCommit(): void {
-    const trimmed = this.store.commitMessage().trim();
+    const trimmed = this.commitStore.commitMessage().trim();
     if (!trimmed) return;
-    this.store.commit(trimmed);
+    this.commitStore.commit(trimmed);
   }
 
   onKeydown(event: KeyboardEvent): void {

@@ -8,7 +8,8 @@ import { sockets } from '@org/angular-utils';
 export class GitWsService {
   private readonly socket = inject(sockets.SocketService);
 
-  gitChanges$: Observable<GitStatusTreeResponseDto> = this.socket.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT);
+  gitChanges$: Observable<GitStatusTreeResponseDto> =
+    this.socket.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT);
 
   watchRepositoryForChanges(path: string) {
     this.socket.watch(GIT_WATCH_EVENT, path);

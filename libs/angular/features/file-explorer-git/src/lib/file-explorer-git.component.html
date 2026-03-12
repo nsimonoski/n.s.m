@@ -8,14 +8,14 @@
     <ng-template>
       <ide-file-explorer-git-sync />
 
-      @if (store.isLoading()) {
+      @if (changesStore.isLoading()) {
         <div class="loading">Loading...</div>
       }
 
-      @if (store.changesTree()) {
+      @if (changesStore.changesTree()) {
         <ui-file-tree
-          [rootDirectory]="store.changesTree()!"
-          [statusMap]="store.statusMap()"
+          [rootDirectory]="changesStore.changesTree()!"
+          [statusMap]="changesStore.statusMap()"
           (handleOpen)="onFileClick($event)"
         >
           <ng-template #nodeActions let-node>
@@ -46,7 +46,7 @@
 
   <ui-collapsible-section id="git-history" title="Commit History">
     <ng-template>
-      <ide-commit-history [entries]="store.commitHistory()" />
+      <ide-commit-history [entries]="commitStore.commitHistory()" />
     </ng-template>
   </ui-collapsible-section>
 

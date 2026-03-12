@@ -12,7 +12,8 @@ import {
   FileTreeNodeActionComponent,
   NodeAction,
 } from '@org/angular/ui';
-import { FileExplorerGitStore } from './file-explorer-git.store';
+import { GitChangesStore } from './git-changes.store';
+import { GitCommitStore } from './git-commit.store';
 import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
 import { CommitHistoryComponent } from './commit-history/commit-history.component';
 
@@ -45,11 +46,13 @@ const CHANGES_ACTIONS: NodeAction[] = [
     CollapsibleSectionComponent,
     CommitHistoryComponent,
   ],
+  providers: [GitChangesStore, GitCommitStore],
   templateUrl: './file-explorer-git.component.html',
   styleUrls: ['./file-explorer-git.component.scss'],
 })
 export class FileExplorerGitComponent {
-  readonly store = inject(FileExplorerGitStore);
+  readonly changesStore = inject(GitChangesStore);
+  readonly commitStore = inject(GitCommitStore);
   readonly fileTreeComponent = viewChild(FileTreeComponent);
 
   readonly headerMenuItems: DropdownMenuItem[] = [
@@ -69,7 +72,7 @@ export class FileExplorerGitComponent {
 
   constructor() {
     effect(() => {
-      const changes = this.store.changesTree();
+      const changes = this.changesStore.changesTree();
       const fileTree = this.fileTreeComponent();
       if (!changes || !fileTree) {
         return;
@@ -101,7 +104,7 @@ export class FileExplorerGitComponent {
 
   onFileClick(node: DirectoryResponseDto | FileResponseDto | null): void {
     if (node && node.type !== Enums.FileType.DIRECTORY) {
-      this.store.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
+      this.changesStore.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
     }
   }
 
@@ -114,6 +117,30 @@ export class FileExplorerGitComponent {
     this.handleAction(actionId as ContextMenu.Action, node);
   }
 
+  onDiscardConfirmed(): void {
+    this.changesStore.discard(this.pendingDiscardPaths);
+    this.closeDiscardDialog();
+  }
+
+  onHeaderAction(id: string): void {
+    switch (id) {
+      case HeaderAction.StashAll:
+        this.changesStore.stash();
+        break;
+      case HeaderAction.StashPop:
+        this.changesStore.stashPop();
+        break;
+      case HeaderAction.StashApply:
+        this.changesStore.stashApply();
+        break;
+    }
+  }
+
+  closeDiscardDialog(): void {
+    this.discardDialogOpen.set(false);
+    this.pendingDiscardPaths = [];
+  }
+
   private handleAction(
     action: ContextMenu.Action,
     node: DirectoryResponseDto | FileResponseDto,
@@ -122,10 +149,10 @@ export class FileExplorerGitComponent {
 
     switch (action) {
       case ContextMenu.Action.STAGE:
-        this.store.stage(paths);
+        this.changesStore.stage(paths);
         break;
       case ContextMenu.Action.UNSTAGE:
-        this.store.unstage(paths);
+        this.changesStore.unstage(paths);
         break;
       case ContextMenu.Action.DISCARD:
         this.pendingDiscardPaths = paths;
@@ -133,34 +160,10 @@ export class FileExplorerGitComponent {
         break;
       case ContextMenu.Action.OPEN:
         if (node.type !== Enums.FileType.DIRECTORY) {
-          this.store.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
+          this.changesStore.openDiff(GitTreeUtils.stripGitSectionPrefix(node.path));
         }
         break;
     }
-  }
-
-  onDiscardConfirmed(): void {
-    this.store.discard(this.pendingDiscardPaths);
-    this.closeDiscardDialog();
-  }
-
-  onHeaderAction(id: string): void {
-    switch (id) {
-      case HeaderAction.StashAll:
-        this.store.stash();
-        break;
-      case HeaderAction.StashPop:
-        this.store.stashPop();
-        break;
-      case HeaderAction.StashApply:
-        this.store.stashApply();
-        break;
-    }
-  }
-
-  closeDiscardDialog(): void {
-    this.discardDialogOpen.set(false);
-    this.pendingDiscardPaths = [];
   }
 
   private getFilePaths(node: DirectoryResponseDto | FileResponseDto): string[] {

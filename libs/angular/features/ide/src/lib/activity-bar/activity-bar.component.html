@@ -2,9 +2,9 @@
   @for (panel of panels; track panel.id) {
     <button
       class="activity-bar-item"
-      [class.active]="coreStore.activePanel() === panel.id"
+      [class.active]="layoutStore.activePanel() === panel.id"
       [title]="panel.tooltip"
-      (click)="coreStore.setActivePanel(panel.id)"
+      (click)="layoutStore.setActivePanel(panel.id)"
     >
       <img class="icon" [src]="panel.icon" [alt]="panel.tooltip" />
       @if (panel.id === 'git' && changeCount() > 0) {

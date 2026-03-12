@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 import { authRoutes, authGuard, cloneRepoRoute } from '@org/angular-auth';
-import { fileExplorerCoreRoutes } from '@org/angular-file-explorer-core';
+import { ideLayoutRoutes } from '@org/angular-ide';
 import { IdeShellComponent } from './ide-shell/ide-shell.component';
 
 export const appRoutes: Route[] = [
@@ -13,7 +13,7 @@ export const appRoutes: Route[] = [
       {
         path: '',
         component: IdeShellComponent,
-        children: fileExplorerCoreRoutes,
+        children: ideLayoutRoutes,
       },
     ],
   },

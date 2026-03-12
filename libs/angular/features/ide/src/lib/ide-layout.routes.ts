@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 
-export const fileExplorerCoreRoutes: Route[] = [
+export const ideLayoutRoutes: Route[] = [
   {
     path: 'explorer',
     loadComponent: () => import('@org/angular-file-explorer').then((m) => m.FileExplorerComponent),

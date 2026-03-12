@@ -1,19 +1,20 @@
 import { Component, computed, inject, OnDestroy, output } from '@angular/core';
 import { FileResponseDto } from '@org/shared/contracts';
 import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
-import { FileExplorerCoreStore } from '../file-explorer-core.store';
+import { FileSearchStore } from './file-picker.store';
 
 @Component({
   selector: 'ide-file-picker',
   standalone: true,
   imports: [CommandPaletteComponent],
+  providers: [FileSearchStore],
   templateUrl: './file-picker.component.html',
 })
 export class FilePickerComponent implements OnDestroy {
   readonly fileSelected = output<FileResponseDto>();
   readonly closed = output<void>();
 
-  private readonly store = inject(FileExplorerCoreStore);
+  private readonly store = inject(FileSearchStore);
 
   readonly loading = this.store.searchLoading;
   readonly items = computed<CommandPaletteItem[]>(() =>

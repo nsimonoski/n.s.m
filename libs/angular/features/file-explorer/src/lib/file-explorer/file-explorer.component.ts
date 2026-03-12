@@ -62,11 +62,7 @@ export class FileExplorerComponent {
   handleDelete(node: DirectoryResponseDto | FileResponseDto | null): void {
     if (!node) return;
 
-    this.store.openDialog(
-      `Delete ${node.type}`,
-      `Are you sure you want to delete ${node.name}`,
-      node.path,
-    );
+    this.store.openDialog(`Delete`, `Are you sure you want to delete '${node.name}'?`, node.path);
   }
 
   onConfirmDelete(): void {
@@ -98,18 +94,15 @@ export class FileExplorerComponent {
   }
 
   onContextMenuAction(event: ContextMenuActionEvent): void {
-    const directory = this.store.directory();
-    if (!directory) return;
-
     switch (event.action) {
       case ContextMenu.Action.NEW_FILE:
         this.inlineCreate.set(
-          ContextMenu.startInlineCreate(event.node, 'file', directory.path),
+          ContextMenu.startInlineCreate(event.node, 'file', this.store.directory()!.path),
         );
         break;
       case ContextMenu.Action.NEW_FOLDER:
         this.inlineCreate.set(
-          ContextMenu.startInlineCreate(event.node, 'directory', directory.path),
+          ContextMenu.startInlineCreate(event.node, 'directory', this.store.directory()!.path),
         );
         break;
       case ContextMenu.Action.RENAME:
