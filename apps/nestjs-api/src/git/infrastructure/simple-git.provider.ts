@@ -265,7 +265,6 @@ export class SimpleGitProvider extends GitProvider {
       }
 
       await git.checkoutLocalBranch(branch);
-      await git.push(['--set-upstream', 'origin', branch]);
     } catch (error) {
       throw this.mapError(error);
     }

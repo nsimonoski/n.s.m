@@ -14,12 +14,10 @@ services:
       - FRONTEND_URL=https://kod3.dev/angular
       - OAUTH_CALLBACK_URL=https://kod3.dev/api/auth/github/callback
       - WORKSPACE_BASE_DIR=/data/workspaces
-      - DEMO_WORKSPACE_PATH=/data/demo
     env_file:
       - .env.production
     volumes:
       - workspace-data:/data/workspaces
-      - demo-data:/data/demo
     depends_on:
       - redis
 
@@ -32,4 +30,3 @@ services:
 volumes:
   redis-data:
   workspace-data:
-  demo-data:
