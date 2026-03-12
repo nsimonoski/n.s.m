@@ -212,10 +212,11 @@ export class LocalFileSystemProvider extends FileSystemProvider {
   private async formatWithPrettier(filePath: string, content: string): Promise<string> {
     try {
       const prettier = await import('prettier');
-      const config = await prettier.resolveConfig(filePath);
-      if (!config) return content;
+      const fileInfo = await prettier.getFileInfo(filePath);
+      if (fileInfo.ignored || !fileInfo.inferredParser) return content;
 
-      return prettier.format(content, { ...config, filepath: filePath });
+      const config = await prettier.resolveConfig(filePath);
+      return await prettier.format(content, { ...config, filepath: filePath });
     } catch {
       return content;
     }

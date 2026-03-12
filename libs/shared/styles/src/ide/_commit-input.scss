@@ -18,6 +18,8 @@
   box-sizing: border-box;
   resize: none;
   overflow: hidden;
+  field-sizing: content;
+  min-height: 1lh;
 
   &:focus {
     border-color: var(--accent-focus);

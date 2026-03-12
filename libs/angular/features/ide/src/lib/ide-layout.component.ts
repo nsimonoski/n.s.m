@@ -5,10 +5,10 @@ import { FilePickerComponent } from './file-picker/file-picker.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
 import { SnackbarComponent } from '@org/angular/ui';
-import { FileExplorerCoreStore } from './file-explorer-core.store';
+import { IdeStore } from '@org/angular-data-access';
 
 @Component({
-  selector: 'ide-file-explorer-core',
+  selector: 'ide-layout',
   standalone: true,
   imports: [
     RouterOutlet,
@@ -17,24 +17,20 @@ import { FileExplorerCoreStore } from './file-explorer-core.store';
     FilePickerComponent,
     SnackbarComponent,
   ],
-  templateUrl: './file-explorer-core.component.html',
-  styleUrls: ['./file-explorer-core.component.scss'],
+  templateUrl: './ide-layout.component.html',
+  styleUrls: ['./ide-layout.component.scss'],
   host: {
     '(document:keydown)': 'handleKeydown($event)',
   },
 })
-export class FileExplorerCoreComponent {
-  readonly coreStore = inject(FileExplorerCoreStore);
+export class IdeLayoutComponent {
+  readonly layoutStore = inject(IdeStore.IdeLayoutStore);
   readonly showFilePicker = signal(false);
-
-  private resizing = false;
-  private startX = 0;
-  private startWidth = 0;
 
   onResizeStart(event: MouseEvent): void {
     this.resizing = true;
     this.startX = event.clientX;
-    this.startWidth = this.coreStore.width();
+    this.startWidth = this.layoutStore.width();
     event.preventDefault();
 
     document.addEventListener('mousemove', this.onResize);
@@ -43,7 +39,7 @@ export class FileExplorerCoreComponent {
 
   onFileSelected(file: FileResponseDto): void {
     this.showFilePicker.set(false);
-    this.coreStore.openFile(file.path);
+    this.layoutStore.openFile(file.path);
   }
 
   onFilePickerClosed(): void {
@@ -57,11 +53,15 @@ export class FileExplorerCoreComponent {
     }
   }
 
+  private resizing = false;
+  private startX = 0;
+  private startWidth = 0;
+
   private onResize = (event: MouseEvent): void => {
     if (!this.resizing) return;
     const delta = event.clientX - this.startX;
     const newWidth = Math.min(Math.max(this.startWidth + delta, 200), 600);
-    this.coreStore.setWidth(newWidth);
+    this.layoutStore.setWidth(newWidth);
   };
 
   private onResizeEnd = (): void => {

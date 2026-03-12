@@ -2,10 +2,6 @@ import { Component, computed, input, signal } from '@angular/core';
 import { GitLogEntryDto } from '@org/shared/contracts';
 import { CommitHistoryTooltipComponent } from '../commit-history-tooltip/commit-history-tooltip.component';
 
-export interface CommitHistoryEntry extends GitLogEntryDto {
-  initials: string;
-}
-
 export interface TooltipState {
   entry: GitLogEntryDto;
   top: number;

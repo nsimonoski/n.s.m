@@ -1,7 +1,7 @@
 <div class="explorer-shell">
   <div class="main-area">
     <ide-activity-bar />
-    <div class="panel-content" [style.width.px]="coreStore.width()">
+    <div class="panel-content" [style.width.px]="layoutStore.width()">
       <router-outlet />
       <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
     </div>

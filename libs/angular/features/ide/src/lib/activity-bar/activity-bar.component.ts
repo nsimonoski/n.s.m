@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { FileExplorerCoreStore } from '../file-explorer-core.store';
+import { IdeStore } from '@org/angular-data-access';
 
 interface PanelDefinition {
   id: string;
@@ -14,9 +14,10 @@ interface PanelDefinition {
   styleUrls: ['./activity-bar.component.scss'],
 })
 export class ActivityBarComponent {
-  readonly coreStore = inject(FileExplorerCoreStore);
+  readonly layoutStore = inject(IdeStore.IdeLayoutStore);
+  readonly gitStatusStore = inject(IdeStore.GitStatusStore);
 
-  readonly changeCount = computed(() => this.coreStore.stagedCount() + this.coreStore.changesCount());
+  readonly changeCount = computed(() => this.gitStatusStore.stagedCount() + this.gitStatusStore.changesCount());
 
   readonly panels: PanelDefinition[] = [
     { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },

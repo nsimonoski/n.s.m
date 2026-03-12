@@ -124,7 +124,7 @@ export const GIT_ITEMS = {
   } as Item,
 
   OPEN: {
-    label: 'Open File',
+    label: 'Open Changes',
     icon: Icon.OPEN,
     action: Action.OPEN,
   } as Item,

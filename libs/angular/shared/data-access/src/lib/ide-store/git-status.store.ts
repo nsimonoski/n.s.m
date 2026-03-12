@@ -1,8 +1,7 @@
-import { computed, inject } from '@angular/core';
+import { inject } from '@angular/core';
 import {
   patchState,
   signalStore,
-  withComputed,
   withHooks,
   withMethods,
   withProps,
@@ -10,61 +9,43 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
-import { FileResponseDto, GitBranchDto } from '@org/shared/contracts';
-import { AppRoutes } from '@org/shared/utils';
-import { handleError, partialStore } from '@org/angular-utils';
-import { FileExplorerService, GitService, GitWsService, IdeStore } from '@org/angular-data-access';
+import { GitBranchDto } from '@org/shared/contracts';
+import { handleError } from '@org/angular-utils';
+import { GitService } from '../git.service';
+import { GitWsService } from '../git-ws.service';
 import { SnackbarService } from '@org/angular/ui';
+import { AuthStore } from './auth.store';
 
-interface FileExplorerCoreState {
+export interface GitStatusState {
   rootPath: string;
-  width: number;
   branch: string;
   branches: GitBranchDto[];
-  searchResults: FileResponseDto[];
-  searchLoading: boolean;
   stagedCount: number;
   changesCount: number;
+  ahead: number;
+  behind: number;
 }
 
-export const FileExplorerCoreStore = signalStore(
+export const GitStatusStore = signalStore(
   { providedIn: 'root' },
-  withState<FileExplorerCoreState>({
+  withState<GitStatusState>({
     rootPath: '',
-    width: 300,
     branch: '',
     branches: [],
-    searchResults: [],
-    searchLoading: false,
     stagedCount: 0,
     changesCount: 0,
+    ahead: 0,
+    behind: 0,
   }),
-  partialStore.withBrowserStorage({ key: 'file-explorer-core' }),
-  partialStore.withRouting(),
   withProps(() => ({
-    authStore: inject(IdeStore.AuthStore),
+    authStore: inject(AuthStore),
     gitService: inject(GitService),
-    fileService: inject(FileExplorerService),
     wsService: inject(GitWsService),
     snackbar: inject(SnackbarService),
   })),
-  withComputed((store) => ({
-    activePanel: computed(() => {
-      const url = store.currentUrl();
-      if (url.startsWith(AppRoutes.ide.git)) return 'git';
-      if (url.startsWith(AppRoutes.ide.ai)) return 'ai';
-      return 'explorer';
-    }),
-  })),
   withMethods((store) => ({
-    setWidth: (width: number) => {
-      store.saveToStorage({ width });
-    },
-    setActivePanel: (panel: string) => {
-      store.navigate(AppRoutes.ide.panel(panel));
-    },
-    openFile: (path: string) => {
-      store.navigate(AppRoutes.ide.explorerWithFile(path));
+    updateGitStatus: (partial: Partial<GitStatusState>) => {
+      patchState(store, partial);
     },
     listBranches: rxMethod<void>(
       pipe(
@@ -75,31 +56,19 @@ export const FileExplorerCoreStore = signalStore(
         }),
       ),
     ),
-    searchFiles: rxMethod<string>(
-      pipe(
-        tap(() => patchState(store, { searchLoading: true })),
-        switchMap((query: string) => store.fileService.searchFiles(query, store.rootPath())),
-        tap((searchResults) => {
-          patchState(store, { searchResults, searchLoading: false });
-        }),
-      ),
-    ),
-    clearSearchResults: () => {
-      patchState(store, { searchResults: [], searchLoading: false });
-    },
     loadGitStatus: rxMethod<void>(
       pipe(
         switchMap(() => store.gitService.getStatusTree(store.rootPath())),
-        tap(({ branch, stagedCount, changesCount }) => {
-          patchState(store, { branch, stagedCount, changesCount });
+        tap(({ branch, stagedCount, changesCount, ahead, behind }) => {
+          patchState(store, { branch, stagedCount, changesCount, ahead, behind });
         }),
       ),
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => store.wsService.gitChanges$),
-        tap(({ branch, stagedCount, changesCount }) => {
-          patchState(store, { branch, stagedCount, changesCount });
+        tap(({ branch, stagedCount, changesCount, ahead, behind }) => {
+          patchState(store, { branch, stagedCount, changesCount, ahead, behind });
         }),
       ),
     ),
@@ -122,7 +91,7 @@ export const FileExplorerCoreStore = signalStore(
     onInit(store) {
       const rootPath = store.authStore.workspace()?.rootPath ?? '';
       patchState(store, { rootPath });
-      store.loadFromStorage();
+      store.wsService.watchRepositoryForChanges(rootPath);
       store.listBranches();
       store.loadGitStatus();
       store.listenToGitChanges();
