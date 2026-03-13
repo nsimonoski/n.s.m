@@ -15,6 +15,8 @@ export const AppRoutes = {
       return `${basePath}?filePath=${encodeURIComponent(filePath)}`;
     },
     panel: (panel: string, filePath?: string) =>
-      filePath ? `${IDE_BASE}/${panel}?filePath=${encodeURIComponent(filePath)}` : `${IDE_BASE}/${panel}`,
+      filePath
+        ? `${IDE_BASE}/${panel}?filePath=${encodeURIComponent(filePath)}`
+        : `${IDE_BASE}/${panel}`,
   },
 } as const;

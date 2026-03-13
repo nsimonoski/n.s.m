@@ -9,7 +9,7 @@ export const authRoutes: Route[] = [
   },
   {
     path: 'cv',
-    loadComponent: () => import('./cv/cv.component').then((m) => m.CvComponent),
+    loadComponent: () => import('./resume/resume.component').then((m) => m.ResumeComponent),
   },
 ];
 
