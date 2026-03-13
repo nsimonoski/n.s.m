@@ -31,13 +31,25 @@ export class GithubAuthService {
   }
 
   async authenticateWithCode(code: string): Promise<UserSession> {
-    const token = await this.exchangeCodeForToken(code);
-    const profile = await this.fetchGithubProfile(token);
-    return this.sessionService.createAuthenticatedSession(token, profile.login, profile.avatar_url);
+    const githubToken = await this.exchangeCodeForToken(code);
+    const profile = await this.fetchGithubProfile(githubToken);
+    return this.sessionService.createSession({
+      githubToken,
+      githubUsername: profile.login,
+      avatarUrl: profile.avatar_url,
+      isGuest: false,
+    });
   }
 
   async createGuestSession(): Promise<UserSession> {
-    return this.sessionService.createGuestSession();
+    const session = await this.sessionService.createSession({
+      githubToken: null,
+      githubUsername: 'guest',
+      avatarUrl: '',
+      isGuest: true,
+    });
+    await this.workspaceService.cloneDemoRepo(session);
+    return session;
   }
 
   async getLoginInfo(sessionId: string | undefined): Promise<LoginInfoDto | null> {

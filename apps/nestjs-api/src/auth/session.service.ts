@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { EnvironmentVariables, PathUtils, FileSystemService } from '../common';
-import { GitProvider } from '../git/domain/git.provider';
 import { RedisService } from '../redis/redis.service';
 
 export interface UserSession {
@@ -29,7 +28,6 @@ export class SessionService implements OnModuleDestroy {
     private readonly redis: RedisService,
     private readonly config: ConfigService,
     private readonly fileSystemService: FileSystemService,
-    private readonly gitProvider: GitProvider,
   ) {
     this.workspaceBase = this.config.get<string>(
       EnvironmentVariables.WORKSPACE_BASE_DIR,
@@ -45,10 +43,10 @@ export class SessionService implements OnModuleDestroy {
     }
   }
 
-  async createAuthenticatedSession(
-    githubToken: string,
-    githubUsername: string,
-    avatarUrl: string,
+  async createSession(
+    params: Pick<UserSession, 'githubUsername' | 'avatarUrl' | 'isGuest'> & {
+      githubToken: string | null;
+    },
   ): Promise<UserSession> {
     const id = randomUUID();
     const workspacePath = PathUtils.combine(this.workspaceBase, id);
@@ -56,40 +54,12 @@ export class SessionService implements OnModuleDestroy {
 
     const session: UserSession = {
       id,
-      githubToken,
-      githubUsername,
-      avatarUrl,
+      githubToken: params.githubToken,
+      githubUsername: params.githubUsername,
+      avatarUrl: params.avatarUrl,
       workspacePath,
       repoUrl: null,
-      isGuest: false,
-    };
-
-    await this.redis.set(`${SESSION_PREFIX}${id}`, session, SESSION_TTL_SECONDS);
-    return session;
-  }
-
-  async createGuestSession(): Promise<UserSession> {
-    const demoRepoUrl = this.config.get<string>(EnvironmentVariables.DEMO_REPO_URL);
-    if (!demoRepoUrl) {
-      throw new Error('DEMO_REPO_URL is required for guest sessions');
-    }
-
-    const id = randomUUID();
-    const workspacePath = PathUtils.combine(this.workspaceBase, id);
-    await this.fileSystemService.createDirectory(workspacePath, true);
-
-    this.logger.log(`Cloning demo repo for guest session ${id}`);
-    await this.gitProvider.clone(demoRepoUrl, workspacePath);
-    await this.gitProvider.checkout(workspacePath, 'dev');
-
-    const session: UserSession = {
-      id,
-      githubToken: null,
-      githubUsername: 'guest',
-      avatarUrl: '',
-      workspacePath,
-      repoUrl: demoRepoUrl,
-      isGuest: true,
+      isGuest: params.isGuest,
     };
 
     await this.redis.set(`${SESSION_PREFIX}${id}`, session, SESSION_TTL_SECONDS);
