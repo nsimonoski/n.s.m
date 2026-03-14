@@ -3,9 +3,9 @@ server {
     server_name kod3.dev;
 
     # Angular SPA
-    location /ang/ {
+    location /angular/ {
         alias /var/www/kod3.dev/angular/;
-        try_files $uri $uri/ /ang/index.html;
+        try_files $uri $uri/ /angular/index.html;
     }
 
     # React SPA (later)
@@ -40,6 +40,6 @@ server {
 
     # Root redirect to Angular
     location = / {
-        return 302 /ang/;
+        return 302 /angular/;
     }
 }

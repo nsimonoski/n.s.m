@@ -10,7 +10,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      if (error.status === 401 && !req.url.includes('/auth/logout')) {
         snackbar.error('Session expired. Logging out...');
         authStore.logout();
       }

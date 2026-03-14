@@ -5,7 +5,7 @@ SERVER="root@204.168.150.34"
 DOMAIN="kod3.dev"
 
 echo "=== Building Angular ==="
-npx nx build angular-ide --configuration=production --base-href=/angular/
+npx nx build angular-ide --configuration=production
 
 echo "=== Building NestJS API ==="
 npx nx build nestjs-api
