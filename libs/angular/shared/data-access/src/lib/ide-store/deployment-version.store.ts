@@ -3,7 +3,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { partialStore } from '@org/angular-utils';
 import { from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
 
-const FIVE_MINUTES = 20 * 1000; // TODO: revert to 5 * 60 * 1000
+const FIVE_MINUTES = 21 * 1000; // TODO: revert to 5 * 60 * 1000
 const SNACKBAR_DELAY = 5000;
 
 export const DeploymentVersionStore = signalStore(
