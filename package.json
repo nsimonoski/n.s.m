@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "api:start": "nx serve nestjs-api",
-    "angular-ide:start": "nx serve angular-ide --base-href /angular/",
+    "angular-ide:start": "nx serve angular-ide",
     "react-ide:start": "nx serve react-ide"
   },
   "private": true,

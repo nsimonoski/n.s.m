@@ -10,7 +10,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { GitLogEntryDto } from '@org/shared/contracts';
-import { partialStore } from '@org/angular-utils';
+import { handleError, partialStore } from '@org/angular-utils';
 import { GitService, GitStatusStore, GitWsService } from '@org/angular-data-access';
 import { SnackbarService } from '@org/angular/ui';
 
@@ -54,6 +54,7 @@ export const GitCommitStore = signalStore(
       pipe(
         switchMap(() => state.service.push(state.gitStatusStore.rootPath())),
         tap(() => state.snackbar.success('Pushed!')),
+        handleError((msg) => state.snackbar.error(msg)),
       ),
     ),
     fetchLog: rxMethod<string>(

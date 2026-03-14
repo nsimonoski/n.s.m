@@ -5,7 +5,7 @@ SERVER="root@204.168.150.34"
 DOMAIN="kod3.dev"
 
 echo "=== Building Angular ==="
-npx nx build angular-ide --configuration=production --base-href=/ang/
+npx nx build angular-ide --configuration=production --base-href=/angular/
 
 echo "=== Building NestJS API ==="
 npx nx build nestjs-api
@@ -15,10 +15,10 @@ rsync -avz --delete dist/apps/angular-ide/browser/ "$SERVER:/var/www/$DOMAIN/ang
 
 echo "=== Uploading API + Docker files to server ==="
 rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json "$SERVER:/opt/kode/"
-rsync -avz Dockerfile docker-compose.yml .env.production "$SERVER:/opt/kode/"
+rsync -avz Dockerfile docker-compose.yml "$SERVER:/opt/kode/"
 
 echo "=== Building and starting API on server ==="
 ssh "$SERVER" "cd /opt/kode && docker compose up -d --build"
 
 echo "=== Done! ==="
-echo "Visit https://$DOMAIN/ang/"
+echo "Visit https://$DOMAIN/angular/"

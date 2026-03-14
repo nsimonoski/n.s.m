@@ -17,11 +17,14 @@ export class SimpleGitProvider extends GitProvider {
 
   async status(repoPath: string): Promise<GitStatusDto> {
     try {
-      const result = await this.git(repoPath).status();
+      const git = this.git(repoPath);
+      const result = await git.status();
+
+      const ahead = result.tracking ? result.ahead : await this.countCommitsAheadOfRemote(git);
 
       return {
         branch: result.current ?? '',
-        ahead: result.ahead,
+        ahead,
         behind: result.behind,
         staged: this.mapFileChanges(
           result.files
@@ -143,8 +146,13 @@ export class SimpleGitProvider extends GitProvider {
 
   async push(repoPath: string, remote?: string, branch?: string): Promise<void> {
     try {
-      const args = [remote ?? 'origin', branch ?? ''].filter(Boolean);
-      await this.git(repoPath).push(args);
+      const git = this.git(repoPath);
+      const status = await git.status();
+      const r = remote ?? 'origin';
+      const b = branch ?? status.current ?? '';
+
+      const args = status.tracking ? [r, b] : ['-u', r, b];
+      await git.push(args);
     } catch (error) {
       throw this.mapError(error);
     }
@@ -305,6 +313,15 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  private async countCommitsAheadOfRemote(git: SimpleGit): Promise<number> {
+    try {
+      const result = await git.raw(['rev-list', '--count', 'HEAD', '--not', '--remotes']);
+      return parseInt(result.trim(), 10) || 0;
+    } catch {
+      return 0;
+    }
+  }
+
   private mapError(error: unknown): ForbiddenException | InternalServerErrorException {
     const message = error instanceof Error ? error.message : 'Unknown git error';
     const lower = message.toLowerCase();
@@ -314,7 +331,7 @@ export class SimpleGitProvider extends GitProvider {
       lower.includes('denied') ||
       lower.includes('protected branch')
     ) {
-      return new ForbiddenException('Insufficient permissions to perform this git operation');
+      return new ForbiddenException('Write access missing for this repository');
     }
 
     return new InternalServerErrorException(message);
