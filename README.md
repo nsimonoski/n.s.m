@@ -1,55 +1,66 @@
 # kod3.dev
 
-An Nx monorepo for building full-stack web applications. It currently hosts a web-based IDE (kod3.dev) with Angular and React frontends powered by a NestJS backend — but the workspace is designed to support any number of apps sharing the same infrastructure, contracts, and UI primitives.
+This is an Nx monorepo that currently hosts a web-based IDE at
+[kod3.dev](https://kod3.dev/angular/). It has Angular and React frontends with a NestJS backend. The
+workspace isn't tied to just the IDE though — it's set up so new apps can be added and share the
+same libs, contracts, and styles.
 
 ## Why Nx
 
-[Nx](https://nx.dev) provides the tooling that makes a multi-app, multi-framework monorepo practical:
+[Nx](https://nx.dev) makes multi-app, multi-framework monorepo development easy.
 
-- **Task orchestration** — build, lint, test, and serve any project with a single command. Nx understands the dependency graph and runs tasks in the right order.
-- **Caching** — local and remote computation caching means unchanged projects aren't rebuilt. In this repo, building one app typically cache-hits on all shared libs.
-- **Module boundaries** — ESLint rules enforced via project tags (`type:feature`, `type:data-access`, `type:ui`, etc.) prevent illegal cross-layer imports at lint time.
-- **Code generation** — scaffolding new libs, components, or services follows consistent patterns across the workspace.
-- **Affected commands** — `nx affected -t test` runs only the tests impacted by a given change, keeping CI fast as the repo grows.
+- **Code sharing** — feature libs like auth or file-explorer can be pulled into any Angular app.
+  Shared contracts and utilities work across Angular, React, and NestJS. No copy-pasting between
+  projects.
+- **Versioning** — one `package.json`, one source of truth. Every app uses the same version of every
+  dependency.
+- **Task orchestration** — `nx build angular-ide` figures out what needs to be built first
+  (contracts, utils, data-access...) and does it in the right order. You don't think about it.
+- **Caching** — if a lib hasn't changed, Nx skips rebuilding it. Most of the time a full build only
+  actually compiles the app itself.
+- **Module boundaries** — ESLint rules enforce which libs can import what. A `type:ui` lib can't
+  import from `type:feature`, for example. Catches bad imports at lint time, not at code review.
+- **Code generation** — `nx generate` scaffolds new libs and components with consistent structure.
+- **Affected commands** — `nx affected -t test` only runs the tests touched by your changes. Keeps
+  CI fast.
 
-## Framework-Agnostic Shared Layer
+## Shared Layer
 
-The `libs/shared/` directory contains code that is completely framework-independent — pure TypeScript with zero Angular or React imports. Any app in the monorepo can depend on it.
+Everything under `libs/shared/` is pure TypeScript — no Angular, no React. Any app can use it.
 
-| Library      | What it provides                                                  |
-| ------------ | ----------------------------------------------------------------- |
-| `contracts`  | TypeScript interfaces and DTOs for API communication              |
-| `utils`      | Utility functions (file helpers, git tree parsing, monaco config) |
-| `styles`     | Global SCSS variables, mixins, and base styles                    |
+| Library     | What's in it                                            |
+| ----------- | ------------------------------------------------------- |
+| `contracts` | Interfaces and DTOs for API communication               |
+| `utils`     | File helpers, git tree parsing, monaco config, env vars |
+| `styles`    | SCSS variables, mixins, base styles                     |
 
-This means:
-- **API contracts are defined once** and consumed by both frontends and the backend — no drift between what the API sends and what the UI expects.
-- **Utilities are framework-agnostic**, testable with plain unit tests and reusable across Angular, React, or any future frontend.
-- **Adding a new app** (e.g. a dashboard, a mobile web app) starts with shared contracts and utilities already in place — only the UI layer needs to be built.
+The idea is simple: define your API types once, use them everywhere. The backend and both frontends
+always agree on the shape of the data. When you add a new app, all of this is already there — you
+just build the UI.
 
 ## Tech Stack
 
-| Layer    | Technology        | Version |
-| -------- | ----------------- | ------- |
-| Frontend | Angular           | 21.1    |
-| Frontend | React             | 19.0    |
-| Backend  | NestJS            | 11.0    |
-| Monorepo | Nx                | 22.5    |
-| Language | TypeScript        | 5.9     |
+| Layer    | Technology | Version |
+| -------- | ---------- | ------- |
+| Frontend | Angular    | 21.1    |
+| Frontend | React      | 19.0    |
+| Backend  | NestJS     | 11.0    |
+| Monorepo | Nx         | 22.5    |
+| Language | TypeScript | 5.9     |
 
 ## Key Dependencies
 
-| Package          | Purpose                                        |
-| ---------------- | ---------------------------------------------- |
-| `monaco-editor`  | Code editor (AMD loader for Angular compat)    |
-| `simple-git`     | Git CLI wrapper for backend git operations     |
-| `chokidar`       | File system watching for real-time reactivity  |
-| `groq-sdk`       | LLM integration (Groq / Llama 3.3)            |
-| `socket.io`      | Real-time WebSocket communication              |
-| `ioredis`        | Redis client for sessions and caching          |
-| `@ngrx/signals`  | Signal-based state management (Angular)        |
-| `zustand`        | Lightweight state management (React)           |
-| `marked`         | Markdown rendering for AI chat responses       |
+| Package         | What it does                                |
+| --------------- | ------------------------------------------- |
+| `monaco-editor` | Code editor (AMD loader for Angular compat) |
+| `simple-git`    | Git operations on the backend            |
+| `chokidar`      | Watches the file system for changes         |
+| `groq-sdk`      | AI chat via Groq (Llama 3.3)                |
+| `socket.io`     | Real-time communication over WebSockets     |
+| `ioredis`       | Redis for sessions and caching              |
+| `@ngrx/signals` | State management on the Angular side        |
+| `zustand`       | State management on the React side          |
+| `marked`        | Renders markdown in AI chat responses       |
 
 ## Project Structure
 
@@ -62,7 +73,7 @@ apps/
 libs/
   angular/
     features/
-      auth/             Authentication guards, routes, HTTP error interceptor
+      auth/             Auth guards, routes, HTTP error interceptor
       ai-chat/          AI chat panel (Groq-powered)
       code-editor/      Monaco editor wrapper
       file-explorer/    File tree browser
@@ -115,17 +126,14 @@ npx nx graph
 
 ## Testing
 
-The codebase is growing and changing fast. Once the architecture stabilizes, tests are coming. Vitest is the planned test runner for all projects — Angular, React, and NestJS.
+The codebase is still moving fast. Once things stabilize, proper test coverage is coming. Vitest is
+the planned test runner for all projects — Angular, React, and NestJS.
 
 ## Deployment
 
-The app is deployed to **kod3.dev** via Docker and nginx:
+Deployed to **kod3.dev** with Docker and nginx. Deployment runs automatically on merge to `dev`.
 
-- Angular frontend served at `/angular/` by nginx
-- NestJS API runs in Docker on port 3000, proxied at `/api/`
-- Redis runs alongside the API in Docker Compose
-- WebSocket connections proxied at `/socket.io/`
-
-```bash
-./deploy/deploy.sh
-```
+The deploy script builds the Angular frontend and NestJS API, then uploads everything to the server.
+The frontend is served with nginx. The API and Redis run inside Docker containers. Nginx sits
+in front and routes traffic — frontend requests get the static files, API and WebSocket requests are
+forwarded to the backend container.
