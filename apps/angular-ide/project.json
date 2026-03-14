@@ -49,7 +49,8 @@
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true
+          "sourceMap": true,
+          "baseHref": "/angular/"
         }
       },
       "defaultConfiguration": "production"
@@ -67,7 +68,8 @@
       },
       "defaultConfiguration": "development",
       "options": {
-        "proxyConfig": "apps/angular-ide/proxy.conf.json"
+        "proxyConfig": "apps/angular-ide/proxy.conf.json",
+        "servePath": "/angular/"
       }
     },
     "lint": {

@@ -1,124 +1,131 @@
-# New Nx Repository
+# kod3.dev
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+An Nx monorepo for building full-stack web applications. It currently hosts a web-based IDE (kod3.dev) with Angular and React frontends powered by a NestJS backend — but the workspace is designed to support any number of apps sharing the same infrastructure, contracts, and UI primitives.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Why Nx
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+[Nx](https://nx.dev) provides the tooling that makes a multi-app, multi-framework monorepo practical:
 
-## Try the full Nx platform
+- **Task orchestration** — build, lint, test, and serve any project with a single command. Nx understands the dependency graph and runs tasks in the right order.
+- **Caching** — local and remote computation caching means unchanged projects aren't rebuilt. In this repo, building one app typically cache-hits on all shared libs.
+- **Module boundaries** — ESLint rules enforced via project tags (`type:feature`, `type:data-access`, `type:ui`, etc.) prevent illegal cross-layer imports at lint time.
+- **Code generation** — scaffolding new libs, components, or services follows consistent patterns across the workspace.
+- **Affected commands** — `nx affected -t test` runs only the tests impacted by a given change, keeping CI fast as the repo grows.
 
-🚀 If you haven't connected to Nx Cloud yet,
-[complete your setup here](https://cloud.nx.app/setup/connect-workspace/guide). Get faster builds
-with remote caching, distributed task execution, and self-healing CI.
-[See how your workspace can benefit](#nx-cloud).
+## Framework-Agnostic Shared Layer
 
-## Generate a library
+The `libs/shared/` directory contains code that is completely framework-independent — pure TypeScript with zero Angular or React imports. Any app in the monorepo can depend on it.
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+| Library      | What it provides                                                  |
+| ------------ | ----------------------------------------------------------------- |
+| `contracts`  | TypeScript interfaces and DTOs for API communication              |
+| `utils`      | Utility functions (file helpers, git tree parsing, monaco config) |
+| `styles`     | Global SCSS variables, mixins, and base styles                    |
+
+This means:
+- **API contracts are defined once** and consumed by both frontends and the backend — no drift between what the API sends and what the UI expects.
+- **Utilities are framework-agnostic**, testable with plain unit tests and reusable across Angular, React, or any future frontend.
+- **Adding a new app** (e.g. a dashboard, a mobile web app) starts with shared contracts and utilities already in place — only the UI layer needs to be built.
+
+## Tech Stack
+
+| Layer    | Technology        | Version |
+| -------- | ----------------- | ------- |
+| Frontend | Angular           | 21.1    |
+| Frontend | React             | 19.0    |
+| Backend  | NestJS            | 11.0    |
+| Monorepo | Nx                | 22.5    |
+| Language | TypeScript        | 5.9     |
+
+## Key Dependencies
+
+| Package          | Purpose                                        |
+| ---------------- | ---------------------------------------------- |
+| `monaco-editor`  | Code editor (AMD loader for Angular compat)    |
+| `simple-git`     | Git CLI wrapper for backend git operations     |
+| `chokidar`       | File system watching for real-time reactivity  |
+| `groq-sdk`       | LLM integration (Groq / Llama 3.3)            |
+| `socket.io`      | Real-time WebSocket communication              |
+| `ioredis`        | Redis client for sessions and caching          |
+| `@ngrx/signals`  | Signal-based state management (Angular)        |
+| `zustand`        | Lightweight state management (React)           |
+| `marked`         | Markdown rendering for AI chat responses       |
+
+## Project Structure
+
+```
+apps/
+  angular-ide/          Angular frontend (primary) — https://kod3.dev/angular/
+  react-ide/            React frontend (alternative)
+  nestjs-api/           NestJS backend API
+
+libs/
+  angular/
+    features/
+      auth/             Authentication guards, routes, HTTP error interceptor
+      ai-chat/          AI chat panel (Groq-powered)
+      code-editor/      Monaco editor wrapper
+      file-explorer/    File tree browser
+      file-explorer-git/Git-aware file explorer with commit workflow
+      ide/              IDE shell layout, activity bar, footer, branch picker
+    shared/
+      data-access/      HTTP services, WebSocket services, NgRx signal stores
+      ui/               Reusable UI components (command palette, snackbar)
+      utils/            Angular-specific utilities
+
+  react/
+    features/
+      code-editor/      Monaco editor wrapper
+      file-explorer/    File tree browser
+    shared/
+      data-access/      Zustand stores, WebSocket hooks
+      ui/               Reusable UI components
+
+  shared/
+    contracts/          TypeScript interfaces and DTOs shared across apps
+    utils/              Framework-agnostic utilities (file, git, monaco, env)
+    styles/             Global SCSS variables, mixins, base styles
+
+deploy/
+  deploy.sh             Build and deploy script
+  nginx/kod3.dev        Nginx reverse proxy config
 ```
 
-## Run tasks
+## Commands
 
-To build the library use:
+```bash
+# Start apps locally
+npm run angular-ide:start     # Angular frontend
+npm run react-ide:start       # React frontend
+npm run api:start             # NestJS backend
 
-```sh
-npx nx build pkg1
+# Build
+npx nx build angular-ide
+npx nx build nestjs-api
+
+# Lint & test
+npx nx lint <project>
+npx nx test <project>
+npx nx run-many -t lint       # Lint all projects
+npx nx run-many -t test       # Test all projects
+
+# Visualize project graph
+npx nx graph
 ```
 
-To run any task with Nx use:
+## Testing
 
-```sh
-npx nx <target> <project-name>
+The codebase is growing and changing fast. Once the architecture stabilizes, tests are coming. Vitest is the planned test runner for all projects — Angular, React, and NestJS.
+
+## Deployment
+
+The app is deployed to **kod3.dev** via Docker and nginx:
+
+- Angular frontend served at `/angular/` by nginx
+- NestJS API runs in Docker on port 3000, proxied at `/api/`
+- Redis runs alongside the API in Docker Compose
+- WebSocket connections proxied at `/socket.io/`
+
+```bash
+./deploy/deploy.sh
 ```
-
-These targets are either
-[inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript
-[project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in
-`tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or
-`require` statements). This sync is automatically done when running tasks such as `build` or
-`typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript
-project references, run the following command:
-
-```sh
-npx nx sync
-```
-
-You can enforce that the TypeScript project references are always in the correct state when running
-in CI by adding a step to your CI job configuration that runs the following command:
-
-```sh
-npx nx sync:check
-```
-
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Nx Cloud
-
-Nx Cloud ensures a
-[fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks,
-generate code, and improves code autocompletion in your IDE. It is available for VSCode and
-IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or
-  [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/contracts/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:domain"],
+  "tags": ["scope:shared", "type:contracts"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",
