@@ -29,20 +29,20 @@ export default [
                 'type:ui',
                 'type:util',
                 'type:data-access',
-                'type:domain',
+                'type:contracts',
               ],
             },
             {
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:domain', 'type:util'],
+              onlyDependOnLibsWithTags: ['type:ui', 'type:contracts', 'type:util'],
             },
             {
               sourceTag: 'type:util',
-              onlyDependOnLibsWithTags: ['type:util', 'type:domain'],
+              onlyDependOnLibsWithTags: ['type:util', 'type:contracts'],
             },
             {
               sourceTag: 'type:data-access',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:domain'],
+              onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:contracts'],
             },
             {
               sourceTag: 'type:feature',
@@ -52,7 +52,7 @@ export default [
                 'type:ui',
                 'type:util',
                 'type:data-access',
-                'type:domain',
+                'type:contracts',
               ],
             },
           ],
