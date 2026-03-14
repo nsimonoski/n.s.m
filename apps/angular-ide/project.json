@@ -28,7 +28,8 @@
         "styles": ["apps/angular-ide/src/styles.scss"],
         "stylePreprocessorOptions": {
           "includePaths": ["libs/shared/styles/src"]
-        }
+        },
+        "baseHref": "/angular/"
       },
       "configurations": {
         "production": {
@@ -49,8 +50,7 @@
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true,
-          "baseHref": "/angular/"
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production"

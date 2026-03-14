@@ -3,7 +3,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { partialStore } from '@org/angular-utils';
 import { from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
 
-const FIVE_MINUTES = 5 * 60 * 1000;
+const FIVE_MINUTES = 20 * 1000; // TODO: revert to 5 * 60 * 1000
 const SNACKBAR_DELAY = 5000;
 
 export const DeploymentVersionStore = signalStore(
@@ -23,7 +23,7 @@ export const DeploymentVersionStore = signalStore(
         switchMap(() =>
           interval(FIVE_MINUTES).pipe(
             startWith(0),
-            switchMap(() => from(fetch('/index.html', { method: 'HEAD' }))),
+            switchMap(() => from(fetch(`${document.baseURI}index.html`, { method: 'HEAD' }))),
             tap((response) => {
               const eTag = response.headers.get('ETag');
               const lastModified = response.headers.get('Last-Modified');
