@@ -2,6 +2,8 @@ import { Component, computed, input, output } from '@angular/core';
 import { GitBranchDto } from '@org/shared/contracts';
 import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
 
+const CREATE_BRANCH_ID = '__create__';
+
 @Component({
   selector: 'ide-branch-picker',
   standalone: true,
@@ -10,7 +12,9 @@ import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
 })
 export class BranchPickerComponent {
   branches = input.required<GitBranchDto[]>();
+  canCreate = input(false);
   branchSelected = output<string>();
+  createBranch = output<void>();
   closed = output<void>();
 
   readonly items = computed<CommandPaletteItem[]>(() => {
@@ -18,16 +22,29 @@ export class BranchPickerComponent {
     const local = branches.filter((b) => !b.remote);
     const remote = branches.filter((b) => b.remote);
 
-    return [...local, ...remote].map((b, i) => ({
+    const branchItems = [...local, ...remote].map((b, i) => ({
       id: b.name,
       label: b.name,
       description: this.buildDescription(b),
       disabled: b.current,
       divider: b.remote && i === local.length,
     }));
+
+    if (this.canCreate()) {
+      return [
+        { id: CREATE_BRANCH_ID, label: '+ Create new branch...' },
+        ...branchItems,
+      ];
+    }
+
+    return branchItems;
   });
 
   onItemSelected(item: CommandPaletteItem): void {
+    if (item.id === CREATE_BRANCH_ID) {
+      this.createBranch.emit();
+      return;
+    }
     this.branchSelected.emit(item.id);
   }
 

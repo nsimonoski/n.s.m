@@ -58,6 +58,11 @@ export interface GitCheckoutRequestDto {
   branch: string;
 }
 
+export interface GitCreateBranchRequestDto {
+  branch: string;
+  sourceBranch?: string;
+}
+
 export interface GitPushRequestDto {
   remote?: string;
   branch?: string;

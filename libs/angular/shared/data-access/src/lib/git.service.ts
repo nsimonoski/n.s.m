@@ -119,4 +119,14 @@ export class GitService {
       },
     );
   }
+
+  createBranch(repoPath: string, branch: string, sourceBranch?: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_BASE}/create-branch`,
+      { branch, sourceBranch },
+      {
+        params: { path: repoPath },
+      },
+    );
+  }
 }
