@@ -30,7 +30,10 @@ export class CreateBranchDialogComponent {
   confirm(): void {
     const { branchName, sourceBranch } = this.model();
     if (branchName.trim()) {
-      this.confirmed.emit({ branch: branchName.trim(), sourceBranch });
+      this.confirmed.emit({
+        branch: branchName.trim(),
+        sourceBranch: this.localBranches().length > 0 ? sourceBranch : '',
+      });
     }
   }
 
