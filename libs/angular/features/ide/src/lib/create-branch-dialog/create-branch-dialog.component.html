@@ -2,14 +2,16 @@
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="dialog-title">Create new branch</div>
 
-    <div class="dialog-field">
-      <label class="dialog-label" for="source-branch">Source branch</label>
-      <select id="source-branch" class="dialog-select" [formField]="branchForm.sourceBranch">
-        @for (branch of localBranches(); track branch.name) {
-          <option [value]="branch.name">{{ branch.name }}</option>
-        }
-      </select>
-    </div>
+    @if (localBranches().length > 0) {
+      <div class="dialog-field">
+        <label class="dialog-label" for="source-branch">Source branch</label>
+        <select id="source-branch" class="dialog-select" [formField]="branchForm.sourceBranch">
+          @for (branch of localBranches(); track branch.name) {
+            <option [value]="branch.name">{{ branch.name }}</option>
+          }
+        </select>
+      </div>
+    }
 
     <div class="dialog-field">
       <label class="dialog-label" for="branch-name">Branch name</label>

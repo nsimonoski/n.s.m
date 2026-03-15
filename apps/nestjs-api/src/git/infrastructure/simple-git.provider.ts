@@ -272,6 +272,12 @@ export class SimpleGitProvider extends GitProvider {
         return;
       }
 
+      // Empty repo: no commits exist yet, use --orphan
+      if (locals.all.length === 0) {
+        await git.checkout(['--orphan', branch]);
+        return;
+      }
+
       if (sourceBranch) {
         await git.checkout(['-b', branch, sourceBranch]);
       } else {
