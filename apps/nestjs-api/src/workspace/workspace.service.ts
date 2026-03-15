@@ -35,9 +35,6 @@ export class WorkspaceService {
       `${session.githubUsername}@users.noreply.github.com`,
     );
 
-    const userBranch = `user/${session.githubUsername}`;
-    await this.gitProvider.checkoutOrCreateBranch(session.workspacePath, userBranch);
-
     session.repoUrl = repoUrl;
     await this.sessionService.save(session);
 

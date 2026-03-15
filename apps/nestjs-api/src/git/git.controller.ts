@@ -5,6 +5,7 @@ import type {
   GitCheckoutRequestDto,
   GitCloneRequestDto,
   GitCommitRequestDto,
+  GitCreateBranchRequestDto,
   GitLogEntryDto,
   GitPullRequestDto,
   GitPushRequestDto,
@@ -89,6 +90,19 @@ export class GitController {
     }
 
     return this.service.checkout(path, body.branch);
+  }
+
+  @Post('create-branch')
+  @UseGuards(PermissionGuard(Permission.GitWrite))
+  async createBranch(
+    @Query('path') path: string,
+    @Body() body: GitCreateBranchRequestDto,
+  ): Promise<void> {
+    if (!path || !body.branch) {
+      throw new BadRequestException('Path and branch are required');
+    }
+
+    return this.service.checkoutOrCreateBranch(path, body.branch, body.sourceBranch);
   }
 
   @Post('fetch')

@@ -86,6 +86,21 @@ export const GitStatusStore = signalStore(
         handleError((msg) => store.snackbar.error(msg)),
       ),
     ),
+    createBranch: rxMethod<{ branch: string; sourceBranch?: string }>(
+      pipe(
+        switchMap(({ branch, sourceBranch }) =>
+          store.gitService.createBranch(store.rootPath(), branch, sourceBranch).pipe(
+            switchMap(() => store.gitService.listBranches(store.rootPath())),
+            tap((branches) => {
+              const current = branches.find((b) => b.current);
+              patchState(store, { branches, ...(current ? { branch: current.name } : {}) });
+              store.snackbar.success(`Branch "${branch}" created`);
+            }),
+          ),
+        ),
+        handleError((msg) => store.snackbar.error(msg)),
+      ),
+    ),
   })),
   withHooks({
     onInit(store) {

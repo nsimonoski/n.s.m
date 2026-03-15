@@ -1,0 +1,41 @@
+<div class="backdrop" (click)="cancel()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-title">Create new branch</div>
+
+    <div class="dialog-field">
+      <label class="dialog-label" for="source-branch">Source branch</label>
+      <select id="source-branch" class="dialog-select" [formField]="branchForm.sourceBranch">
+        @for (branch of localBranches(); track branch.name) {
+          <option [value]="branch.name">{{ branch.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="dialog-field">
+      <label class="dialog-label" for="branch-name">Branch name</label>
+      <input
+        id="branch-name"
+        class="dialog-input"
+        type="text"
+        [formField]="branchForm.branchName"
+        (keydown.enter)="confirm()"
+        (keydown.escape)="cancel()"
+        placeholder="e.g. feature/my-branch"
+        autocomplete="off"
+        spellcheck="false"
+        autofocus
+      />
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
+      <button
+        class="btn btn-confirm"
+        [disabled]="!branchForm.branchName().valid()"
+        (click)="confirm()"
+      >
+        Create
+      </button>
+    </div>
+  </div>
+</div>

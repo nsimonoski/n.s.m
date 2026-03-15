@@ -25,7 +25,18 @@
 @if (branchPickerOpen()) {
   <ide-branch-picker
     [branches]="gitStatusStore.branches()"
+    [canCreate]="!authStore.profile()?.isGuest"
     (branchSelected)="onBranchSelected($event)"
+    (createBranch)="onCreateBranch()"
     (closed)="closeBranchPicker()"
+  />
+}
+
+@if (createBranchDialogOpen()) {
+  <ide-create-branch-dialog
+    [branches]="gitStatusStore.branches()"
+    [currentBranch]="gitStatusStore.branch()"
+    (confirmed)="onBranchCreated($event)"
+    (cancelled)="closeCreateBranchDialog()"
   />
 }

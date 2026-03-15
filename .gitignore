@@ -28,9 +28,7 @@ node_modules
 .env
 *.env.local
 .env.production
-docs/deployment-guide.md
-docs/deployment-guide.html
-docs/deployment-guide-print.html
+docs/
 
 # misc
 /.sass-cache

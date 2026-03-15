@@ -1,0 +1,40 @@
+@use 'components/confirmation-dialog';
+
+.dialog-field {
+  margin-bottom: 16px;
+}
+
+.dialog-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.dialog-input,
+.dialog-select {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--accent-primary);
+  }
+}
+
+.dialog-select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,11 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { IdeStore } from '@org/angular-data-access';
 import { BranchPickerComponent } from '../branch-picker/branch-picker.component';
+import {
+  CreateBranchDialogComponent,
+  CreateBranchEvent,
+} from '../create-branch-dialog/create-branch-dialog.component';
 
 @Component({
   selector: 'ide-footer',
   standalone: true,
-  imports: [BranchPickerComponent],
+  imports: [BranchPickerComponent, CreateBranchDialogComponent],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
 })
@@ -14,6 +18,7 @@ export class FooterComponent {
   readonly authStore = inject(IdeStore.AuthStore);
   readonly themeStore = inject(IdeStore.ThemeStore);
   readonly branchPickerOpen = signal(false);
+  readonly createBranchDialogOpen = signal(false);
 
   openBranchPicker(): void {
     this.gitStatusStore.listBranches();
@@ -23,6 +28,20 @@ export class FooterComponent {
   onBranchSelected(branchName: string): void {
     this.branchPickerOpen.set(false);
     this.gitStatusStore.checkout(branchName);
+  }
+
+  onCreateBranch(): void {
+    this.branchPickerOpen.set(false);
+    this.createBranchDialogOpen.set(true);
+  }
+
+  onBranchCreated(event: CreateBranchEvent): void {
+    this.createBranchDialogOpen.set(false);
+    this.gitStatusStore.createBranch(event);
+  }
+
+  closeCreateBranchDialog(): void {
+    this.createBranchDialogOpen.set(false);
   }
 
   closeBranchPicker(): void {

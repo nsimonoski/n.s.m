@@ -256,7 +256,7 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
-  async checkoutOrCreateBranch(repoPath: string, branch: string): Promise<void> {
+  async checkoutOrCreateBranch(repoPath: string, branch: string, sourceBranch?: string): Promise<void> {
     try {
       const git = this.git(repoPath);
       const locals = await git.branchLocal();
@@ -272,7 +272,11 @@ export class SimpleGitProvider extends GitProvider {
         return;
       }
 
-      await git.checkoutLocalBranch(branch);
+      if (sourceBranch) {
+        await git.checkout(['-b', branch, sourceBranch]);
+      } else {
+        await git.checkoutLocalBranch(branch);
+      }
     } catch (error) {
       throw this.mapError(error);
     }
