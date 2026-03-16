@@ -1,7 +1,16 @@
 <div class="explorer-shell">
   <div class="main-area">
     <ide-activity-bar />
-    <div class="panel-content" [style.width.px]="layoutStore.width()">
+    <div
+      class="mobile-backdrop"
+      [class.visible]="layoutStore.sidebarOpen()"
+      (click)="layoutStore.closeSidebar()"
+    ></div>
+    <div
+      class="panel-content"
+      [class.mobile-open]="layoutStore.sidebarOpen()"
+      [style.width.px]="layoutStore.width()"
+    >
       <router-outlet />
       <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>
     </div>

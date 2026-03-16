@@ -24,4 +24,11 @@ export class ActivityBarComponent {
     { id: 'git', icon: 'icons/source-control.svg', tooltip: 'Source Control' },
     { id: 'ai', icon: 'icons/ai.svg', tooltip: 'AI Assistant' },
   ];
+
+  onPanelClick(panelId: string): void {
+    this.layoutStore.setActivePanel(panelId);
+    if (!this.layoutStore.sidebarOpen()) {
+      this.layoutStore.toggleSidebar();
+    }
+  }
 }

@@ -22,3 +22,15 @@
   width: 100%;
   height: 100%;
 }
+
+// --- Mobile: < 768px ---
+@media (max-width: 767px) {
+  .code-editor {
+    padding-top: 44px; // activity-bar
+    padding-bottom: 24px; // footer
+  }
+
+  .empty-message {
+    font-size: 16px;
+  }
+}

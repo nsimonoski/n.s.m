@@ -78,3 +78,18 @@
 .tab:hover .close-btn {
   opacity: 1;
 }
+
+// --- Mobile: < 768px ---
+@media (max-width: 767px) {
+  .tab {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .close-btn {
+    opacity: 1;
+    width: 24px;
+    height: 24px;
+  }
+}

@@ -4,7 +4,7 @@
       class="activity-bar-item"
       [class.active]="layoutStore.activePanel() === panel.id"
       [title]="panel.tooltip"
-      (click)="layoutStore.setActivePanel(panel.id)"
+      (click)="onPanelClick(panel.id)"
     >
       <img class="icon" [src]="panel.icon" [alt]="panel.tooltip" />
       @if (panel.id === 'git' && changeCount() > 0) {
