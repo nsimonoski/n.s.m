@@ -3,8 +3,6 @@ import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/sh
 import { FileUtils } from '@org/shared/utils';
 import { fileExplorerService } from '../services/file-explorer.service';
 
-const ROOT_PATH = '/Users/nsm/Desktop/repos/n.s.m';
-
 interface FileExplorerState {
   directory: DirectoryResponseDto | null;
   loading: boolean;
@@ -94,8 +92,4 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
   },
 }));
 
-export function initFileExplorer(): void {
-  const store = useFileExplorerStore.getState();
-  store.loadDirectory(ROOT_PATH);
-}
 
