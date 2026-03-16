@@ -1,22 +1,22 @@
 import { create } from 'zustand';
 import { FileResponseDto } from '@org/shared/contracts';
-import { MonacoUtils } from '@org/shared/utils';
+import { MonacoUtils, TabManager } from '@org/shared/utils';
 import { fileExplorerService } from '../services/file-explorer.service';
 
 interface CodeEditorState {
   openFiles: MonacoUtils.OpenFile[];
-  activeFilePath: string | null;
+  activeTabId: string | null;
 }
 
 interface CodeEditorActions {
   openFile: (file: FileResponseDto) => void;
   openDiff: (file: FileResponseDto, originalContent: string) => void;
-  closeFile: (path: string) => void;
-  setActiveFile: (path: string) => void;
-  closeOthers: (path: string) => void;
+  closeFile: (tabId: string) => void;
+  setActiveFile: (tabId: string) => void;
+  closeOthers: (tabId: string) => void;
   closeAll: () => void;
   closeSaved: () => void;
-  closeToTheRight: (path: string) => void;
+  closeToTheRight: (tabId: string) => void;
   updateContent: (path: string, content: string) => void;
   saveFile: (path: string) => Promise<void>;
   restoreOpenFiles: () => Promise<void>;
@@ -24,95 +24,88 @@ interface CodeEditorActions {
 
 export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((set, get) => ({
   openFiles: [],
-  activeFilePath: loadFromStorage().activeFilePath,
+  activeTabId: loadFromStorage().activeTabId,
 
   openFile(file: FileResponseDto): void {
     const { openFiles } = get();
+    const tabId = MonacoUtils.createTabId(file.path, 'regular');
 
-    if (openFiles.some((f) => f.path === file.path)) {
-      set({ activeFilePath: file.path });
-      saveToStorage({ openFilePaths: openFiles.map((f) => f.path), activeFilePath: file.path });
+    if (openFiles.some((f) => f.tabId === tabId)) {
+      set({ activeTabId: tabId });
+      saveToStorage({ openFilePaths: openFiles.map((f) => f.path), activeTabId: tabId });
       return;
     }
 
     const updated = [...openFiles, MonacoUtils.mapFile(file)];
-    set({ openFiles: updated, activeFilePath: file.path });
-    saveToStorage({ openFilePaths: updated.map((f) => f.path), activeFilePath: file.path });
+    set({ openFiles: updated, activeTabId: tabId });
+    saveToStorage({ openFilePaths: updated.map((f) => f.path), activeTabId: tabId });
   },
 
   openDiff(file: FileResponseDto, originalContent: string): void {
     const { openFiles } = get();
+    const tabId = MonacoUtils.createTabId(file.path, 'diff');
 
-    if (openFiles.some((f) => f.path === file.path && f.mode === 'diff')) {
-      set({ activeFilePath: file.path });
+    if (openFiles.some((f) => f.tabId === tabId)) {
+      set({ activeTabId: tabId });
       return;
     }
 
-    const mapped: MonacoUtils.OpenFile = { ...MonacoUtils.mapFile(file), originalContent, mode: 'diff' };
-    set({ openFiles: [...openFiles, mapped], activeFilePath: file.path });
+    const mapped: MonacoUtils.OpenFile = {
+      ...MonacoUtils.mapFile(file),
+      tabId,
+      originalContent,
+      mode: 'diff',
+    };
+    set({ openFiles: [...openFiles, mapped], activeTabId: tabId });
   },
 
-  closeFile(path: string): void {
-    const { openFiles, activeFilePath } = get();
-    const files = openFiles.filter((f) => f.path !== path);
-
-    let newActive = activeFilePath;
-    if (activeFilePath === path) {
-      const closedIndex = openFiles.findIndex((f) => f.path === path);
-      newActive = files[Math.min(closedIndex, files.length - 1)]?.path ?? null;
-    }
-
-    set({ openFiles: files, activeFilePath: newActive });
-    saveToStorage({ openFilePaths: files.map((f) => f.path), activeFilePath: newActive });
+  closeFile(tabId: string): void {
+    const result = TabManager.closeTab(get().openFiles, get().activeTabId, tabId);
+    set({ openFiles: result.items, activeTabId: result.activeTabId });
+    persistState(result.items, result.activeTabId);
   },
 
-  setActiveFile(path: string): void {
-    set({ activeFilePath: path });
-    saveToStorage({ ...loadFromStorage(), activeFilePath: path });
+  setActiveFile(tabId: string): void {
+    set({ activeTabId: tabId });
+    saveToStorage({ ...loadFromStorage(), activeTabId: tabId });
   },
 
-  closeOthers(path: string): void {
-    const kept = get().openFiles.filter((f) => f.path === path);
-    set({ openFiles: kept, activeFilePath: path });
-    saveToStorage({ openFilePaths: kept.map((f) => f.path), activeFilePath: path });
+  closeOthers(tabId: string): void {
+    const result = TabManager.closeOtherTabs(get().openFiles, tabId);
+    set({ openFiles: result.items, activeTabId: result.activeTabId });
+    persistState(result.items, result.activeTabId);
   },
 
   closeAll(): void {
-    set({ openFiles: [], activeFilePath: null });
-    saveToStorage({ openFilePaths: [], activeFilePath: null });
+    const result = TabManager.closeAllTabs();
+    set({ openFiles: result.items, activeTabId: result.activeTabId });
+    persistState(result.items, result.activeTabId);
   },
 
   closeSaved(): void {
-    const { openFiles, activeFilePath } = get();
-    const dirty = openFiles.filter((f) => f.isDirty);
-    const activeStillOpen = dirty.some((f) => f.path === activeFilePath);
-    const newActive = activeStillOpen ? activeFilePath : (dirty[0]?.path ?? null);
-
-    set({ openFiles: dirty, activeFilePath: newActive });
-    saveToStorage({ openFilePaths: dirty.map((f) => f.path), activeFilePath: newActive });
+    const result = TabManager.closeSavedTabs(get().openFiles, get().activeTabId);
+    set({ openFiles: result.items, activeTabId: result.activeTabId });
+    persistState(result.items, result.activeTabId);
   },
 
-  closeToTheRight(path: string): void {
-    const { openFiles, activeFilePath } = get();
-    const idx = openFiles.findIndex((f) => f.path === path);
-    const kept = openFiles.slice(0, idx + 1);
-    const activeStillOpen = kept.some((f) => f.path === activeFilePath);
-    const newActive = activeStillOpen ? activeFilePath : path;
-
-    set({ openFiles: kept, activeFilePath: newActive });
-    saveToStorage({ openFilePaths: kept.map((f) => f.path), activeFilePath: newActive });
+  closeToTheRight(tabId: string): void {
+    const result = TabManager.closeTabsToTheRight(get().openFiles, get().activeTabId, tabId);
+    set({ openFiles: result.items, activeTabId: result.activeTabId });
+    persistState(result.items, result.activeTabId);
   },
 
   updateContent(path: string, content: string): void {
     set({
       openFiles: get().openFiles.map((f) =>
-        f.path === path ? { ...f, currentContent: content, isDirty: content !== f.content } : f,
+        f.path === path && f.mode === 'regular'
+          ? { ...f, currentContent: content, isDirty: content !== f.content }
+          : f,
       ),
     });
   },
 
   async saveFile(path: string): Promise<void> {
-    const file = get().openFiles.find((f) => f.path === path);
+    const file = get().openFiles.find((f) => f.path === path && f.mode === 'regular');
     if (!file) return;
 
     const saved = await fileExplorerService.updateFile({
@@ -124,7 +117,7 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
 
     set({
       openFiles: get().openFiles.map((f) =>
-        f.path === saved.path
+        f.path === saved.path && f.mode === 'regular'
           ? {
               ...f,
               content: saved.content ?? f.currentContent,
@@ -148,29 +141,36 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
       .filter((f): f is FileResponseDto => !!f)
       .map(MonacoUtils.mapFile);
 
-    const activeFilePath = stored.activeFilePath ?? openFiles[0]?.path ?? null;
-    set({ openFiles, activeFilePath });
-    saveToStorage({ openFilePaths: openFiles.map((f) => f.path), activeFilePath });
+    const activeTabId = stored.activeTabId ?? openFiles[0]?.tabId ?? null;
+    set({ openFiles, activeTabId });
+    saveToStorage({ openFilePaths: openFiles.map((f) => f.path), activeTabId });
   },
 }));
 
 interface StoredEditorState {
   openFilePaths: string[];
-  activeFilePath: string | null;
+  activeTabId: string | null;
 }
 
 function loadFromStorage(): StoredEditorState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { openFilePaths: [], activeFilePath: null };
+    if (!raw) return { openFilePaths: [], activeTabId: null };
     return JSON.parse(raw);
   } catch {
-    return { openFilePaths: [], activeFilePath: null };
+    return { openFilePaths: [], activeTabId: null };
   }
 }
 
 function saveToStorage(data: StoredEditorState): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function persistState(items: MonacoUtils.OpenFile[], activeTabId: string | null): void {
+  saveToStorage({
+    openFilePaths: items.filter((f) => f.mode === 'regular').map((f) => f.path),
+    activeTabId,
+  });
 }
 
 const STORAGE_KEY = 'editor';

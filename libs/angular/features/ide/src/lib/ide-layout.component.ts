@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FileResponseDto } from '@org/shared/contracts';
+import { ResizeUtils } from '@org/shared/utils';
 import { FilePickerComponent } from './file-picker/file-picker.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
@@ -60,7 +61,7 @@ export class IdeLayoutComponent {
   private onResize = (event: MouseEvent): void => {
     if (!this.resizing) return;
     const delta = event.clientX - this.startX;
-    const newWidth = Math.min(Math.max(this.startWidth + delta, 200), 600);
+    const newWidth = ResizeUtils.clampPanelWidth(this.startWidth + delta);
     this.layoutStore.setWidth(newWidth);
   };
 

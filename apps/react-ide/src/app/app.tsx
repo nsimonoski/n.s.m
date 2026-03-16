@@ -1,25 +1,37 @@
-import { useEffect } from 'react';
-import { initFileExplorer, useFileExplorerStore, useFileWatcher } from '@org/react-data-access';
-import { CodeEditor } from '@org/react-code-editor';
-import { FileExplorer } from '@org/react-file-explorer';
+import { BrowserRouter, useRoutes } from 'react-router-dom';
+import type { RouteObject } from 'react-router-dom';
+import { authRoutes, cloneRepoRoute, catchAllRoute, AuthGuard } from '@org/react-auth';
+import { IdeShell } from './ide-shell';
 import './app.scss';
 
+const appRoutes: RouteObject[] = [
+  ...authRoutes,
+  {
+    path: 'ide',
+    children: [
+      cloneRepoRoute,
+      {
+        path: '',
+        element: (
+          <AuthGuard requireWorkspace>
+            <IdeShell />
+          </AuthGuard>
+        ),
+      },
+    ],
+  },
+  catchAllRoute,
+];
+
+function AppRoutes() {
+  return useRoutes(appRoutes);
+}
+
 export function App() {
-  const directory = useFileExplorerStore((s) => s.directory);
-
-  useEffect(() => {
-    initFileExplorer();
-  }, []);
-
-  useFileWatcher(directory?.path ?? null);
-
   return (
-    <div className="ide-shell">
-      <FileExplorer />
-      <div className="editor-area">
-        <CodeEditor />
-      </div>
-    </div>
+    <BrowserRouter basename="/react">
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 

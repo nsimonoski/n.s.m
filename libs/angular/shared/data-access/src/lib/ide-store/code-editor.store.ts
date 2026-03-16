@@ -11,7 +11,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { distinctUntilChanged, EMPTY, filter, map, pipe, switchMap, tap } from 'rxjs';
 import { FileResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
-import { AppRoutes, MonacoUtils } from '@org/shared/utils';
+import { AppRoutes, MonacoUtils, TabManager } from '@org/shared/utils';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
 
@@ -93,16 +93,9 @@ export const CodeEditorStore = signalStore(
       },
 
       closeFile(tabId: string): void {
-        const files = state.openFiles().filter((f) => f.tabId !== tabId);
-        let activeTabId = state.activeTabId();
-
-        if (activeTabId === tabId) {
-          const closedIndex = state.openFiles().findIndex((f) => f.tabId === tabId);
-          activeTabId = files[Math.min(closedIndex, files.length - 1)]?.tabId ?? null;
-        }
-
-        patchState(state, { openFiles: files });
-        syncAfterClose(files, activeTabId);
+        const result = TabManager.closeTab(state.openFiles(), state.activeTabId(), tabId);
+        patchState(state, { openFiles: result.items });
+        syncAfterClose(result.items, result.activeTabId);
       },
 
       setActiveFile(tabId: string): void {
@@ -117,35 +110,31 @@ export const CodeEditorStore = signalStore(
       },
 
       closeOthers(tabId: string): void {
-        const kept = state.openFiles().filter((f) => f.tabId === tabId);
-        patchState(state, { openFiles: kept });
-        syncAfterClose(kept, tabId);
+        const result = TabManager.closeOtherTabs(state.openFiles(), tabId);
+        patchState(state, { openFiles: result.items });
+        syncAfterClose(result.items, result.activeTabId);
       },
 
       closeAll(): void {
-        patchState(state, { openFiles: [] });
-        syncAfterClose([], null);
+        const result = TabManager.closeAllTabs();
+        patchState(state, { openFiles: result.items });
+        syncAfterClose(result.items, result.activeTabId);
       },
 
       closeSaved(): void {
-        const dirty = state.openFiles().filter((f) => f.isDirty);
-        const activeTabId = state.activeTabId();
-        const activeStillOpen = dirty.some((f) => f.tabId === activeTabId);
-        const newActiveTabId = activeStillOpen ? activeTabId : (dirty[0]?.tabId ?? null);
-
-        patchState(state, { openFiles: dirty });
-        syncAfterClose(dirty, newActiveTabId);
+        const result = TabManager.closeSavedTabs(state.openFiles(), state.activeTabId());
+        patchState(state, { openFiles: result.items });
+        syncAfterClose(result.items, result.activeTabId);
       },
 
       closeToTheRight(tabId: string): void {
-        const idx = state.openFiles().findIndex((f) => f.tabId === tabId);
-        const kept = state.openFiles().slice(0, idx + 1);
-        const activeTabId = state.activeTabId();
-        const activeStillOpen = kept.some((f) => f.tabId === activeTabId);
-        const newActiveTabId = activeStillOpen ? activeTabId : tabId;
-
-        patchState(state, { openFiles: kept });
-        syncAfterClose(kept, newActiveTabId);
+        const result = TabManager.closeTabsToTheRight(
+          state.openFiles(),
+          state.activeTabId(),
+          tabId,
+        );
+        patchState(state, { openFiles: result.items });
+        syncAfterClose(result.items, result.activeTabId);
       },
 
       updateContent(path: string, content: string): void {
@@ -213,7 +202,7 @@ export const CodeEditorStore = signalStore(
           patchState(state, { openFiles });
 
           const storedTabId = state.activeTabId();
-          const activeTabId = storedTabId ?? (openFiles[0]?.tabId ?? null);
+          const activeTabId = storedTabId ?? openFiles[0]?.tabId ?? null;
           if (activeTabId) {
             const activeFile = openFiles.find((f) => f.tabId === activeTabId);
             state.saveToStorage({ activeTabId });
@@ -235,9 +224,7 @@ export const CodeEditorStore = signalStore(
           patchState(state, {
             openFiles: state
               .openFiles()
-              .map((f) =>
-                f.path === file.path && f.mode === 'regular' ? { ...f, ...mapped } : f,
-              ),
+              .map((f) => (f.path === file.path && f.mode === 'regular' ? { ...f, ...mapped } : f)),
           });
         }),
       ),
