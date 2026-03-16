@@ -30,6 +30,9 @@ jobs:
       - name: Build Angular
         run: npx nx build angular-ide --configuration=production
 
+      - name: Build React
+        run: npx nx build react-ide
+
       - name: Build NestJS API
         run: npx nx build nestjs-api
 
@@ -42,6 +45,9 @@ jobs:
 
       - name: Upload Angular
         run: rsync -avz --delete dist/apps/angular-ide/browser/ root@204.168.150.34:/var/www/kod3.dev/angular/
+
+      - name: Upload React
+        run: rsync -avz --delete apps/react-ide/dist/ root@204.168.150.34:/var/www/kod3.dev/react/
 
       - name: Upload API + Docker files
         run: |

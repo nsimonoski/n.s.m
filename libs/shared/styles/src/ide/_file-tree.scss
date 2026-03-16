@@ -187,3 +187,21 @@
     background: var(--bg-hover);
   }
 }
+
+// --- Mobile: < 768px ---
+@media (max-width: 767px) {
+  .tree-node {
+    height: 36px;
+    font-size: 14px;
+    padding: 0 12px;
+  }
+
+  .create-node {
+    height: 36px;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+  }
+}

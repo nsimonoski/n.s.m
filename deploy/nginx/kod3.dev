@@ -8,10 +8,10 @@ server {
         try_files $uri $uri/ /angular/index.html;
     }
 
-    # React SPA (later)
-    location /rct/ {
+    # React SPA
+    location /react/ {
         alias /var/www/kod3.dev/react/;
-        try_files $uri $uri/ /rct/index.html;
+        try_files $uri $uri/ /react/index.html;
     }
 
     # NestJS API

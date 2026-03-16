@@ -40,3 +40,49 @@
     background-color: var(--accent-primary);
   }
 }
+
+.mobile-backdrop {
+  display: none;
+}
+
+// --- Mobile: < 768px ---
+@media (max-width: 767px) {
+  .explorer-shell {
+    width: 0;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .panel-content {
+    display: none;
+
+    &.mobile-open {
+      display: block;
+      position: fixed;
+      top: 44px; // below activity-bar
+      left: 0;
+      width: 85vw;
+      max-width: 320px;
+      height: calc(100% - 68px); // 44px activity-bar + 24px footer
+      z-index: 100;
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  .mobile-backdrop {
+    &.visible {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-backdrop);
+      z-index: 99;
+    }
+  }
+}
