@@ -19,7 +19,7 @@ export function Login() {
       <div className="login-card">
         <h1 className="title">kod3.dev</h1>
         <p className="subtitle">
-          A browser-based IDE built in an Nx monorepo with Angular, NestJS &amp; Monaco Editor
+          A browser-based IDE built in an Nx monorepo with React, NestJS &amp; Monaco Editor
         </p>
 
         <div className="actions">
