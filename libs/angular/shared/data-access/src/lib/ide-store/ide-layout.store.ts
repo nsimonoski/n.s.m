@@ -7,7 +7,7 @@ import {
   withProps,
   withState,
 } from '@ngrx/signals';
-import { AppRoutes } from '@org/shared/utils';
+import { AppRoutes, ResizeUtils } from '@org/shared/utils';
 import { partialStore } from '@org/angular-utils';
 import { CodeEditorStore } from './code-editor.store';
 
@@ -18,7 +18,7 @@ export interface IdeLayoutState {
 export const IdeLayoutStore = signalStore(
   { providedIn: 'root' },
   withState<IdeLayoutState>({
-    width: 300,
+    width: ResizeUtils.DEFAULT_PANEL_WIDTH,
   }),
   partialStore.withBrowserStorage({ key: 'ide-layout' }),
   partialStore.withRouting(),

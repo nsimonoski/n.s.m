@@ -7,8 +7,8 @@ export function MonacoEditor() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const activeFile = useCodeEditorStore((s) => {
-    const path = s.activeFilePath;
-    return s.openFiles.find((f) => f.path === path) ?? null;
+    const tabId = s.activeTabId;
+    return s.openFiles.find((f) => f.tabId === tabId) ?? null;
   });
 
   useEffect(() => {
@@ -27,8 +27,9 @@ export function MonacoEditor() {
 }
 
 function handleSave(): void {
-  const { activeFilePath, saveFile } = useCodeEditorStore.getState();
-  if (activeFilePath) saveFile(activeFilePath);
+  const { activeTabId, openFiles, saveFile } = useCodeEditorStore.getState();
+  const activeFile = openFiles.find((f) => f.tabId === activeTabId);
+  if (activeFile) saveFile(activeFile.path);
 }
 
 function handleContentChange(path: string, value: string): void {

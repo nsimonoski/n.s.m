@@ -62,7 +62,7 @@ export function Login() {
             <span>Source Code</span>
           </a>
           <span>|</span>
-          <a href="cv" target="_blank" rel="noopener noreferrer">
+          <a href="https://kod3.dev/angular/cv" target="_blank" rel="noopener noreferrer">
             <i className="codicon codicon-file-text"></i>
             <span>CV</span>
           </a>
