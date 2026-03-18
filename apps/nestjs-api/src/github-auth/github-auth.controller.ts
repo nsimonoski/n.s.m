@@ -39,7 +39,6 @@ export class GithubAuthController {
     res.json({
       username: session.githubUsername,
       avatarUrl: session.avatarUrl,
-      repoUrl: session.repoUrl,
       isGuest: true,
       permissions: GUEST_PERMISSIONS,
     });

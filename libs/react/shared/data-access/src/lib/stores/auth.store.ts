@@ -46,6 +46,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     set({ isLoading: true, errorMessage: '' });
     try {
       await authService.guestLogin();
+      await workspaceService.cloneDemoRepo();
       const session = await authService.getLoginInfo();
       if (session) {
         set({ profile: session.profile, workspace: session.workspace, isLoading: false });

@@ -16,6 +16,8 @@ services:
       - WORKSPACE_BASE_DIR=/data/workspaces
     env_file:
       - .env.production
+    tmpfs:
+      - /tmp/private-workspaces:size=512M
     volumes:
       - workspace-data:/data/workspaces
     depends_on:

@@ -70,7 +70,10 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => state.setLoading(true, '')),
         switchMap(() =>
-          state.authService.guestLogin().pipe(switchMap(() => state.authService.getLoginInfo())),
+          state.authService.guestLogin().pipe(
+            switchMap(() => state.workspaceService.cloneDemoRepo()),
+            switchMap(() => state.authService.getLoginInfo()),
+          ),
         ),
         tap({
           next: (session) => {

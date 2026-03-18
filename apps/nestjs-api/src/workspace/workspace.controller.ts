@@ -20,4 +20,8 @@ export class WorkspaceController {
     return this.workspaceService.cloneRepo(req.session, repoUrl);
   }
 
+  @Post('clone-demo')
+  async cloneDemo(@Req() req: Request & { session: UserSession }) {
+    return this.workspaceService.cloneDemoRepo(req.session);
+  }
 }
