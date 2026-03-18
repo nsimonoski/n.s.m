@@ -1,0 +1,22 @@
+@if (!isLoginRoute) {
+  <div class="auth-header">
+    @if (isFromReact) {
+      <a class="back-link" href="/react/login">
+        <i class="codicon codicon-arrow-left"></i>
+        Back to Login
+      </a>
+    } @else {
+      <a class="back-link" routerLink="/login">
+        <i class="codicon codicon-arrow-left"></i>
+        Back to Login
+      </a>
+    }
+  </div>
+}
+
+<router-outlet />
+
+<div class="auth-footer">
+  <span class="spacer"></span>
+  <ui-theme-toggle />
+</div>

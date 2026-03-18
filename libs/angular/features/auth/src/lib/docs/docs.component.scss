@@ -1,0 +1,247 @@
+.docs-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.docs-container {
+  max-width: 780px;
+  width: 100%;
+}
+
+// Header
+.docs-header {
+  margin-bottom: 36px;
+}
+
+.docs-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.docs-subtitle {
+  font-size: 16px;
+  color: var(--accent-primary);
+  margin: 0 0 16px;
+  font-weight: 500;
+}
+
+// Sections
+.docs-section {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--bg-tertiary);
+
+  &--last {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 16px;
+}
+
+// Text
+.docs-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    color: var(--accent-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+}
+
+// Feature list
+.feature-list {
+  margin: 0;
+  padding-left: 18px;
+
+  li {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Permissions table
+.permissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 12px;
+
+  th,
+  td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--bg-tertiary);
+  }
+
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  td {
+    color: var(--text-primary);
+  }
+
+  .check {
+    color: var(--accent-primary);
+    font-weight: 600;
+  }
+
+  .cross {
+    color: var(--text-muted);
+  }
+}
+
+// Feature cards
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.feature-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 6px;
+  padding: 14px;
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+// Screenshots
+.screenshot {
+  display: block;
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--bg-tertiary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 16px 0;
+}
+
+// Security callout
+.callout {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 12px 0;
+
+  .callout-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 6px;
+  }
+
+  .callout-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+// SVG diagram
+.architecture-diagram {
+  margin: 16px 0;
+  text-align: center;
+
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+// Keyboard shortcut badge
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--bg-hover);
+  border-radius: 3px;
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .docs-page {
+    padding: 24px 16px;
+  }
+
+  .docs-title {
+    font-size: 26px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .permissions-table {
+    font-size: 13px;
+
+    th,
+    td {
+      padding: 6px 8px;
+    }
+  }
+}

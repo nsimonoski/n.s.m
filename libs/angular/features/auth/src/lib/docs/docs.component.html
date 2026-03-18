@@ -1,0 +1,604 @@
+<div class="docs-page">
+  <div class="docs-container">
+    <!-- Header -->
+    <div class="docs-header">
+      <h1 class="docs-title">kod3.dev</h1>
+      <p class="docs-subtitle">Documentation</p>
+    </div>
+
+    <!-- Getting Started -->
+    <section class="docs-section">
+      <h2 class="section-title">Getting Started</h2>
+      <p class="docs-text">
+        kod3.dev is a browser-based IDE built with Angular, React, NestJS and Monaco Editor inside
+        an Nx monorepo. You can use it in two ways:
+      </p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-github"></i>
+            Sign in with GitHub
+          </p>
+          <p class="card-text">
+            Clone any of your repositories (public or private), edit files, use git operations, and
+            chat with the AI assistant. Full read/write access.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-play"></i>
+            Continue as Guest
+          </p>
+          <p class="card-text">
+            Explore a read-only demo of this IDE's own source code. Browse files, read code, and try
+            the editor - no account needed.
+          </p>
+        </div>
+      </div>
+
+      <table class="permissions-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Guest</th>
+            <th>Authenticated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Browse &amp; read files</td>
+            <td class="check">&#10003;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Edit files</td>
+            <td class="check">&#10003;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Clone your own repos</td>
+            <td class="cross">&#10005;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Git operations (commit, push, pull, stash)</td>
+            <td class="cross">&#10005;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>Branch management</td>
+            <td class="cross">&#10005;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>AI assistant</td>
+            <td class="cross">&#10005;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Cloning Repositories -->
+    <section class="docs-section">
+      <h2 class="section-title">Cloning Repositories</h2>
+      <p class="docs-text">
+        After signing in with GitHub, you'll be prompted to enter a repository URL. Only GitHub
+        repositories are supported.
+      </p>
+      <ul class="feature-list">
+        <li><strong>Public repos</strong> are cloned directly - no token needed.</li>
+        <li>
+          <strong>Private repos</strong> require a GitHub OAuth token (scope: <code>repo</code>).
+          The token is requested automatically when you sign in.
+        </li>
+        <li>
+          Your GitHub token is <strong>never</strong> stored in the cloned repository or persisted
+          to disk.
+        </li>
+      </ul>
+
+      <div class="callout">
+        <p class="callout-title">Security</p>
+        <p class="callout-text">
+          Your GitHub token is encrypted with AES-256-GCM and stored in a Redis session - never on
+          disk. Sessions expire after 30 minutes of inactivity. The token is embedded in the clone
+          URL only at runtime and is never committed to the repo.
+        </p>
+      </div>
+    </section>
+
+    <!-- Code Editor -->
+    <section class="docs-section">
+      <h2 class="section-title">Code Editor</h2>
+      <p class="docs-text">
+        The editor is powered by
+        <a
+          href="https://microsoft.github.io/monaco-editor/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Monaco Editor</a
+        >
+        - the same engine behind VS Code - with support for 20+ programming languages.
+      </p>
+      <ul class="feature-list">
+        <li>Multi-tab editing with unsaved change indicators</li>
+        <li>Auto-save on content change</li>
+        <li>Syntax highlighting, IntelliSense, and code folding</li>
+        <li>Side-by-side diff viewer for git changes</li>
+        <li>Tab context menu: Close, Close Others, Close to the Right, Close Saved, Close All</li>
+      </ul>
+    </section>
+
+    <!-- File Explorer -->
+    <section class="docs-section">
+      <h2 class="section-title">File Explorer</h2>
+      <p class="docs-text">
+        The sidebar file tree lets you browse, create, and manage files in your repository.
+      </p>
+      <ul class="feature-list">
+        <li>Tree view with expand/collapse folders</li>
+        <li>
+          Context menu actions: <strong>New File</strong>, <strong>New Folder</strong>,
+          <strong>Rename</strong>, <strong>Delete</strong>
+        </li>
+        <li>File search via command palette (fuzzy search by filename)</li>
+        <li>Real-time file watching - changes on the server are reflected automatically</li>
+      </ul>
+    </section>
+
+    <!-- Git Integration -->
+    <section class="docs-section">
+      <h2 class="section-title">Git Integration</h2>
+      <p class="docs-text">
+        The Source Control panel in the activity bar gives you full git workflow capabilities. A
+        badge on the icon shows the number of changed files.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-git-commit"></i>
+            Stage &amp; Commit
+          </p>
+          <p class="card-text">
+            Stage or unstage individual files, write a commit message, and commit. Discard changes
+            to revert files.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-git-pull-request"></i>
+            Push &amp; Pull
+          </p>
+          <p class="card-text">
+            Push your commits to remote or pull the latest changes. See ahead/behind counts in real
+            time.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-git-branch"></i>
+            Branches
+          </p>
+          <p class="card-text">
+            Switch branches or create new ones via the branch picker in the status bar. Shows last
+            commit info for each branch.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-git-stash"></i>
+            Stash
+          </p>
+          <p class="card-text">
+            Stash your uncommitted changes, then pop or apply them later. Useful when switching
+            branches.
+          </p>
+        </div>
+      </div>
+
+      <p class="docs-text" style="margin-top: 12px">
+        <strong>Context menu on changed files:</strong> Stage, Unstage, Discard Changes, Open
+        Changes (diff view).
+      </p>
+      <p class="docs-text">
+        <strong>Commit history:</strong> View past commits with hash, author, date, and the number
+        of files changed. Git status updates in real time via WebSocket.
+      </p>
+    </section>
+
+    <!-- AI Assistant -->
+    <section class="docs-section">
+      <h2 class="section-title">AI Assistant</h2>
+      <p class="docs-text">
+        The AI panel provides a chat interface powered by
+        <a href="https://groq.com/" target="_blank" rel="noopener noreferrer">Groq</a>
+        running Llama 3.3 70B. Responses are streamed in real time.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-comment-discussion"></i>
+            Chat
+          </p>
+          <p class="card-text">Ask general programming questions or get help with your code.</p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-lightbulb"></i>
+            Explain
+          </p>
+          <p class="card-text">
+            Send the currently open file as context and ask the AI to explain it.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-edit"></i>
+            Modify
+          </p>
+          <p class="card-text">
+            Request code changes - the AI returns suggestions that can be applied as a diff.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-keyboard"></i>
+            Shortcuts
+          </p>
+          <p class="card-text">
+            Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> (or
+            <span class="kbd">Cmd</span> + <span class="kbd">Enter</span> on Mac) to send a message.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Theme -->
+    <section class="docs-section">
+      <h2 class="section-title">Theme</h2>
+      <p class="docs-text">
+        Switch between <strong>dark</strong> and <strong>light</strong> mode using the theme toggle
+        button in the bottom status bar. Your preference is saved in the browser and syncs
+        automatically with the Monaco editor theme.
+      </p>
+    </section>
+
+    <!-- IDE Layout -->
+    <section class="docs-section">
+      <h2 class="section-title">IDE Layout</h2>
+      <p class="docs-text">The interface is divided into four main areas:</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-layout-sidebar-left"></i>
+            Activity Bar
+          </p>
+          <p class="card-text">
+            Left-side icons for Explorer, Source Control (with change badge), and AI Assistant.
+            Click to toggle panels.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-split-horizontal"></i>
+            Sidebar
+          </p>
+          <p class="card-text">
+            Resizable panel showing the active view. On mobile, it opens as a drawer overlay.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-file-code"></i>
+            Editor
+          </p>
+          <p class="card-text">
+            The main area with tabbed Monaco editor. Open multiple files and switch between them.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-layout-statusbar"></i>
+            Status Bar
+          </p>
+          <p class="card-text">
+            Bottom bar showing current branch (clickable), username, guest badge, theme toggle, and
+            logout.
+          </p>
+        </div>
+      </div>
+
+      <p class="docs-text" style="margin-top: 12px">
+        The layout is fully responsive - on screens smaller than 768px, the sidebar collapses into a
+        slide-out drawer with a backdrop overlay.
+      </p>
+    </section>
+
+    <!-- Architecture -->
+    <section class="docs-section docs-section--last">
+      <h2 class="section-title">Architecture - Nx Monorepo</h2>
+      <p class="docs-text">
+        The project is structured as an
+        <a href="https://nx.dev/" target="_blank" rel="noopener noreferrer">Nx</a> monorepo. Both
+        Angular and React frontends share the same backend API, TypeScript contracts, utilities, and
+        styles.
+      </p>
+
+      <div class="architecture-diagram">
+        <svg
+          viewBox="0 0 600 380"
+          xmlns="http://www.w3.org/2000/svg"
+          font-family="var(--font-family), system-ui, sans-serif"
+        >
+          <!-- Apps layer -->
+          <rect
+            x="20"
+            y="20"
+            width="560"
+            height="70"
+            rx="6"
+            fill="var(--accent-primary)"
+            opacity="0.15"
+            stroke="var(--accent-primary)"
+            stroke-width="1.5"
+          />
+          <text
+            x="40"
+            y="45"
+            font-size="11"
+            font-weight="600"
+            fill="var(--text-muted)"
+            text-transform="uppercase"
+            letter-spacing="1"
+          >
+            APPLICATIONS
+          </text>
+          <rect
+            x="40"
+            y="54"
+            width="150"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="115" y="73" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            Angular IDE
+          </text>
+          <rect
+            x="210"
+            y="54"
+            width="150"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="285" y="73" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            NestJS API
+          </text>
+          <rect
+            x="380"
+            y="54"
+            width="180"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="470" y="73" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            React IDE
+          </text>
+
+          <!-- Arrows: Apps → Framework Libs -->
+          <line
+            x1="115"
+            y1="90"
+            x2="115"
+            y2="120"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead)"
+          />
+          <line
+            x1="470"
+            y1="90"
+            x2="470"
+            y2="120"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead)"
+          />
+
+          <!-- Framework Libs layer -->
+          <rect
+            x="20"
+            y="120"
+            width="560"
+            height="110"
+            rx="6"
+            fill="var(--accent-primary)"
+            opacity="0.08"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1.5"
+          />
+          <text
+            x="40"
+            y="145"
+            font-size="11"
+            font-weight="600"
+            fill="var(--text-muted)"
+            letter-spacing="1"
+          >
+            FRAMEWORK LIBRARIES
+          </text>
+
+          <!-- Angular libs -->
+          <rect
+            x="40"
+            y="155"
+            width="250"
+            height="60"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text
+            x="165"
+            y="175"
+            font-size="12"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            Angular
+          </text>
+          <text x="165" y="193" font-size="11" fill="var(--text-muted)" text-anchor="middle">
+            features / shared-ui / data-access
+          </text>
+
+          <!-- React libs -->
+          <rect
+            x="310"
+            y="155"
+            width="250"
+            height="60"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text
+            x="435"
+            y="175"
+            font-size="12"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            React
+          </text>
+          <text x="435" y="193" font-size="11" fill="var(--text-muted)" text-anchor="middle">
+            features / shared-ui / data-access
+          </text>
+
+          <!-- Arrows: Framework Libs → Shared Libs -->
+          <line
+            x1="165"
+            y1="230"
+            x2="165"
+            y2="260"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead)"
+          />
+          <line
+            x1="435"
+            y1="230"
+            x2="435"
+            y2="260"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead)"
+          />
+
+          <!-- Shared Libs layer -->
+          <rect
+            x="20"
+            y="260"
+            width="560"
+            height="70"
+            rx="6"
+            fill="var(--accent-primary)"
+            opacity="0.04"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1.5"
+          />
+          <text
+            x="40"
+            y="285"
+            font-size="11"
+            font-weight="600"
+            fill="var(--text-muted)"
+            letter-spacing="1"
+          >
+            SHARED LIBRARIES
+          </text>
+          <rect
+            x="40"
+            y="294"
+            width="160"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="120" y="313" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            Contracts
+          </text>
+          <rect
+            x="220"
+            y="294"
+            width="160"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="300" y="313" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            Utils
+          </text>
+          <rect
+            x="400"
+            y="294"
+            width="160"
+            height="28"
+            rx="4"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="480" y="313" font-size="12" fill="var(--text-primary)" text-anchor="middle">
+            Styles
+          </text>
+
+          <!-- Caption -->
+          <text
+            x="300"
+            y="360"
+            font-size="11"
+            fill="var(--text-muted)"
+            text-anchor="middle"
+            font-style="italic"
+          >
+            Both frontends share the same contracts, utilities, and styles. The NestJS API serves
+            both.
+          </text>
+
+          <!-- Arrowhead marker -->
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="var(--text-muted)" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <p class="docs-text">
+        This architecture allows both frameworks to reuse the same TypeScript interfaces, DTOs,
+        utility functions, and SCSS styles - while each framework maintains its own feature
+        libraries, UI components, and state management.
+      </p>
+    </section>
+  </div>
+</div>

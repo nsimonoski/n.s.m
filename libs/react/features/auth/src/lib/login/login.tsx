@@ -47,6 +47,8 @@ export function Login() {
           clone your own repos with full read/write access.
         </p>
 
+        <p className="note">The React version is a work in progress. For the full experience,</p>
+
         <div className="version-switch">
           <a href="https://kod3.dev/angular" target="_blank" rel="noopener noreferrer">
             <i className="codicon codicon-arrow-swap"></i>
@@ -68,8 +70,13 @@ export function Login() {
             <i className="codicon codicon-github"></i>
             <span>Source Code</span>
           </a>
+          <span className="developer-break"></span>
+          <a href="/angular/docs?from=react">
+            <i className="codicon codicon-book"></i>
+            <span>Docs</span>
+          </a>
           <span>|</span>
-          <a href="https://kod3.dev/angular/cv" target="_blank" rel="noopener noreferrer">
+          <a href="/angular/cv?from=react">
             <i className="codicon codicon-file-text"></i>
             <span>CV</span>
           </a>

@@ -3,13 +3,29 @@ import { loginGuard } from './guards/login.guard';
 
 export const authRoutes: Route[] = [
   {
-    path: 'login',
-    loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
-    canActivate: [loginGuard],
-  },
-  {
-    path: 'cv',
-    loadComponent: () => import('./resume/resume.component').then((m) => m.ResumeComponent),
+    path: '',
+    loadComponent: () =>
+      import('./auth-layout/auth-layout.component').then((m) => m.AuthLayoutComponent),
+    children: [
+      {
+        path: 'login',
+        loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
+        canActivate: [loginGuard],
+      },
+      {
+        path: 'cv',
+        loadComponent: () => import('./resume/resume.component').then((m) => m.ResumeComponent),
+      },
+      {
+        path: 'docs',
+        loadComponent: () => import('./docs/docs.component').then((m) => m.DocsComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full',
+      },
+    ],
   },
 ];
 
