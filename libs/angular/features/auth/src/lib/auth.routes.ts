@@ -11,6 +11,10 @@ export const authRoutes: Route[] = [
     path: 'cv',
     loadComponent: () => import('./resume/resume.component').then((m) => m.ResumeComponent),
   },
+  {
+    path: 'docs',
+    loadComponent: () => import('./docs/docs.component').then((m) => m.DocsComponent),
+  },
 ];
 
 export const cloneRepoRoute: Route = {

@@ -68,6 +68,11 @@ export function Login() {
             <i className="codicon codicon-github"></i>
             <span>Source Code</span>
           </a>
+          <span className="developer-break"></span>
+          <a href="https://kod3.dev/angular/docs" target="_blank" rel="noopener noreferrer">
+            <i className="codicon codicon-book"></i>
+            <span>Docs</span>
+          </a>
           <span>|</span>
           <a href="https://kod3.dev/angular/cv" target="_blank" rel="noopener noreferrer">
             <i className="codicon codicon-file-text"></i>
