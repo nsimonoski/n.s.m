@@ -47,6 +47,13 @@ export function Login() {
           clone your own repos with full read/write access.
         </p>
 
+        <div className="version-switch">
+          <a href="https://kod3.dev/angular" target="_blank" rel="noopener noreferrer">
+            <i className="codicon codicon-arrow-swap"></i>
+            <span>Try the Angular version</span>
+          </a>
+        </div>
+
         <div className="developer">
           <span>Built by</span>
           <a
