@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
+import { GithubApiModule } from '../github-api';
 import { AuthModule } from '../auth/auth.module';
-import { WorkspaceModule } from '../workspace/workspace.module';
 import { GithubAuthController } from './github-auth.controller';
 import { GithubAuthService } from './github-auth.service';
 
 @Module({
-  imports: [AuthModule, WorkspaceModule],
+  imports: [AuthModule, GithubApiModule],
   controllers: [GithubAuthController],
   providers: [GithubAuthService],
 })

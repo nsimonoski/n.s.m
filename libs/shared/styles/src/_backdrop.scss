@@ -1,0 +1,8 @@
+@mixin backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-backdrop);
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+}

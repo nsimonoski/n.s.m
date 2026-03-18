@@ -246,6 +246,14 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
+  async setRemoteUrl(repoPath: string, remote: string, url: string): Promise<void> {
+    try {
+      await this.git(repoPath).remote(['set-url', remote, url]);
+    } catch (error) {
+      throw this.mapError(error);
+    }
+  }
+
   async configUser(repoPath: string, name: string, email: string): Promise<void> {
     try {
       const git = this.git(repoPath);

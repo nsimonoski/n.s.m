@@ -13,4 +13,8 @@ export class WorkspaceService {
   cloneRepo(repoUrl: string): Observable<WorkspaceStatusDto> {
     return this.http.post<WorkspaceStatusDto>(`${this.API_BASE}/clone`, { repoUrl });
   }
+
+  cloneDemoRepo(): Observable<WorkspaceStatusDto> {
+    return this.http.post<WorkspaceStatusDto>(`${this.API_BASE}/clone-demo`, {});
+  }
 }

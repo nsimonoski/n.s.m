@@ -16,10 +16,6 @@ export interface UserProfileDto {
   permissions: Permission[];
 }
 
-export interface CloneRequestDto {
-  repoUrl: string;
-}
-
 export interface WorkspaceStatusDto {
   repoUrl: string | null;
   repoName: string | null;
@@ -27,7 +23,3 @@ export interface WorkspaceStatusDto {
   ready: boolean;
 }
 
-export interface LoginInfoDto {
-  profile: UserProfileDto;
-  workspace: WorkspaceStatusDto;
-}
