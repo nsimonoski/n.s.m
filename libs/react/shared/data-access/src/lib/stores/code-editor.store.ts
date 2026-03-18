@@ -10,6 +10,7 @@ interface CodeEditorState {
 
 interface CodeEditorActions {
   openFile: (file: FileResponseDto) => void;
+  fetchAndOpenFile: (path: string) => Promise<void>;
   openDiff: (file: FileResponseDto, originalContent: string) => void;
   closeFile: (tabId: string) => void;
   setActiveFile: (tabId: string) => void;
@@ -39,6 +40,11 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
     const updated = [...openFiles, MonacoUtils.mapFile(file)];
     set({ openFiles: updated, activeTabId: tabId });
     saveToStorage({ openFilePaths: updated.map((f) => f.path), activeTabId: tabId });
+  },
+
+  async fetchAndOpenFile(path: string): Promise<void> {
+    const file = await fileExplorerService.getFile(path);
+    get().openFile(file);
   },
 
   openDiff(file: FileResponseDto, originalContent: string): void {
