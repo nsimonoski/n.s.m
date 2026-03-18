@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { IdeStore } from '@org/angular-data-access';
+import { ThemeToggleComponent } from '@org/angular/ui';
 import { BranchPickerComponent } from '../branch-picker/branch-picker.component';
 import {
   CreateBranchDialogComponent,
@@ -9,14 +10,13 @@ import {
 @Component({
   selector: 'ide-footer',
   standalone: true,
-  imports: [BranchPickerComponent, CreateBranchDialogComponent],
+  imports: [BranchPickerComponent, CreateBranchDialogComponent, ThemeToggleComponent],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent {
   readonly gitStatusStore = inject(IdeStore.GitStatusStore);
   readonly authStore = inject(IdeStore.AuthStore);
-  readonly themeStore = inject(IdeStore.ThemeStore);
   readonly branchPickerOpen = signal(false);
   readonly createBranchDialogOpen = signal(false);
 

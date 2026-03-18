@@ -30,19 +30,6 @@
   font-weight: 500;
 }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--text-muted);
-  text-decoration: none;
-
-  &:hover {
-    color: var(--accent-primary);
-  }
-}
-
 // Sections
 .docs-section {
   margin-bottom: 28px;

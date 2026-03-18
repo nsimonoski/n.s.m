@@ -13,3 +13,4 @@ export * from './lib/dropdown-menu/dropdown-menu.component';
 export * from './lib/dropdown-menu/dropdown-menu-panel.component';
 export * from './lib/collapsible-section/collapsible-section.component';
 export * from './lib/collapsible-section/collapsible-section.store';
+export * from './lib/theme-toggle/theme-toggle.component';

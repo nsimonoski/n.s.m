@@ -2,10 +2,6 @@
   <div class="docs-container">
     <!-- Header -->
     <div class="docs-header">
-      <a class="back-link" href="login">
-        <i class="codicon codicon-arrow-left"></i>
-        Back to Login
-      </a>
       <h1 class="docs-title">kod3.dev</h1>
       <p class="docs-subtitle">Documentation</p>
     </div>
@@ -35,7 +31,7 @@
           </p>
           <p class="card-text">
             Explore a read-only demo of this IDE's own source code. Browse files, read code, and try
-            the editor — no account needed.
+            the editor - no account needed.
           </p>
         </div>
       </div>
@@ -65,7 +61,7 @@
             <td class="check">&#10003;</td>
           </tr>
           <tr>
-            <td>Git operations (commit, push, pull)</td>
+            <td>Git operations (commit, push, pull, stash)</td>
             <td class="cross">&#10005;</td>
             <td class="check">&#10003;</td>
           </tr>
@@ -91,7 +87,7 @@
         repositories are supported.
       </p>
       <ul class="feature-list">
-        <li><strong>Public repos</strong> are cloned directly — no token needed.</li>
+        <li><strong>Public repos</strong> are cloned directly - no token needed.</li>
         <li>
           <strong>Private repos</strong> require a GitHub OAuth token (scope: <code>repo</code>).
           The token is requested automatically when you sign in.
@@ -105,7 +101,7 @@
       <div class="callout">
         <p class="callout-title">Security</p>
         <p class="callout-text">
-          Your GitHub token is encrypted with AES-256-GCM and stored in a Redis session — never on
+          Your GitHub token is encrypted with AES-256-GCM and stored in a Redis session - never on
           disk. Sessions expire after 30 minutes of inactivity. The token is embedded in the clone
           URL only at runtime and is never committed to the repo.
         </p>
@@ -123,7 +119,7 @@
           rel="noopener noreferrer"
           >Monaco Editor</a
         >
-        — the same engine behind VS Code — with support for 20+ programming languages.
+        - the same engine behind VS Code - with support for 20+ programming languages.
       </p>
       <ul class="feature-list">
         <li>Multi-tab editing with unsaved change indicators</li>
@@ -147,7 +143,7 @@
           <strong>Rename</strong>, <strong>Delete</strong>
         </li>
         <li>File search via command palette (fuzzy search by filename)</li>
-        <li>Real-time file watching — changes on the server are reflected automatically</li>
+        <li>Real-time file watching - changes on the server are reflected automatically</li>
       </ul>
     </section>
 
@@ -244,7 +240,7 @@
             Modify
           </p>
           <p class="card-text">
-            Request code changes — the AI returns suggestions that can be applied as a diff.
+            Request code changes - the AI returns suggestions that can be applied as a diff.
           </p>
         </div>
         <div class="feature-card">
@@ -317,14 +313,14 @@
       </div>
 
       <p class="docs-text" style="margin-top: 12px">
-        The layout is fully responsive — on screens smaller than 768px, the sidebar collapses into a
+        The layout is fully responsive - on screens smaller than 768px, the sidebar collapses into a
         slide-out drawer with a backdrop overlay.
       </p>
     </section>
 
     <!-- Architecture -->
     <section class="docs-section docs-section--last">
-      <h2 class="section-title">Architecture — Nx Monorepo</h2>
+      <h2 class="section-title">Architecture - Nx Monorepo</h2>
       <p class="docs-text">
         The project is structured as an
         <a href="https://nx.dev/" target="_blank" rel="noopener noreferrer">Nx</a> monorepo. Both
@@ -600,7 +596,7 @@
 
       <p class="docs-text">
         This architecture allows both frameworks to reuse the same TypeScript interfaces, DTOs,
-        utility functions, and SCSS styles — while each framework maintains its own feature
+        utility functions, and SCSS styles - while each framework maintains its own feature
         libraries, UI components, and state management.
       </p>
     </section>

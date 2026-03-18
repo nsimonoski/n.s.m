@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="/src/styles.scss" />
   </head>
   <body>
+    <script>
+      try {
+        var t = JSON.parse(localStorage.getItem('ide-theme'));
+        if (t && t.theme) document.documentElement.setAttribute('data-theme', t.theme);
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

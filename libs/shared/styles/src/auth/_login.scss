@@ -103,6 +103,15 @@
   text-align: center;
   margin: 0;
   line-height: 1.5;
+
+  a {
+    color: var(--accent-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .version-switch {
