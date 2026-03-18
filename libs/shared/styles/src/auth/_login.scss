@@ -105,6 +105,23 @@
   line-height: 1.5;
 }
 
+.version-switch {
+  font-size: 12px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    text-decoration: none;
+
+    &:hover span {
+      text-decoration: underline;
+      color: var(--accent-primary);
+    }
+  }
+}
+
 .developer {
   display: flex;
   align-items: center;
