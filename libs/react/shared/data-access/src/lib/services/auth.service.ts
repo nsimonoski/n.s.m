@@ -11,5 +11,5 @@ export const authService = {
 
   logout: () => axios.post<void>(`${API}/logout`, {}).then((r) => r.data),
 
-  getGithubAuthUrl: () => `${Environment.API_BASE_URL}/auth/github`,
+  getGithubAuthUrl: () => `${Environment.API_BASE_URL}/auth/github?app=react`,
 };

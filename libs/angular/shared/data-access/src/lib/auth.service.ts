@@ -25,6 +25,6 @@ export class AuthService {
   }
 
   getGithubAuthUrl(): string {
-    return `${Environment.API_BASE_URL}/auth/github`;
+    return `${Environment.API_BASE_URL}/auth/github?app=angular`;
   }
 }

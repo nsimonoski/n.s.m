@@ -11,7 +11,8 @@ services:
       - PORT=3000
       - REDIS_URL=redis://redis:6379
       - CORS_ORIGINS=https://kod3.dev
-      - FRONTEND_URL=https://kod3.dev/angular
+      - ANGULAR_IDE_URL=https://kod3.dev/angular
+      - REACT_IDE_URL=https://kod3.dev/react
       - OAUTH_CALLBACK_URL=https://kod3.dev/api/auth/github/callback
       - WORKSPACE_BASE_DIR=/data/workspaces
     env_file:
