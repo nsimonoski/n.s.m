@@ -13,8 +13,8 @@ export class GithubAuthService {
     private readonly githubApi: GithubApiService,
   ) {}
 
-  getAuthorizationUrl(): string {
-    return this.githubApi.getAuthorizationUrl();
+  getAuthorizationUrl(state?: string): string {
+    return this.githubApi.getAuthorizationUrl(state);
   }
 
   async authenticateWithCode(code: string): Promise<UserSession> {

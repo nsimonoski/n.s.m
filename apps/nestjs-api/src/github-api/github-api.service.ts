@@ -16,10 +16,14 @@ export class GithubApiService {
 
   constructor(private readonly config: ConfigService) {}
 
-  getAuthorizationUrl(): string {
+  getAuthorizationUrl(state?: string): string {
     const clientId = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CLIENT_ID);
     const callbackUrl = this.config.getOrThrow<string>(EnvironmentVariables.OAUTH_CALLBACK_URL);
-    return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=repo`;
+    let url = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=repo`;
+    if (state) {
+      url += `&state=${encodeURIComponent(state)}`;
+    }
+    return url;
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {

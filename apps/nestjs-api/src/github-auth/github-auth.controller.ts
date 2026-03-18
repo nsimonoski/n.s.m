@@ -16,19 +16,20 @@ export class GithubAuthController {
   ) {}
 
   @Get('github')
-  redirectToGithub(@Res() res: Response) {
-    res.redirect(this.authService.getAuthorizationUrl());
+  redirectToGithub(@Query('app') app: string, @Res() res: Response) {
+    res.redirect(this.authService.getAuthorizationUrl(app));
   }
 
   @Get('github/callback')
-  async handleCallback(@Query('code') code: string, @Res() res: Response) {
+  async handleCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Res() res: Response,
+  ) {
     const session = await this.authService.authenticateWithCode(code);
     this.setSessionCookie(res, session.id);
 
-    const frontendUrl = this.config.get<string>(
-      EnvironmentVariables.FRONTEND_URL,
-      'http://localhost:4200',
-    );
+    const frontendUrl = this.resolveFrontendUrl(state);
     res.redirect(`${frontendUrl}/ide/clone-repo`);
   }
 
@@ -55,6 +56,19 @@ export class GithubAuthController {
     await this.authService.logout(req.session.id);
     res.clearCookie('session_id');
     res.json({ ok: true });
+  }
+
+  private resolveFrontendUrl(app?: string): string {
+    if (app === 'react') {
+      return this.config.get<string>(
+        EnvironmentVariables.REACT_IDE_URL,
+        'http://localhost:4201/react',
+      );
+    }
+    return this.config.get<string>(
+      EnvironmentVariables.ANGULAR_IDE_URL,
+      'http://localhost:4200/angular',
+    );
   }
 
   private setSessionCookie(res: Response, sessionId: string): void {

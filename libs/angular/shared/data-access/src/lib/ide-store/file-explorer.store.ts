@@ -92,7 +92,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((directory) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             if (!directory) {
               return;
             }
@@ -105,7 +105,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
           tap((fetched) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             const currentDir = state.directory();
             if (!fetched || !currentDir) {
               return;
@@ -122,7 +122,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.getFile(path)),
           tap((file) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             if (!file) {
               return;
             }
@@ -136,7 +136,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((payload: RenameRequestDto) => state.service.rename(payload)),
           tap((result) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             if (!result) {
               return;
             }
@@ -150,7 +150,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.createFile(path)),
           tap((file) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             if (!file) {
               return;
             }
@@ -179,7 +179,7 @@ export const FileExplorerStore = signalStore(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.delete(path)),
           tap((result) => {
-            tap(() => state.setLoading(false));
+            state.setLoading(false);
             refreshParentDirectory(result.path);
           }),
         ),

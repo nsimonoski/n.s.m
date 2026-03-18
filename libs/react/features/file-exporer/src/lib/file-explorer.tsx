@@ -1,13 +1,8 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
-import {
-  useFileExplorerStore,
-  useCodeEditorStore,
-  fileExplorerService,
-} from '@org/react-data-access';
+import { useFileExplorerStore, useCodeEditorStore } from '@org/react-data-access';
 import {
   FileTree,
-  FileTreeHandle,
   FileTreeCreateNode,
   ContextMenuPanel,
   ConfirmationDialog,
@@ -29,7 +24,6 @@ interface DialogState {
 export function FileExplorer() {
   const directory = useFileExplorerStore((s) => s.directory);
   const loading = useFileExplorerStore((s) => s.loading);
-  const fileTreeRef = useRef<FileTreeHandle>(null);
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [dialog, setDialog] = useState<DialogState | null>(null);
@@ -42,9 +36,7 @@ export function FileExplorer() {
   if (!directory) return null;
 
   function handleNodeOpen(node: FileResponseDto) {
-    fileExplorerService.getFile(node.path).then((file) => {
-      useCodeEditorStore.getState().openFile(file);
-    });
+    useCodeEditorStore.getState().fetchAndOpenFile(node.path);
   }
 
   function handleContextMenuAction(action: ContextMenu.Action) {
@@ -102,7 +94,6 @@ export function FileExplorer() {
   return (
     <div className="file-explorer">
       <FileTree
-        ref={fileTreeRef}
         directory={directory}
         renderCreateNode={(level, parentPath) =>
           inlineCreate?.parentPath === parentPath ? (
