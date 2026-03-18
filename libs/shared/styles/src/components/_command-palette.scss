@@ -1,12 +1,9 @@
+@use '../backdrop' as *;
+
 .backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-backdrop);
-  display: flex;
-  justify-content: center;
+  @include backdrop;
   align-items: flex-start;
   padding-top: 12px;
-  z-index: 1000;
 }
 
 .command-palette-panel {
