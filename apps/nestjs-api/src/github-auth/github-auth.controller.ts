@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
-import type { LoginInfoDto } from '@org/shared/contracts';
+import type { UserProfileDto } from '@org/shared/contracts';
 import { GUEST_PERMISSIONS } from '@org/shared/contracts';
 import { EnvironmentVariables } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
@@ -45,7 +45,7 @@ export class GithubAuthController {
   }
 
   @Get('login-info')
-  async getLoginInfo(@Req() req: Request): Promise<LoginInfoDto | null> {
+  async getLoginInfo(@Req() req: Request): Promise<UserProfileDto | null> {
     return this.authService.getLoginInfo(req.cookies?.['session_id']);
   }
 

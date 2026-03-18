@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GUEST_PERMISSIONS, AUTH_PERMISSIONS } from '@org/shared/contracts';
-import type { LoginInfoDto } from '@org/shared/contracts';
+import type { UserProfileDto } from '@org/shared/contracts';
 import { GithubApiService } from '../github-api';
 import { SessionService, UserSession } from '../auth/session.service';
 
@@ -37,7 +37,7 @@ export class GithubAuthService {
     });
   }
 
-  async getLoginInfo(sessionId: string | undefined): Promise<LoginInfoDto | null> {
+  async getLoginInfo(sessionId: string | undefined): Promise<UserProfileDto | null> {
     if (!sessionId) return null;
 
     const session = await this.sessionService.findById(sessionId);
@@ -46,19 +46,11 @@ export class GithubAuthService {
     await this.sessionService.refreshTTL(sessionId);
 
     return {
-      profile: {
-        username: session.githubUsername,
-        avatarUrl: session.avatarUrl,
-        repoUrl: session.repoUrl,
-        isGuest: session.isGuest,
-        permissions: session.isGuest ? GUEST_PERMISSIONS : AUTH_PERMISSIONS,
-      },
-      workspace: {
-        repoUrl: session.repoUrl,
-        repoName: session.repoUrl ? this.extractRepoName(session.repoUrl) : null,
-        rootPath: session.workspacePath!,
-        ready: session.repoUrl !== null,
-      },
+      username: session.githubUsername,
+      avatarUrl: session.avatarUrl,
+      repoUrl: session.repoUrl,
+      isGuest: session.isGuest,
+      permissions: session.isGuest ? GUEST_PERMISSIONS : AUTH_PERMISSIONS,
     };
   }
 
@@ -68,10 +60,5 @@ export class GithubAuthService {
       await this.githubApi.revokeGrant(session.githubToken);
     }
     await this.sessionService.destroySessionAndCleanWorkspace(sessionId);
-  }
-
-  private extractRepoName(repoUrl: string): string {
-    const parts = repoUrl.replace(/\.git$/, '').split('/');
-    return parts[parts.length - 1];
   }
 }

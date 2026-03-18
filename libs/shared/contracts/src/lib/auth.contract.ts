@@ -27,7 +27,3 @@ export interface WorkspaceStatusDto {
   ready: boolean;
 }
 
-export interface LoginInfoDto {
-  profile: UserProfileDto;
-  workspace: WorkspaceStatusDto;
-}

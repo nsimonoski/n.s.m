@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { LoginInfoDto, UserProfileDto } from '@org/shared/contracts';
+import type { UserProfileDto } from '@org/shared/contracts';
 import { Environment } from '@org/shared/utils';
 
 @Injectable({
@@ -12,8 +12,8 @@ export class AuthService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getLoginInfo(): Observable<LoginInfoDto | null> {
-    return this.http.get<LoginInfoDto | null>(`${this.API_BASE}/login-info`);
+  getLoginInfo(): Observable<UserProfileDto | null> {
+    return this.http.get<UserProfileDto | null>(`${this.API_BASE}/login-info`);
   }
 
   guestLogin(): Observable<UserProfileDto> {

@@ -3,6 +3,8 @@ import type { UserProfileDto, WorkspaceStatusDto } from '@org/shared/contracts';
 import { authService } from '../services/auth.service';
 import { workspaceService } from '../services/workspace.service';
 
+const STORAGE_KEY = 'auth';
+
 interface AuthState {
   profile: UserProfileDto | null;
   workspace: WorkspaceStatusDto | null;
@@ -18,9 +20,26 @@ interface AuthActions {
   githubAuthUrl: () => string;
 }
 
+function loadFromStorage(): Pick<AuthState, 'profile' | 'workspace'> | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveToStorage(data: Partial<Pick<AuthState, 'profile' | 'workspace'>>): void {
+  const existing = loadFromStorage();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
+}
+
+const cached = loadFromStorage();
+
 export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
-  profile: null,
-  workspace: null,
+  profile: cached?.profile ?? null,
+  workspace: cached?.workspace ?? null,
   isLoading: false,
   errorMessage: '',
 
@@ -29,15 +48,16 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
     set({ isLoading: true, errorMessage: '' });
     try {
-      const session = await authService.getLoginInfo();
-      if (session) {
-        set({ profile: session.profile, workspace: session.workspace, isLoading: false });
+      const profile = await authService.getLoginInfo();
+      if (profile) {
+        saveToStorage({ profile });
+        set({ profile, isLoading: false });
         return true;
       }
-      set({ isLoading: false });
+      set({ profile: null, isLoading: false });
       return false;
     } catch {
-      set({ profile: null, workspace: null, isLoading: false });
+      set({ profile: null, isLoading: false });
       return false;
     }
   },
@@ -45,12 +65,10 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   async guestLogin(): Promise<void> {
     set({ isLoading: true, errorMessage: '' });
     try {
-      await authService.guestLogin();
-      await workspaceService.cloneDemoRepo();
-      const session = await authService.getLoginInfo();
-      if (session) {
-        set({ profile: session.profile, workspace: session.workspace, isLoading: false });
-      }
+      const profile = await authService.guestLogin();
+      const workspace = await workspaceService.cloneDemoRepo();
+      saveToStorage({ profile, workspace });
+      set({ profile, workspace, isLoading: false });
     } catch {
       set({ isLoading: false, errorMessage: 'Failed to start guest session' });
     }
@@ -60,6 +78,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     set({ isLoading: true, errorMessage: '' });
     try {
       const workspace = await workspaceService.cloneRepo(repoUrl);
+      saveToStorage({ workspace });
       set({ workspace, isLoading: false });
     } catch {
       set({ isLoading: false, errorMessage: 'Failed to clone repository. Check the URL and try again.' });
@@ -72,7 +91,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
     } catch {
       // ignore
     }
-    localStorage.clear();
+    localStorage.removeItem(STORAGE_KEY);
     set({ profile: null, workspace: null });
   },
 

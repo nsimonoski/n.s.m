@@ -3,6 +3,7 @@ import {
   patchState,
   signalStore,
   withComputed,
+  withHooks,
   withMethods,
   withProps,
   withState,
@@ -36,6 +37,7 @@ export const AuthStore = signalStore(
 
   partialStore.withLoading(),
   partialStore.withRouting(),
+  partialStore.withBrowserStorage({ key: 'auth' }),
 
   withProps(() => ({
     authService: inject(AuthService),
@@ -51,15 +53,15 @@ export const AuthStore = signalStore(
 
       state.setLoading(true, '');
       return state.authService.getLoginInfo().pipe(
-        tap((session) => {
-          if (session) {
-            patchState(state, { profile: session.profile, workspace: session.workspace });
+        tap((profile) => {
+          if (profile) {
+            state.saveToStorage({ profile });
           }
           state.setLoading(false);
         }),
-        map((session) => !!session),
+        map((profile) => !!profile),
         catchError(() => {
-          patchState(state, { profile: null, workspace: null });
+          patchState(state, { profile: null });
           state.setLoading(false);
           return of(false);
         }),
@@ -70,16 +72,19 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => state.setLoading(true, '')),
         switchMap(() =>
-          state.authService.guestLogin().pipe(
-            switchMap(() => state.workspaceService.cloneDemoRepo()),
-            switchMap(() => state.authService.getLoginInfo()),
-          ),
+          state.authService
+            .guestLogin()
+            .pipe(
+              switchMap((profile) =>
+                state.workspaceService
+                  .cloneDemoRepo()
+                  .pipe(map((workspace) => ({ profile, workspace }))),
+              ),
+            ),
         ),
         tap({
-          next: (session) => {
-            if (session) {
-              patchState(state, { profile: session.profile, workspace: session.workspace });
-            }
+          next: ({ profile, workspace }) => {
+            state.saveToStorage({ profile, workspace });
             state.setLoading(false);
             state.navigate(AppRoutes.ide.root);
           },
@@ -94,7 +99,7 @@ export const AuthStore = signalStore(
         switchMap((repoUrl) => state.workspaceService.cloneRepo(repoUrl)),
         tap({
           next: (workspace) => {
-            patchState(state, { workspace });
+            state.saveToStorage({ workspace });
             state.setLoading(false);
             state.navigate(AppRoutes.ide.root);
           },
@@ -120,4 +125,10 @@ export const AuthStore = signalStore(
       return state.authService.getGithubAuthUrl();
     },
   })),
+
+  withHooks({
+    onInit(store) {
+      store.loadFromStorage();
+    },
+  }),
 );
