@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { IdeStore } from '@org/angular-data-access';
+import { ThemeStore } from './theme.store';
 
 @Component({
   selector: 'ui-theme-toggle',
@@ -8,5 +8,5 @@ import { IdeStore } from '@org/angular-data-access';
   styleUrls: ['./theme-toggle.component.scss'],
 })
 export class ThemeToggleComponent {
-  readonly themeStore = inject(IdeStore.ThemeStore);
+  readonly themeStore = inject(ThemeStore);
 }
