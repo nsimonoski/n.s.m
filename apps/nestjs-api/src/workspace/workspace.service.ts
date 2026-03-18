@@ -69,7 +69,7 @@ export class WorkspaceService {
     return {
       repoUrl: session.repoUrl,
       repoName: session.repoUrl ? this.extractRepoName(session.repoUrl) : null,
-      rootPath: session.workspacePath!,
+      rootPath: session.workspacePath ?? '',
       ready: session.repoUrl !== null,
     };
   }

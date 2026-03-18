@@ -117,7 +117,9 @@ export class SessionService implements OnModuleDestroy {
 
     await this.redis.del(`${SESSION_PREFIX}${id}`);
     if (session.workspacePath) {
-      await this.fileSystemService.removeDirectory(session.workspacePath).catch(() => {});
+      await this.fileSystemService.removeDirectory(session.workspacePath).catch((error) => {
+        this.logger.warn(`Failed to remove workspace directory: ${error.message}`);
+      });
     }
   }
 
