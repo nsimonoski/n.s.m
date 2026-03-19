@@ -15,6 +15,9 @@ export function MonacoEditor() {
     MonacoUtils.editorUtils.loadMonaco().then(() => {
       if (containerRef.current && !MonacoUtils.editorUtils.isReady) {
         MonacoUtils.editorUtils.create(containerRef.current, handleSave);
+        const { openFiles, activeTabId } = useCodeEditorStore.getState();
+        const file = openFiles.find((f) => f.tabId === activeTabId) ?? null;
+        MonacoUtils.editorUtils.switchToFile(file, handleContentChange);
       }
     });
   }, []);
