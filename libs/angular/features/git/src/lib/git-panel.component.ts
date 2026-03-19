@@ -14,7 +14,7 @@ import {
 } from '@org/angular/ui';
 import { GitChangesStore } from './git-changes.store';
 import { GitCommitStore } from './git-commit.store';
-import { FileExplorerGitSyncComponent } from './commit-input/file-explorer-git-sync.component';
+import { GitSyncComponent } from './git-sync/git-sync.component';
 import { CommitHistoryComponent } from './commit-history/commit-history.component';
 
 enum HeaderAction {
@@ -34,7 +34,7 @@ const CHANGES_ACTIONS: NodeAction[] = [
 ];
 
 @Component({
-  selector: 'ide-file-explorer-git',
+  selector: 'ide-git-panel',
   standalone: true,
   imports: [
     FileTreeComponent,
@@ -42,15 +42,15 @@ const CHANGES_ACTIONS: NodeAction[] = [
     ContextMenuComponent,
     ConfirmationDialogComponent,
     DropdownMenuComponent,
-    FileExplorerGitSyncComponent,
+    GitSyncComponent,
     CollapsibleSectionComponent,
     CommitHistoryComponent,
   ],
   providers: [GitChangesStore, GitCommitStore],
-  templateUrl: './file-explorer-git.component.html',
-  styleUrls: ['./file-explorer-git.component.scss'],
+  templateUrl: './git-panel.component.html',
+  styleUrls: ['./git-panel.component.scss'],
 })
-export class FileExplorerGitComponent {
+export class GitPanelComponent {
   readonly changesStore = inject(GitChangesStore);
   readonly commitStore = inject(GitCommitStore);
   readonly fileTreeComponent = viewChild(FileTreeComponent);
