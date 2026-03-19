@@ -20,8 +20,13 @@ export class GitSyncComponent {
     const tree = this.changesStore.changesTree();
     return tree?.directories.some((d) => d.path === '/staged') ?? false;
   });
-  readonly hasPendingSync = computed(() => this.gitStatusStore.ahead() > 0 && !this.hasStagedFiles());
-  readonly syncLabel = computed(() => `Push (${this.gitStatusStore.ahead()})`);
+  readonly isUntracked = computed(() => !this.gitStatusStore.tracking());
+  readonly hasPendingSync = computed(
+    () => (this.gitStatusStore.ahead() > 0 || this.isUntracked()) && !this.hasStagedFiles(),
+  );
+  readonly syncLabel = computed(() =>
+    this.isUntracked() ? 'Publish Branch' : `Push (${this.gitStatusStore.ahead()})`,
+  );
 
   onSync(): void {
     if (this.hasPendingSync()) {

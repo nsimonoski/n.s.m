@@ -20,10 +20,12 @@ export class SimpleGitProvider extends GitProvider {
       const git = this.git(repoPath);
       const result = await git.status();
 
-      const ahead = result.tracking ? result.ahead : await this.countCommitsAheadOfRemote(git);
+      const tracking = !!result.tracking;
+      const ahead = tracking ? result.ahead : await this.countCommitsAheadOfRemote(git);
 
       return {
         branch: result.current ?? '',
+        tracking,
         ahead,
         behind: result.behind,
         staged: this.mapFileChanges(
@@ -128,23 +130,27 @@ export class SimpleGitProvider extends GitProvider {
     }
   }
 
-  async fetch(repoPath: string): Promise<void> {
+  async fetch(repoPath: string, githubToken?: string): Promise<void> {
     try {
-      await this.git(repoPath).fetch();
+      await this.withAuthenticatedRemote(repoPath, 'origin', githubToken, () =>
+        this.git(repoPath).fetch(),
+      );
     } catch (error) {
       throw this.mapError(error);
     }
   }
 
-  async pull(repoPath: string, remote?: string, branch?: string): Promise<void> {
+  async pull(repoPath: string, remote?: string, branch?: string, githubToken?: string): Promise<void> {
     try {
-      await this.git(repoPath).pull(remote, branch);
+      await this.withAuthenticatedRemote(repoPath, remote ?? 'origin', githubToken, () =>
+        this.git(repoPath).pull(remote, branch),
+      );
     } catch (error) {
       throw this.mapError(error);
     }
   }
 
-  async push(repoPath: string, remote?: string, branch?: string): Promise<void> {
+  async push(repoPath: string, remote?: string, branch?: string, githubToken?: string): Promise<void> {
     try {
       const git = this.git(repoPath);
       const status = await git.status();
@@ -152,7 +158,7 @@ export class SimpleGitProvider extends GitProvider {
       const b = branch ?? status.current ?? '';
 
       const args = status.tracking ? [r, b] : ['-u', r, b];
-      await git.push(args);
+      await this.withAuthenticatedRemote(repoPath, r, githubToken, () => git.push(args));
     } catch (error) {
       throw this.mapError(error);
     }
@@ -301,6 +307,34 @@ export class SimpleGitProvider extends GitProvider {
       return await this.git(repoPath).show([`${ref}:${filePath}`]);
     } catch {
       return '';
+    }
+  }
+
+  private async withAuthenticatedRemote<T>(
+    repoPath: string,
+    remote: string,
+    githubToken: string | undefined,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    if (!githubToken) {
+      return operation();
+    }
+
+    const git = this.git(repoPath);
+    const remotes = await git.getRemotes(true);
+    const remoteConfig = remotes.find((r) => r.name === remote);
+    const originalUrl = remoteConfig?.refs?.push ?? remoteConfig?.refs?.fetch;
+
+    if (!originalUrl || !originalUrl.startsWith('https://')) {
+      return operation();
+    }
+
+    const authedUrl = originalUrl.replace('https://', `https://${githubToken}@`);
+    await this.setRemoteUrl(repoPath, remote, authedUrl);
+    try {
+      return await operation();
+    } finally {
+      await this.setRemoteUrl(repoPath, remote, originalUrl);
     }
   }
 

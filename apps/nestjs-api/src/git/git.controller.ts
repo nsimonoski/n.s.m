@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Query,
+  Req,
+  BadRequestException,
+  UseGuards,
+} from '@nestjs/common';
 import { Permission } from '@org/shared/contracts';
 import type {
   GitBranchDto,
@@ -17,6 +26,7 @@ import type {
 import { GitTreeUtils } from '@org/shared/utils';
 import { PermissionGuard } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
+import type { UserSession } from '../auth/session.service';
 import { GitProvider } from './domain/git.provider';
 
 @UseGuards(AuthGuard)
@@ -42,6 +52,7 @@ export class GitController {
     const status = await this.service.status(path);
     return {
       branch: status.branch,
+      tracking: status.tracking,
       tree: GitTreeUtils.buildGitChangesTree(status),
       statusMap: GitTreeUtils.buildGitStatusMap(status),
       ahead: status.ahead,
@@ -107,32 +118,40 @@ export class GitController {
 
   @Post('fetch')
   @UseGuards(PermissionGuard(Permission.GitWrite))
-  async fetch(@Query('path') path: string): Promise<void> {
+  async fetch(@Query('path') path: string, @Req() req: { session: UserSession }): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
 
-    return this.service.fetch(path);
+    return this.service.fetch(path, req.session.githubToken ?? undefined);
   }
 
   @Post('pull')
   @UseGuards(PermissionGuard(Permission.GitWrite))
-  async pull(@Query('path') path: string, @Body() body: GitPullRequestDto): Promise<void> {
+  async pull(
+    @Query('path') path: string,
+    @Body() body: GitPullRequestDto,
+    @Req() req: { session: UserSession },
+  ): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
 
-    return this.service.pull(path, body.remote, body.branch);
+    return this.service.pull(path, body.remote, body.branch, req.session.githubToken ?? undefined);
   }
 
   @Post('push')
   @UseGuards(PermissionGuard(Permission.GitWrite))
-  async push(@Query('path') path: string, @Body() body: GitPushRequestDto): Promise<void> {
+  async push(
+    @Query('path') path: string,
+    @Body() body: GitPushRequestDto,
+    @Req() req: { session: UserSession },
+  ): Promise<void> {
     if (!path) {
       throw new BadRequestException('Path is required');
     }
 
-    return this.service.push(path, body.remote, body.branch);
+    return this.service.push(path, body.remote, body.branch, req.session.githubToken ?? undefined);
   }
 
   @Post('commit')
