@@ -50,7 +50,7 @@ export function Login() {
         <p className="note">The React version is a work in progress. For the full experience,</p>
 
         <div className="version-switch">
-          <a href="https://kod3.dev/angular" target="_blank" rel="noopener noreferrer">
+          <a href="/angular/login" target="_blank" rel="noopener noreferrer">
             <i className="codicon codicon-arrow-swap"></i>
             <span>Try the Angular version</span>
           </a>

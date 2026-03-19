@@ -1,7 +1,9 @@
 export * as FileUtils from './lib/file-utils/index';
-export * as GitTreeUtils from './lib/git-tree-utils/index';
+export * as GitTreeUtils from './lib/git-tree-utils/git-tree.utils';
 export * as MonacoUtils from './lib/monaco-utils/index';
-export * as Environment from './lib/environment/index';
-export * as TabManager from './lib/tab-manager/index';
-export * as ResizeUtils from './lib/resize-utils/index';
-export { AppRoutes } from './lib/routes/index';
+export * as Environment from './lib/environment/environment';
+export * as TabManager from './lib/tab-manager/tab-manager';
+export * as ResizeUtils from './lib/resize-utils/resize-utils';
+export { AppRoutes } from './lib/routes/routes';
+export * as ActivityBarConfig from './lib/activity-bar/activity-bar';
+export { browserStorage } from './lib/browser-storage/browser-storage';

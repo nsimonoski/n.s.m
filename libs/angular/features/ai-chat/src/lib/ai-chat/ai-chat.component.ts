@@ -1,6 +1,7 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IdeStore } from '@org/angular-data-access';
+import { Ai } from '@org/shared/contracts';
 import { AiMessageComponent } from '../ai-message/ai-message.component';
 
 @Component({
@@ -21,7 +22,7 @@ export class AiChatComponent {
     if (!message || this.store.isStreaming()) return;
 
     this.inputValue = '';
-    this.store.sendMessage(message, 'chat');
+    this.store.sendMessage(message, Ai.CommandType.CHAT);
     this.scrollToBottomAfterDelay();
   }
 
@@ -35,7 +36,7 @@ export class AiChatComponent {
     if (!message || this.store.isStreaming()) return;
 
     this.inputValue = '';
-    this.store.sendMessage(message, 'modify');
+    this.store.sendMessage(message, Ai.CommandType.MODIFY);
     this.scrollToBottomAfterDelay();
   }
 

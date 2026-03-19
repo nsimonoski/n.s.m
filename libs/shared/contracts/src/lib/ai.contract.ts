@@ -1,5 +1,13 @@
-export type Role = 'user' | 'assistant';
-export type CommandType = 'chat' | 'explain' | 'modify';
+export enum CommandType {
+  CHAT = 'chat',
+  EXPLAIN = 'explain',
+  MODIFY = 'modify',
+}
+
+export enum Role {
+  USER = 'user',
+  ASSISTANT = 'assistant',
+}
 
 export interface FileContext {
   filePath: string;
