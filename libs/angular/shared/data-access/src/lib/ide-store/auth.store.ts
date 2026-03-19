@@ -114,7 +114,7 @@ export const AuthStore = signalStore(
         tap(() => state.socketService.disconnect()),
         switchMap(() => state.authService.logout().pipe(catchError(() => of(void 0)))),
         tap(() => {
-          partialStore.clearBrowserStorage();
+          state.clearAllStorage(['ide-theme']);
           state.navigate(AppRoutes.login);
           window.location.reload();
         }),

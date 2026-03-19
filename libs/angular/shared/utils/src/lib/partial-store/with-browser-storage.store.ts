@@ -1,38 +1,24 @@
 import { patchState, signalStoreFeature, withMethods } from '@ngrx/signals';
+import { browserStorage } from '@org/shared/utils';
 
 interface BrowserStorageConfig {
   key: string;
   type?: 'local' | 'session';
 }
 
-const PRESERVED_KEYS = ['ide-theme'];
-
-export function clearBrowserStorage(): void {
-  const preserved = PRESERVED_KEYS.map((key) => [key, localStorage.getItem(key)] as const);
-  localStorage.clear();
-  sessionStorage.clear();
-  preserved.forEach(([key, value]) => value && localStorage.setItem(key, value));
-}
-
 export const withBrowserStorage = (config: BrowserStorageConfig) => {
-  const storage = config.type === 'session' ? sessionStorage : localStorage;
-
-  const persistToStorage = (data: Record<string, unknown>) => {
-    const existing = storage.getItem(config.key);
-    const merged = existing ? { ...JSON.parse(existing), ...data } : data;
-    storage.setItem(config.key, JSON.stringify(merged));
-  };
+  const storage = browserStorage<Record<string, unknown>>(config.key, { type: config.type });
 
   return signalStoreFeature(
     withMethods((store) => ({
       loadFromStorage(): boolean {
-        const saved = storage.getItem(config.key);
+        const saved = storage.load();
         if (!saved) {
           return false;
         }
 
         try {
-          patchState(store, JSON.parse(saved));
+          patchState(store, saved);
           return true;
         } catch {
           return false;
@@ -40,7 +26,10 @@ export const withBrowserStorage = (config: BrowserStorageConfig) => {
       },
       saveToStorage(data: Record<string, unknown>): void {
         patchState(store, data);
-        persistToStorage(data);
+        storage.save(data);
+      },
+      clearAllStorage(preserveKeys: string[] = []): void {
+        storage.clearAll(preserveKeys);
       },
     })),
   );
