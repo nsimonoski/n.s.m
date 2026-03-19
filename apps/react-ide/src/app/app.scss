@@ -1,5 +1,6 @@
 @use 'ide/explorer-shell';
 @use 'ide/activity-bar';
+@use 'ide/wip-panel';
 
 .ide-shell {
   display: flex;

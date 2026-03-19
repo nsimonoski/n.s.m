@@ -24,7 +24,9 @@
       "@org/react-ui": ["libs/react/shared/ui/src/index.ts"],
       "@org/angular-auth": ["libs/angular/features/auth/src/index.ts"],
       "@org/angular-ai-chat": ["libs/angular/features/ai-chat/src/index.ts"],
-      "@org/react-auth": ["libs/react/features/auth/src/index.ts"]
+      "@org/react-auth": ["libs/react/features/auth/src/index.ts"],
+      "@org/react-git": ["libs/react/features/git/src/index.ts"],
+      "@org/react-ai-chat": ["libs/react/features/ai-chat/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
