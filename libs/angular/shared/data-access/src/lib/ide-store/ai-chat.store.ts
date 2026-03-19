@@ -46,29 +46,29 @@ export const AiChatStore = signalStore(
         .filter((m) => !m.isStreaming)
         .map((m) => ({ role: m.role, content: m.content })),
     ),
-    questionCount: computed(() => state.messages().filter((m) => m.role === 'user').length),
+    questionCount: computed(() => state.messages().filter((m) => m.role === Ai.Role.USER).length),
     isLimitReached: computed(
-      () => state.messages().filter((m) => m.role === 'user').length >= QUESTION_LIMIT,
+      () => state.messages().filter((m) => m.role === Ai.Role.USER).length >= QUESTION_LIMIT,
     ),
     hasActiveFile: computed(() => !!state.editorStore.activeFile()),
   })),
   withMethods((store) => ({
-    sendMessage(userMessage: string, command: Ai.CommandType = 'chat'): void {
+    sendMessage(userMessage: string, command: Ai.CommandType = Ai.CommandType.CHAT): void {
       if (store.isStreaming() || store.isLimitReached()) return;
 
       const fileContext = buildFileContext(store.editorStore);
 
       const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
-        role: 'user',
-        content: command === 'explain' ? 'Explain this file' : userMessage,
+        role: Ai.Role.USER,
+        content: command === Ai.CommandType.EXPLAIN ? 'Explain this file' : userMessage,
         isStreaming: false,
       };
 
       const assistantMsgId = crypto.randomUUID();
       const assistantMsg: ChatMessage = {
         id: assistantMsgId,
-        role: 'assistant',
+        role: Ai.Role.ASSISTANT,
         content: '',
         isStreaming: true,
       };
@@ -126,7 +126,7 @@ export const AiChatStore = signalStore(
   })),
   withMethods((store) => ({
     explainCurrentFile(): void {
-      store.sendMessage('', 'explain');
+      store.sendMessage('', Ai.CommandType.EXPLAIN);
     },
 
     clearMessages(): void {

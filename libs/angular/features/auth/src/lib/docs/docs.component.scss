@@ -36,6 +36,10 @@
   padding-bottom: 28px;
   border-bottom: 1px solid var(--bg-tertiary);
 
+  &--no-border {
+    border-bottom: none;
+  }
+
   &--last {
     border-bottom: none;
     margin-bottom: 0;

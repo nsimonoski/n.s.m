@@ -46,7 +46,7 @@ export class AiService {
     }
 
     const modifiedContent =
-      request.command === 'modify' ? this.extractCodeBlock(fullResponse) : undefined;
+      request.command === Ai.CommandType.MODIFY ? this.extractCodeBlock(fullResponse) : undefined;
 
     subscriber.next({ delta: '', done: true, modifiedContent });
     subscriber.complete();
@@ -69,7 +69,7 @@ export class AiService {
       );
     }
 
-    if (request.command === 'modify') {
+    if (request.command === Ai.CommandType.MODIFY) {
       systemParts.push(
         'Apply the requested change to the code and return the COMPLETE modified file wrapped in a single code block. Do not explain, only return the full modified file.',
       );
@@ -84,7 +84,7 @@ export class AiService {
     }
 
     const userMessage =
-      request.command === 'explain'
+      request.command === Ai.CommandType.EXPLAIN
         ? 'Explain what this code does. Be concise — focus on the purpose and key logic, skip obvious details like imports.'
         : request.message;
 
