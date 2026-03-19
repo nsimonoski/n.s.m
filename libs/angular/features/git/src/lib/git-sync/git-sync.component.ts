@@ -5,13 +5,13 @@ import { GitChangesStore } from '../git-changes.store';
 import { GitCommitStore } from '../git-commit.store';
 
 @Component({
-  selector: 'ide-file-explorer-git-sync',
+  selector: 'ide-git-sync',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './file-explorer-git-sync.component.html',
-  styleUrls: ['./file-explorer-git-sync.component.scss'],
+  templateUrl: './git-sync.component.html',
+  styleUrls: ['./git-sync.component.scss'],
 })
-export class FileExplorerGitSyncComponent {
+export class GitSyncComponent {
   readonly gitStatusStore = inject(GitStatusStore);
   readonly changesStore = inject(GitChangesStore);
   readonly commitStore = inject(GitCommitStore);

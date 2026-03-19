@@ -7,8 +7,7 @@ export const ideLayoutRoutes: Route[] = [
   },
   {
     path: 'git',
-    loadComponent: () =>
-      import('@org/angular-file-explorer-git').then((m) => m.FileExplorerGitComponent),
+    loadComponent: () => import('@org/angular-git').then((m) => m.GitPanelComponent),
   },
   {
     path: 'ai',
