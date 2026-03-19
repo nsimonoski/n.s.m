@@ -58,6 +58,7 @@ export class GitGateway implements OnModuleDestroy {
           const status = await this.gitProvider.status(repoPath);
           const payload = {
             branch: status.branch,
+            tracking: status.tracking,
             tree: GitTreeUtils.buildGitChangesTree(status),
             statusMap: GitTreeUtils.buildGitStatusMap(status),
             ahead: status.ahead,

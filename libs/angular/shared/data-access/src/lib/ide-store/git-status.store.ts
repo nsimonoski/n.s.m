@@ -19,6 +19,7 @@ import { AuthStore } from './auth.store';
 export interface GitStatusState {
   rootPath: string;
   branch: string;
+  tracking: boolean;
   branches: GitBranchDto[];
   stagedCount: number;
   changesCount: number;
@@ -31,6 +32,7 @@ export const GitStatusStore = signalStore(
   withState<GitStatusState>({
     rootPath: '',
     branch: '',
+    tracking: true,
     branches: [],
     stagedCount: 0,
     changesCount: 0,
@@ -59,16 +61,16 @@ export const GitStatusStore = signalStore(
     loadGitStatus: rxMethod<void>(
       pipe(
         switchMap(() => store.gitService.getStatusTree(store.rootPath())),
-        tap(({ branch, stagedCount, changesCount, ahead, behind }) => {
-          patchState(store, { branch, stagedCount, changesCount, ahead, behind });
+        tap(({ branch, tracking, stagedCount, changesCount, ahead, behind }) => {
+          patchState(store, { branch, tracking, stagedCount, changesCount, ahead, behind });
         }),
       ),
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => store.wsService.gitChanges$),
-        tap(({ branch, stagedCount, changesCount, ahead, behind }) => {
-          patchState(store, { branch, stagedCount, changesCount, ahead, behind });
+        tap(({ branch, tracking, stagedCount, changesCount, ahead, behind }) => {
+          patchState(store, { branch, tracking, stagedCount, changesCount, ahead, behind });
         }),
       ),
     ),

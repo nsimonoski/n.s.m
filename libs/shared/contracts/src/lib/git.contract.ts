@@ -2,6 +2,7 @@ import type { DirectoryResponseDto } from './directory.contract';
 
 export interface GitStatusDto {
   branch: string;
+  tracking: boolean;
   ahead: number;
   behind: number;
   staged: GitFileChange[];
@@ -75,6 +76,7 @@ export interface GitPullRequestDto {
 
 export interface GitStatusTreeResponseDto {
   branch: string;
+  tracking: boolean;
   tree: DirectoryResponseDto;
   statusMap: Record<string, string>;
   ahead: number;
