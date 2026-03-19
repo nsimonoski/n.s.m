@@ -5,3 +5,4 @@ export * as Environment from './lib/environment/index';
 export * as TabManager from './lib/tab-manager/index';
 export * as ResizeUtils from './lib/resize-utils/index';
 export { AppRoutes } from './lib/routes/index';
+export * as ActivityBarConfig from './lib/activity-bar/index';

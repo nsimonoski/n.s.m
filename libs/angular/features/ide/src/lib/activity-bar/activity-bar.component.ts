@@ -1,11 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
+import { ActivityBarConfig } from '@org/shared/utils';
 import { IdeStore } from '@org/angular-data-access';
-
-interface PanelDefinition {
-  id: string;
-  icon: string;
-  tooltip: string;
-}
 
 @Component({
   selector: 'ide-activity-bar',
@@ -19,11 +14,7 @@ export class ActivityBarComponent {
 
   readonly changeCount = computed(() => this.gitStatusStore.stagedCount() + this.gitStatusStore.changesCount());
 
-  readonly panels: PanelDefinition[] = [
-    { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },
-    { id: 'git', icon: 'icons/source-control.svg', tooltip: 'Source Control' },
-    { id: 'ai', icon: 'icons/ai.svg', tooltip: 'AI Assistant' },
-  ];
+  readonly panels = ActivityBarConfig.panels;
 
   onPanelClick(panelId: string): void {
     this.layoutStore.setActivePanel(panelId);
