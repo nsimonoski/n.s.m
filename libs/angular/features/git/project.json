@@ -1,7 +1,7 @@
 {
-  "name": "angular-file-explorer-git",
+  "name": "angular-git",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/angular/features/file-explorer-git/src",
+  "sourceRoot": "libs/angular/features/git/src",
   "prefix": "ide",
   "projectType": "library",
   "tags": ["scope:angular", "type:feature"],
@@ -10,7 +10,7 @@
       "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../../../../coverage/libs/angular/features/file-explorer-git"
+        "reportsDirectory": "../../../../coverage/libs/angular/features/git"
       }
     },
     "lint": {

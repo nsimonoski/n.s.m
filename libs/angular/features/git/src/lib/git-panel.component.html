@@ -6,7 +6,7 @@
       (actionClicked)="onHeaderAction($event)"
     />
     <ng-template>
-      <ide-file-explorer-git-sync />
+      <ide-git-sync />
 
       @if (changesStore.isLoading()) {
         <div class="loading">Loading...</div>
