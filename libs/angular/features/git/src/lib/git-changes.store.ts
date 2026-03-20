@@ -44,19 +44,27 @@ export const GitChangesStore = signalStore(
       pipe(
         tap(() => state.setLoading()),
         switchMap((path: string) => state.service.getStatusTree(path)),
-        tap(
-          ({ tree: changesTree, statusMap, branch, stagedCount, changesCount, ahead, behind }) => {
-            state.setLoading(false);
-            patchState(state, { changesTree, statusMap });
-            state.gitStatusStore.updateGitStatus({
-              branch,
-              stagedCount,
-              changesCount,
-              ahead,
-              behind,
-            });
-          },
-        ),
+        tap(({ success, data }) => {
+          state.setLoading(false);
+          if (!success) return;
+          const {
+            tree: changesTree,
+            statusMap,
+            branch,
+            stagedCount,
+            changesCount,
+            ahead,
+            behind,
+          } = data;
+          patchState(state, { changesTree, statusMap });
+          state.gitStatusStore.updateGitStatus({
+            branch,
+            stagedCount,
+            changesCount,
+            ahead,
+            behind,
+          });
+        }),
       ),
     ),
     stage: rxMethod<string[]>(
@@ -81,19 +89,28 @@ export const GitChangesStore = signalStore(
     stash: rxMethod<void>(
       pipe(
         switchMap(() => state.service.stash(state.gitStatusStore.rootPath())),
-        tap(() => state.snackbar.success('Stashed!')),
+        tap(({ success, error }) => {
+          if (!success) return state.snackbar.error(error);
+          state.snackbar.success('Stashed!');
+        }),
       ),
     ),
     stashPop: rxMethod<void>(
       pipe(
         switchMap(() => state.service.stashPop(state.gitStatusStore.rootPath())),
-        tap(() => state.snackbar.success('Stash popped!')),
+        tap(({ success, error }) => {
+          if (!success) return state.snackbar.error(error);
+          state.snackbar.success('Stash popped!');
+        }),
       ),
     ),
     stashApply: rxMethod<void>(
       pipe(
         switchMap(() => state.service.stashApply(state.gitStatusStore.rootPath())),
-        tap(() => state.snackbar.success('Stash applied!')),
+        tap(({ success, error }) => {
+          if (!success) return state.snackbar.error(error);
+          state.snackbar.success('Stash applied!');
+        }),
       ),
     ),
     openDiff: rxMethod<string>(
@@ -107,7 +124,8 @@ export const GitChangesStore = signalStore(
           }),
         ),
         tap(({ headContent, currentFile }) => {
-          state.editorStore.openDiff(currentFile, headContent.content);
+          if (!headContent.success || !currentFile.success) return;
+          state.editorStore.openDiff(currentFile.data, headContent.data.content);
         }),
       ),
     ),

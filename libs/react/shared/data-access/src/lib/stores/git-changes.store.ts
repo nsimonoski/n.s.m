@@ -37,19 +37,18 @@ export const useGitChangesStore = create<GitChangesState & GitChangesActions>((s
     if (!rootPath) return;
 
     set({ isLoading: true });
-    const response = await gitService.getStatusTree(rootPath);
-    set({
-      changesTree: response.tree,
-      statusMap: response.statusMap,
-      isLoading: false,
-    });
+    const { success, data } = await gitService.getStatusTree(rootPath);
+    set({ isLoading: false });
+    if (!success) return;
+
+    set({ changesTree: data.tree, statusMap: data.statusMap });
     useGitStatusStore.getState().updateGitStatus({
-      branch: response.branch,
-      tracking: response.tracking,
-      stagedCount: response.stagedCount,
-      changesCount: response.changesCount,
-      ahead: response.ahead,
-      behind: response.behind,
+      branch: data.branch,
+      tracking: data.tracking,
+      stagedCount: data.stagedCount,
+      changesCount: data.changesCount,
+      ahead: data.ahead,
+      behind: data.behind,
     });
   },
 
@@ -83,7 +82,8 @@ export const useGitChangesStore = create<GitChangesState & GitChangesActions>((s
       gitService.showDiff(rootPath, filePath),
       fileExplorerService.getFile(`${rootPath}/${filePath}`),
     ]);
-    useCodeEditorStore.getState().openDiff(currentFile, headContent.content);
+    if (!headContent.success || !currentFile.success) return;
+    useCodeEditorStore.getState().openDiff(currentFile.data, headContent.data.content);
   },
 
   applyStatusUpdate(tree, statusMap) {

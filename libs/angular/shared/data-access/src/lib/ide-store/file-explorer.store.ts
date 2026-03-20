@@ -12,7 +12,7 @@ import {
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 import { AppRoutes, FileUtils } from '@org/shared/utils';
 import { partialStore } from '@org/angular-utils';
-import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
+import { EMPTY, firstValueFrom, pipe, switchMap, tap } from 'rxjs';
 import { FileExplorerService } from '../file-explorer.service';
 import { FileExplorerWsService } from '../file-explorer-ws.service';
 import { AuthStore } from './auth.store';
@@ -41,23 +41,27 @@ export const FileExplorerStore = signalStore(
     wsService: inject(FileExplorerWsService),
   })),
   withMethods((state) => {
-    const refreshParentDirectory = (childPath: string) => {
-      const parentPath = childPath.substring(0, childPath.lastIndexOf('/'));
-      const targetPath = parentPath || state.directory()?.path;
-      if (!targetPath || !state.directory()) {
-        return;
-      }
+    const refreshParentDirectory = rxMethod<string>(
+      pipe(
+        switchMap((childPath: string) => {
+          const parentPath = childPath.substring(0, childPath.lastIndexOf('/'));
+          const targetPath = parentPath || state.directory()?.path;
+          if (!targetPath || !state.directory()) {
+            return EMPTY;
+          }
 
-      state.service.readDirectory(targetPath).subscribe((fetched) => {
-        const currentDir = state.directory();
-        if (!fetched || !currentDir) {
-          return;
-        }
-        patchState(state, {
-          directory: FileUtils.refreshDirectoryInTree(currentDir, targetPath, fetched),
-        });
-      });
-    };
+          return state.service.readDirectory(targetPath).pipe(
+            tap(({ success, data }) => {
+              const currentDir = state.directory();
+              if (!success || !currentDir) return;
+              patchState(state, {
+                directory: FileUtils.refreshDirectoryInTree(currentDir, targetPath, data),
+              });
+            }),
+          );
+        }),
+      ),
+    );
 
     return {
       refreshParentDirectory,
@@ -75,11 +79,11 @@ export const FileExplorerStore = signalStore(
         for (const dirPath of ancestors) {
           const currentDir = state.directory();
           if (!currentDir || !FileUtils.isDirectoryLoaded(currentDir, dirPath)) {
-            const fetched = await firstValueFrom(state.service.readDirectory(dirPath));
+            const { success, data } = await firstValueFrom(state.service.readDirectory(dirPath));
             const dirAfterFetch = state.directory();
-            if (dirAfterFetch) {
+            if (success && dirAfterFetch) {
               patchState(state, {
-                directory: FileUtils.mergeDirectoryIntoTree(dirAfterFetch, fetched.path, fetched),
+                directory: FileUtils.mergeDirectoryIntoTree(dirAfterFetch, data.path, data),
               });
             }
           }
@@ -91,12 +95,10 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
-          tap((directory) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
-            if (!directory) {
-              return;
-            }
-            patchState(state, { directory });
+            if (!success) return;
+            patchState(state, { directory: data });
           }),
         ),
       ),
@@ -104,15 +106,12 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.readDirectory(path)),
-          tap((fetched) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
             const currentDir = state.directory();
-            if (!fetched || !currentDir) {
-              return;
-            }
-
+            if (!success || !currentDir) return;
             patchState(state, {
-              directory: FileUtils.mergeDirectoryIntoTree(currentDir, fetched.path, fetched),
+              directory: FileUtils.mergeDirectoryIntoTree(currentDir, data.path, data),
             });
           }),
         ),
@@ -121,13 +120,10 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.getFile(path)),
-          tap((file) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
-            if (!file) {
-              return;
-            }
-
-            patchState(state, { file });
+            if (!success) return;
+            patchState(state, { file: data });
           }),
         ),
       ),
@@ -135,13 +131,10 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((payload: RenameRequestDto) => state.service.rename(payload)),
-          tap((result) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
-            if (!result) {
-              return;
-            }
-
-            refreshParentDirectory(result.path);
+            if (!success) return;
+            refreshParentDirectory(data.path);
           }),
         ),
       ),
@@ -149,14 +142,11 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.createFile(path)),
-          tap((file) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
-            if (!file) {
-              return;
-            }
-
-            patchState(state, { file });
-            refreshParentDirectory(file.path);
+            if (!success) return;
+            patchState(state, { file: data });
+            refreshParentDirectory(data.path);
           }),
         ),
       ),
@@ -164,13 +154,10 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.createDirectory(path)),
-          tap((directory) => {
-            if (!directory) {
-              patchState(state, { loading: false });
-              return;
-            }
-
-            refreshParentDirectory(directory.path);
+          tap(({ success, data }) => {
+            state.setLoading(false);
+            if (!success) return;
+            refreshParentDirectory(data.path);
           }),
         ),
       ),
@@ -178,9 +165,10 @@ export const FileExplorerStore = signalStore(
         pipe(
           tap(() => state.setLoading()),
           switchMap((path: string) => state.service.delete(path)),
-          tap((result) => {
+          tap(({ success, data }) => {
             state.setLoading(false);
-            refreshParentDirectory(result.path);
+            if (!success) return;
+            refreshParentDirectory(data.path);
           }),
         ),
       ),

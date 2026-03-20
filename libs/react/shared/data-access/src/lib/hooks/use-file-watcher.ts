@@ -27,15 +27,17 @@ async function refreshOpenFile(event: FileChangeEvent): Promise<void> {
   const isOpen = openFiles.some((f) => f.path === event.path);
   if (!isOpen) return;
 
-  const file = await fileExplorerService.getFile(event.path);
-  const content = file.content ?? '';
+  const { success, data } = await fileExplorerService.getFile(event.path);
+  if (!success) return;
+
+  const content = data.content ?? '';
 
   useCodeEditorStore.setState({
     openFiles: useCodeEditorStore
       .getState()
       .openFiles.map((f) =>
-        f.path === file.path
-          ? { ...f, content, currentContent: content, isDirty: false, updatedAt: file.updatedAt }
+        f.path === data.path
+          ? { ...f, content, currentContent: content, isDirty: false, updatedAt: data.updatedAt }
           : f,
       ),
   });

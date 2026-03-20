@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
 import { Environment } from '@org/shared/utils';
+import { apiResult, ApiResult } from '@org/angular-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -12,49 +13,67 @@ export class FileExplorerService {
 
   constructor(private readonly http: HttpClient) {}
 
-  readDirectory(path: string): Observable<DirectoryResponseDto> {
-    return this.http.post<DirectoryResponseDto>(`${this.API_BASE}/read`, { path });
+  readDirectory(path: string): Observable<ApiResult<DirectoryResponseDto>> {
+    return this.http
+      .post<DirectoryResponseDto>(`${this.API_BASE}/read`, { path })
+      .pipe(apiResult());
   }
 
-  getFile(path: string): Observable<FileResponseDto> {
-    return this.http.get<FileResponseDto>(`${this.API_BASE}/file`, {
-      params: { path: encodeURIComponent(path) },
-    });
+  getFile(path: string): Observable<ApiResult<FileResponseDto>> {
+    return this.http
+      .get<FileResponseDto>(`${this.API_BASE}/file`, {
+        params: { path: encodeURIComponent(path) },
+      })
+      .pipe(apiResult());
   }
 
-  getFiles(paths: string[]): Observable<FileResponseDto[]> {
-    return this.http.post<FileResponseDto[]>(`${this.API_BASE}/files`, {
-      paths: paths.map(encodeURIComponent),
-    });
+  getFiles(paths: string[]): Observable<ApiResult<FileResponseDto[]>> {
+    return this.http
+      .post<FileResponseDto[]>(`${this.API_BASE}/files`, {
+        paths: paths.map(encodeURIComponent),
+      })
+      .pipe(apiResult());
   }
 
-  updateFile(file: FileResponseDto): Observable<FileResponseDto> {
-    return this.http.put<FileResponseDto>(`${this.API_BASE}/file`, file);
+  updateFile(file: FileResponseDto): Observable<ApiResult<FileResponseDto>> {
+    return this.http.put<FileResponseDto>(`${this.API_BASE}/file`, file).pipe(apiResult());
   }
 
-  rename(renameDto: RenameRequestDto): Observable<{ path: string }> {
-    return this.http.put<{ path: string }>(`${this.API_BASE}/rename`, renameDto);
+  rename(renameDto: RenameRequestDto): Observable<ApiResult<{ path: string }>> {
+    return this.http.put<{ path: string }>(`${this.API_BASE}/rename`, renameDto).pipe(apiResult());
   }
 
-  createFile(path: string, content?: string): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${this.API_BASE}/file`, { path, content });
+  createFile(path: string, content?: string): Observable<ApiResult<FileResponseDto>> {
+    return this.http
+      .post<FileResponseDto>(`${this.API_BASE}/file`, { path, content })
+      .pipe(apiResult());
   }
 
-  createDirectory(path: string): Observable<DirectoryResponseDto> {
-    return this.http.post<DirectoryResponseDto>(`${this.API_BASE}/directory`, { path });
+  createDirectory(path: string): Observable<ApiResult<DirectoryResponseDto>> {
+    return this.http
+      .post<DirectoryResponseDto>(`${this.API_BASE}/directory`, { path })
+      .pipe(apiResult());
   }
 
-  searchFiles(query: string, rootPath: string, limit = 20): Observable<FileResponseDto[]> {
-    return this.http.get<FileResponseDto[]>(`${this.API_BASE}/search`, {
-      params: {
-        query: encodeURIComponent(query),
-        path: encodeURIComponent(rootPath),
-        limit: limit.toString(),
-      },
-    });
+  searchFiles(
+    query: string,
+    rootPath: string,
+    limit = 20,
+  ): Observable<ApiResult<FileResponseDto[]>> {
+    return this.http
+      .get<FileResponseDto[]>(`${this.API_BASE}/search`, {
+        params: {
+          query: encodeURIComponent(query),
+          path: encodeURIComponent(rootPath),
+          limit: limit.toString(),
+        },
+      })
+      .pipe(apiResult());
   }
 
-  delete(path: string): Observable<{ path: string }> {
-    return this.http.request<{ path: string }>('DELETE', `${this.API_BASE}`, { body: { path } });
+  delete(path: string): Observable<ApiResult<{ path: string }>> {
+    return this.http
+      .request<{ path: string }>('DELETE', `${this.API_BASE}`, { body: { path } })
+      .pipe(apiResult());
   }
 }

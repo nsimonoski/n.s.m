@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import type { GitStatusTreeResponseDto } from '@org/shared/contracts';
 import { gitService } from '../services/git.service';
 import { useAuthStore } from './auth.store';
 
@@ -40,14 +39,16 @@ export const useGitStatusStore = create<GitStatusState & GitStatusActions>((set,
     const rootPath = get().rootPath;
     if (!rootPath) return;
 
-    const status: GitStatusTreeResponseDto = await gitService.getStatusTree(rootPath);
+    const { success, data } = await gitService.getStatusTree(rootPath);
+    if (!success) return;
+
     set({
-      branch: status.branch,
-      tracking: status.tracking,
-      stagedCount: status.stagedCount,
-      changesCount: status.changesCount,
-      ahead: status.ahead,
-      behind: status.behind,
+      branch: data.branch,
+      tracking: data.tracking,
+      stagedCount: data.stagedCount,
+      changesCount: data.changesCount,
+      ahead: data.ahead,
+      behind: data.behind,
     });
   },
 
