@@ -22,7 +22,7 @@ export class AiChatComponent {
     if (!message || this.store.isStreaming()) return;
 
     this.inputValue = '';
-    this.store.sendMessage(message, Ai.CommandType.CHAT);
+    this.store.sendMessage({ userMessage: message, command: Ai.CommandType.CHAT });
     this.scrollToBottomAfterDelay();
   }
 
@@ -36,7 +36,7 @@ export class AiChatComponent {
     if (!message || this.store.isStreaming()) return;
 
     this.inputValue = '';
-    this.store.sendMessage(message, Ai.CommandType.MODIFY);
+    this.store.sendMessage({ userMessage: message, command: Ai.CommandType.MODIFY });
     this.scrollToBottomAfterDelay();
   }
 

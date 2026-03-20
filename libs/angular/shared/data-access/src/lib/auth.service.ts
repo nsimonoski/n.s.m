@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { UserProfileDto } from '@org/shared/contracts';
 import { Environment } from '@org/shared/utils';
+import { apiResult, ApiResult } from '@org/angular-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -12,16 +13,18 @@ export class AuthService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getLoginInfo(): Observable<UserProfileDto | null> {
-    return this.http.get<UserProfileDto | null>(`${this.API_BASE}/login-info`);
+  getLoginInfo(): Observable<ApiResult<UserProfileDto | null>> {
+    return this.http
+      .get<UserProfileDto | null>(`${this.API_BASE}/login-info`)
+      .pipe(apiResult());
   }
 
-  guestLogin(): Observable<UserProfileDto> {
-    return this.http.get<UserProfileDto>(`${this.API_BASE}/guest`);
+  guestLogin(): Observable<ApiResult<UserProfileDto>> {
+    return this.http.get<UserProfileDto>(`${this.API_BASE}/guest`).pipe(apiResult());
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.API_BASE}/logout`, {});
+  logout(): Observable<ApiResult<void>> {
+    return this.http.post<void>(`${this.API_BASE}/logout`, {}).pipe(apiResult());
   }
 
   getGithubAuthUrl(): string {

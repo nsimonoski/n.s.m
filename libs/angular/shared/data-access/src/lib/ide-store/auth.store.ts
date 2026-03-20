@@ -1,6 +1,5 @@
 import { computed, inject } from '@angular/core';
 import {
-  patchState,
   signalStore,
   withComputed,
   withHooks,
@@ -12,7 +11,7 @@ import { type UserProfileDto, type WorkspaceStatusDto, Permission } from '@org/s
 import { AppRoutes } from '@org/shared/utils';
 import { partialStore, sockets } from '@org/angular-utils';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
+import { map, of, pipe, switchMap, tap } from 'rxjs';
 import { AuthService } from '../auth.service';
 import { WorkspaceService } from '../workspace.service';
 
@@ -53,42 +52,36 @@ export const AuthStore = signalStore(
 
       state.setLoading(true, '');
       return state.authService.getLoginInfo().pipe(
-        tap((profile) => {
-          if (profile) {
-            state.saveToStorage({ profile });
+        tap(({ success, data }) => {
+          if (success && data) {
+            state.saveToStorage({ profile: data });
           }
           state.setLoading(false);
         }),
-        map((profile) => !!profile),
-        catchError(() => {
-          patchState(state, { profile: null });
-          state.setLoading(false);
-          return of(false);
-        }),
+        map(({ success, data }) => success && !!data),
       );
     },
 
     guestLogin: rxMethod<void>(
       pipe(
         tap(() => state.setLoading(true, '')),
-        switchMap(() =>
-          state.authService
-            .guestLogin()
-            .pipe(
-              switchMap((profile) =>
-                state.workspaceService
-                  .cloneDemoRepo()
-                  .pipe(map((workspace) => ({ profile, workspace }))),
-              ),
-            ),
-        ),
-        tap({
-          next: ({ profile, workspace }) => {
-            state.saveToStorage({ profile, workspace });
-            state.setLoading(false);
-            state.navigate(AppRoutes.ide.root);
-          },
-          error: () => state.setLoading(false, 'Failed to start guest session'),
+        switchMap(() => state.authService.guestLogin()),
+        switchMap(({ success, data: profile }) => {
+          if (!success) {
+            state.setLoading(false, 'Failed to start guest session');
+            return of(null);
+          }
+          return state.workspaceService.cloneDemoRepo().pipe(
+            tap(({ success: cloneSuccess, data: workspace }) => {
+              if (!cloneSuccess) {
+                state.setLoading(false, 'Failed to start guest session');
+                return;
+              }
+              state.saveToStorage({ profile, workspace });
+              state.setLoading(false);
+              state.navigate(AppRoutes.ide.root);
+            }),
+          );
         }),
       ),
     ),
@@ -97,14 +90,14 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => state.setLoading(true, '')),
         switchMap((repoUrl) => state.workspaceService.cloneRepo(repoUrl)),
-        tap({
-          next: (workspace) => {
-            state.saveToStorage({ workspace });
-            state.setLoading(false);
-            state.navigate(AppRoutes.ide.root);
-          },
-          error: () =>
-            state.setLoading(false, 'Failed to clone repository. Check the URL and try again.'),
+        tap(({ success, data }) => {
+          if (!success) {
+            state.setLoading(false, 'Failed to clone repository. Check the URL and try again.');
+            return;
+          }
+          state.saveToStorage({ workspace: data });
+          state.setLoading(false);
+          state.navigate(AppRoutes.ide.root);
         }),
       ),
     ),
@@ -112,7 +105,7 @@ export const AuthStore = signalStore(
     logout: rxMethod<void>(
       pipe(
         tap(() => state.socketService.disconnect()),
-        switchMap(() => state.authService.logout().pipe(catchError(() => of(void 0)))),
+        switchMap(() => state.authService.logout()),
         tap(() => {
           state.clearAllStorage(['ide-theme']);
           state.navigate(AppRoutes.login);

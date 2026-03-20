@@ -163,16 +163,17 @@ export const CodeEditorStore = signalStore(
                 type: file.type,
               } as FileResponseDto)
               .pipe(
-                tap((saved) => {
+                tap(({ success, data }) => {
+                  if (!success) return;
                   patchState(state, {
                     openFiles: state.openFiles().map((f) =>
-                      f.path === saved.path && f.mode === 'regular'
+                      f.path === data.path && f.mode === 'regular'
                         ? {
                             ...f,
-                            content: saved.content ?? f.currentContent,
-                            currentContent: saved.content ?? f.currentContent,
+                            content: data.content ?? f.currentContent,
+                            currentContent: data.content ?? f.currentContent,
                             isDirty: false,
-                            updatedAt: saved.updatedAt,
+                            updatedAt: data.updatedAt,
                           }
                         : f,
                     ),
@@ -190,10 +191,12 @@ export const CodeEditorStore = signalStore(
         switchMap(() => {
           const paths = state.openFilePaths();
           if (paths.length === 0) return EMPTY;
-          return state.service.getFiles(paths).pipe(map((files) => ({ paths, files })));
+          return state.service.getFiles(paths);
         }),
-        tap(({ paths, files }) => {
-          const fileMap = new Map(files.map((f) => [f.path, f]));
+        tap(({ success, data }) => {
+          if (!success) return;
+          const paths = state.openFilePaths();
+          const fileMap = new Map(data.map((f) => [f.path, f]));
           const openFiles = paths
             .map((path) => fileMap.get(path))
             .filter((f): f is FileResponseDto => !!f)
@@ -219,12 +222,13 @@ export const CodeEditorStore = signalStore(
         filter((event) => event.type === 'change'),
         filter((event) => state.openFiles().some((f) => f.path === event.path)),
         switchMap((event) => state.service.getFile(event.path)),
-        tap((file) => {
-          const mapped = MonacoUtils.mapFile(file);
+        tap(({ success, data }) => {
+          if (!success) return;
+          const mapped = MonacoUtils.mapFile(data);
           patchState(state, {
             openFiles: state
               .openFiles()
-              .map((f) => (f.path === file.path && f.mode === 'regular' ? { ...f, ...mapped } : f)),
+              .map((f) => (f.path === data.path && f.mode === 'regular' ? { ...f, ...mapped } : f)),
           });
         }),
       ),
@@ -247,7 +251,11 @@ export const CodeEditorStore = signalStore(
             state.saveToStorage({ activeTabId: tabId });
             return [];
           }
-          return state.service.getFile(filePath).pipe(tap((file) => state.openFile(file)));
+          return state.service.getFile(filePath).pipe(
+            tap(({ success, data }) => {
+              if (success) state.openFile(data);
+            }),
+          );
         }),
       ),
     ),

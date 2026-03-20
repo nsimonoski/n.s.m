@@ -34,8 +34,11 @@ export const FileSearchStore = signalStore(
       pipe(
         tap(() => patchState(store, { searchLoading: true })),
         switchMap((query: string) => store.fileService.searchFiles(query, store.rootPath())),
-        tap((searchResults) => {
-          patchState(store, { searchResults, searchLoading: false });
+        tap(({ success, data }) => {
+          patchState(store, {
+            searchResults: success ? data : [],
+            searchLoading: false,
+          });
         }),
       ),
     ),

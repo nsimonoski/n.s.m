@@ -10,7 +10,6 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { GitBranchDto } from '@org/shared/contracts';
-import { handleError } from '@org/angular-utils';
 import { GitService } from '../git.service';
 import { GitWsService } from '../git-ws.service';
 import { SnackbarService } from '@org/angular/ui';
@@ -52,16 +51,19 @@ export const GitStatusStore = signalStore(
     listBranches: rxMethod<void>(
       pipe(
         switchMap(() => store.gitService.listBranches(store.rootPath())),
-        tap((branches) => {
-          const current = branches.find((b) => b.current);
-          patchState(store, { branches, ...(current ? { branch: current.name } : {}) });
+        tap(({ success, data }) => {
+          if (!success) return;
+          const current = data.find((b) => b.current);
+          patchState(store, { branches: data, ...(current ? { branch: current.name } : {}) });
         }),
       ),
     ),
     loadGitStatus: rxMethod<void>(
       pipe(
         switchMap(() => store.gitService.getStatusTree(store.rootPath())),
-        tap(({ branch, tracking, stagedCount, changesCount, ahead, behind }) => {
+        tap(({ success, data }) => {
+          if (!success) return;
+          const { branch, tracking, stagedCount, changesCount, ahead, behind } = data;
           patchState(store, { branch, tracking, stagedCount, changesCount, ahead, behind });
         }),
       ),
@@ -76,31 +78,43 @@ export const GitStatusStore = signalStore(
     ),
     checkout: rxMethod<string>(
       pipe(
-        switchMap((branch: string) =>
-          store.gitService
-            .checkout(store.rootPath(), branch)
-            .pipe(switchMap(() => store.gitService.listBranches(store.rootPath()))),
-        ),
-        tap((branches) => {
-          const current = branches.find((b) => b.current);
-          patchState(store, { branches, ...(current ? { branch: current.name } : {}) });
+        switchMap((branch: string) => store.gitService.checkout(store.rootPath(), branch)),
+        switchMap(({ success, error }) => {
+          if (!success) {
+            store.snackbar.error(error);
+            return [];
+          }
+          return store.gitService.listBranches(store.rootPath());
         }),
-        handleError((msg) => store.snackbar.error(msg)),
+        tap(({ success, data }) => {
+          if (!success) return;
+          const current = data.find((b) => b.current);
+          patchState(store, { branches: data, ...(current ? { branch: current.name } : {}) });
+        }),
       ),
     ),
     createBranch: rxMethod<{ branch: string; sourceBranch?: string }>(
       pipe(
         switchMap(({ branch, sourceBranch }) =>
-          store.gitService.createBranch(store.rootPath(), branch, sourceBranch).pipe(
-            switchMap(() => store.gitService.listBranches(store.rootPath())),
-            tap((branches) => {
-              const current = branches.find((b) => b.current);
-              patchState(store, { branches, ...(current ? { branch: current.name } : {}) });
-              store.snackbar.success(`Branch "${branch}" created`);
-            }),
-          ),
+          store.gitService.createBranch(store.rootPath(), branch, sourceBranch),
         ),
-        handleError((msg) => store.snackbar.error(msg)),
+        switchMap((result) => {
+          if (!result.success) {
+            store.snackbar.error(result.error);
+            return [];
+          }
+          return store.gitService.listBranches(store.rootPath()).pipe(
+            tap(({ success, data }) => {
+              if (!success) return;
+              const current = data.find((b) => b.current);
+              patchState(store, {
+                branches: data,
+                ...(current ? { branch: current.name } : {}),
+              });
+              store.snackbar.success(`Branch "${current?.name}" created`);
+            }),
+          );
+        }),
       ),
     ),
   })),

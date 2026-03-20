@@ -10,7 +10,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { GitLogEntryDto } from '@org/shared/contracts';
-import { handleError, partialStore } from '@org/angular-utils';
+import { partialStore } from '@org/angular-utils';
 import { GitService, GitStatusStore, GitWsService } from '@org/angular-data-access';
 import { SnackbarService } from '@org/angular/ui';
 
@@ -44,7 +44,8 @@ export const GitCommitStore = signalStore(
         switchMap((message: string) =>
           state.service.commit(state.gitStatusStore.rootPath(), message),
         ),
-        tap(() => {
+        tap(({ success, error }) => {
+          if (!success) return state.snackbar.error(error);
           state.saveToStorage({ commitMessage: '' });
           state.snackbar.success('Committed!');
         }),
@@ -53,21 +54,29 @@ export const GitCommitStore = signalStore(
     sync: rxMethod<void>(
       pipe(
         switchMap(() => state.service.push(state.gitStatusStore.rootPath())),
-        tap(() => state.snackbar.success('Pushed!')),
-        handleError((msg) => state.snackbar.error(msg)),
+        tap(({ success, error }) => {
+          if (!success) return state.snackbar.error(error);
+          state.snackbar.success('Pushed!');
+        }),
       ),
     ),
     fetchLog: rxMethod<string>(
       pipe(
         switchMap((path: string) => state.service.getLog(path)),
-        tap((commitHistory) => patchState(state, { commitHistory })),
+        tap(({ success, data }) => {
+          if (!success) return;
+          patchState(state, { commitHistory: data });
+        }),
       ),
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
         switchMap(() => state.wsService.gitChanges$),
         switchMap(() => state.service.getLog(state.gitStatusStore.rootPath())),
-        tap((commitHistory) => patchState(state, { commitHistory })),
+        tap(({ success, data }) => {
+          if (!success) return;
+          patchState(state, { commitHistory: data });
+        }),
       ),
     ),
   })),
