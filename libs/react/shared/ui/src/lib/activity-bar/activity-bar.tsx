@@ -1,9 +1,12 @@
 import { ActivityBarConfig } from '@org/shared/utils';
-import { useIdeLayoutStore } from '@org/react-data-access';
+import { useIdeLayoutStore, useGitStatusStore } from '@org/react-data-access';
 
 export function ActivityBar() {
   const activePanel = useIdeLayoutStore((s) => s.activePanel);
   const setActivePanel = useIdeLayoutStore((s) => s.setActivePanel);
+  const stagedCount = useGitStatusStore((s) => s.stagedCount);
+  const changesCount = useGitStatusStore((s) => s.changesCount);
+  const changeCount = stagedCount + changesCount;
 
   return (
     <div className="activity-bar">
@@ -15,6 +18,9 @@ export function ActivityBar() {
           onClick={() => setActivePanel(panel.id)}
         >
           <img className="icon" src={panel.icon} alt={panel.tooltip} />
+          {panel.id === 'git' && changeCount > 0 && (
+            <span className="badge">{changeCount}</span>
+          )}
         </button>
       ))}
     </div>

@@ -2,5 +2,8 @@ export { useAuthStore } from './lib/stores/auth.store';
 export { useCodeEditorStore } from './lib/stores/code-editor.store';
 export { useFileExplorerStore } from './lib/stores/file-explorer.store';
 export { useIdeLayoutStore } from './lib/stores/ide-layout.store';
+export { useGitStatusStore } from './lib/stores/git-status.store';
+export { useGitChangesStore } from './lib/stores/git-changes.store';
 export { useFileWatcher } from './lib/hooks/use-file-watcher';
+export { useGitWatcher } from './lib/hooks/use-git-watcher';
 export { setupAxiosInterceptor } from './lib/services/axios-interceptor';

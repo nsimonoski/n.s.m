@@ -8,6 +8,7 @@ interface FileTreeProps {
   directory: DirectoryResponseDto;
   statusMap?: Record<string, string>;
   renderCreateNode?: (level: number, parentPath: string) => React.ReactNode;
+  renderNodeActions?: (node: DirectoryResponseDto | FileResponseDto) => React.ReactNode | null;
   renamingNode: DirectoryResponseDto | FileResponseDto | null;
   onCancelRename: () => void;
   onOpen: (node: FileResponseDto) => void;
@@ -30,6 +31,7 @@ export const FileTree = forwardRef<FileTreeHandle, FileTreeProps>(function FileT
     directory,
     statusMap = {},
     renderCreateNode,
+    renderNodeActions,
     renamingNode,
     onCancelRename,
     onOpen,
@@ -61,6 +63,7 @@ export const FileTree = forwardRef<FileTreeHandle, FileTreeProps>(function FileT
       selectedPath,
       statusMap,
       renderCreateNode: renderCreateNode ?? null,
+      renderNodeActions: renderNodeActions ?? null,
       renamingNode,
       onToggleExpand(node: DirectoryResponseDto) {
         setExpandedPaths((prev) => {
@@ -87,6 +90,7 @@ export const FileTree = forwardRef<FileTreeHandle, FileTreeProps>(function FileT
       selectedPath,
       statusMap,
       renderCreateNode,
+      renderNodeActions,
       renamingNode,
       onOpen,
       onExpand,

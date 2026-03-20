@@ -6,10 +6,7 @@ import './monaco-editor.scss';
 export function MonacoEditor() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const activeFile = useCodeEditorStore((s) => {
-    const tabId = s.activeTabId;
-    return s.openFiles.find((f) => f.tabId === tabId) ?? null;
-  });
+  const activeTabId = useCodeEditorStore((s) => s.activeTabId);
 
   useEffect(() => {
     MonacoUtils.editorUtils.loadMonaco().then(() => {
@@ -23,8 +20,10 @@ export function MonacoEditor() {
   }, []);
 
   useEffect(() => {
-    MonacoUtils.editorUtils.switchToFile(activeFile, handleContentChange);
-  }, [activeFile]);
+    const { openFiles } = useCodeEditorStore.getState();
+    const file = openFiles.find((f) => f.tabId === activeTabId) ?? null;
+    MonacoUtils.editorUtils.switchToFile(file, handleContentChange);
+  }, [activeTabId]);
 
   return <div ref={containerRef} className="editor-container" />;
 }
