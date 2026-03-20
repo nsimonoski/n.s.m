@@ -13,8 +13,8 @@ interface FileExplorerActions {
   expandDirectory: (path: string) => Promise<void>;
   revealFile: (filePath: string) => Promise<{ ancestors: string[]; filePath: string } | null>;
   rename: (payload: RenameRequestDto) => Promise<void>;
-  createFile: (path: string) => Promise<FileResponseDto>;
-  createDirectory: (path: string) => Promise<DirectoryResponseDto>;
+  createFile: (path: string) => Promise<FileResponseDto | null>;
+  createDirectory: (path: string) => Promise<DirectoryResponseDto | null>;
   deleteNode: (path: string) => Promise<void>;
   refreshParentDirectory: (childPath: string) => Promise<void>;
 }
@@ -25,16 +25,16 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
 
   async loadDirectory(path: string): Promise<void> {
     set({ loading: true });
-    const directory = await fileExplorerService.readDirectory(path);
-    set({ directory, loading: false });
+    const { success, data } = await fileExplorerService.readDirectory(path);
+    set({ directory: success ? data : null, loading: false });
   },
 
   async expandDirectory(path: string): Promise<void> {
-    const fetched = await fileExplorerService.readDirectory(path);
+    const { success, data } = await fileExplorerService.readDirectory(path);
     const currentDir = get().directory;
-    if (!fetched || !currentDir) return;
+    if (!success || !currentDir) return;
 
-    set({ directory: FileUtils.mergeDirectoryIntoTree(currentDir, fetched.path, fetched) });
+    set({ directory: FileUtils.mergeDirectoryIntoTree(currentDir, data.path, data) });
   },
 
   async revealFile(filePath: string): Promise<{ ancestors: string[]; filePath: string } | null> {
@@ -46,10 +46,10 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
     for (const dirPath of ancestors) {
       const currentDir = get().directory;
       if (!currentDir || !FileUtils.isDirectoryLoaded(currentDir, dirPath)) {
-        const fetched = await fileExplorerService.readDirectory(dirPath);
+        const { success, data } = await fileExplorerService.readDirectory(dirPath);
         const dirAfterFetch = get().directory;
-        if (dirAfterFetch) {
-          set({ directory: FileUtils.mergeDirectoryIntoTree(dirAfterFetch, fetched.path, fetched) });
+        if (success && dirAfterFetch) {
+          set({ directory: FileUtils.mergeDirectoryIntoTree(dirAfterFetch, data.path, data) });
         }
       }
     }
@@ -58,25 +58,27 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
   },
 
   async rename(payload: RenameRequestDto): Promise<void> {
-    const result = await fileExplorerService.rename(payload);
-    if (result) await get().refreshParentDirectory(result.path);
+    const { success, data } = await fileExplorerService.rename(payload);
+    if (success) await get().refreshParentDirectory(data.path);
   },
 
-  async createFile(path: string): Promise<FileResponseDto> {
-    const file = await fileExplorerService.createFile(path);
-    await get().refreshParentDirectory(file.path);
-    return file;
+  async createFile(path: string): Promise<FileResponseDto | null> {
+    const { success, data } = await fileExplorerService.createFile(path);
+    if (!success) return null;
+    await get().refreshParentDirectory(data.path);
+    return data;
   },
 
-  async createDirectory(path: string): Promise<DirectoryResponseDto> {
-    const directory = await fileExplorerService.createDirectory(path);
-    await get().refreshParentDirectory(directory.path);
-    return directory;
+  async createDirectory(path: string): Promise<DirectoryResponseDto | null> {
+    const { success, data } = await fileExplorerService.createDirectory(path);
+    if (!success) return null;
+    await get().refreshParentDirectory(data.path);
+    return data;
   },
 
   async deleteNode(path: string): Promise<void> {
-    const result = await fileExplorerService.delete(path);
-    await get().refreshParentDirectory(result.path);
+    const { success, data } = await fileExplorerService.delete(path);
+    if (success) await get().refreshParentDirectory(data.path);
   },
 
   async refreshParentDirectory(childPath: string): Promise<void> {
@@ -84,12 +86,10 @@ export const useFileExplorerStore = create<FileExplorerState & FileExplorerActio
     const targetPath = parentPath || get().directory?.path;
     if (!targetPath || !get().directory) return;
 
-    const fetched = await fileExplorerService.readDirectory(targetPath);
+    const { success, data } = await fileExplorerService.readDirectory(targetPath);
     const currentDir = get().directory;
-    if (!fetched || !currentDir) return;
+    if (!success || !currentDir) return;
 
-    set({ directory: FileUtils.refreshDirectoryInTree(currentDir, targetPath, fetched) });
+    set({ directory: FileUtils.refreshDirectoryInTree(currentDir, targetPath, data) });
   },
 }));
-
-

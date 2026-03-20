@@ -51,8 +51,8 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
   },
 
   async fetchAndOpenFile(path: string): Promise<void> {
-    const file = await fileExplorerService.getFile(path);
-    get().openFile(file);
+    const { success, data } = await fileExplorerService.getFile(path);
+    if (success) get().openFile(data);
   },
 
   openDiff(file: FileResponseDto, originalContent: string): void {
@@ -122,22 +122,24 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
     const file = get().openFiles.find((f) => f.path === path && f.mode === 'regular');
     if (!file) return;
 
-    const saved = await fileExplorerService.updateFile({
+    const { success, data } = await fileExplorerService.updateFile({
       name: file.name,
       path: file.path,
       content: file.currentContent,
       type: file.type,
     } as FileResponseDto);
 
+    if (!success) return;
+
     set({
       openFiles: get().openFiles.map((f) =>
-        f.path === saved.path && f.mode === 'regular'
+        f.path === data.path && f.mode === 'regular'
           ? {
               ...f,
-              content: saved.content ?? f.currentContent,
-              currentContent: saved.content ?? f.currentContent,
+              content: data.content ?? f.currentContent,
+              currentContent: data.content ?? f.currentContent,
               isDirty: false,
-              updatedAt: saved.updatedAt,
+              updatedAt: data.updatedAt,
             }
           : f,
       ),
@@ -149,8 +151,10 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
     const paths = stored?.openFilePaths ?? [];
     if (paths.length === 0) return;
 
-    const files = await fileExplorerService.getFiles(paths);
-    const fileMap = new Map(files.map((f) => [f.path, f]));
+    const { success, data } = await fileExplorerService.getFiles(paths);
+    if (!success) return;
+
+    const fileMap = new Map(data.map((f) => [f.path, f]));
     const openFiles = paths
       .map((path) => fileMap.get(path))
       .filter((f): f is FileResponseDto => !!f)

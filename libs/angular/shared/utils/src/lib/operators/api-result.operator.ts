@@ -1,8 +1,7 @@
 import { catchError, map, Observable, of, OperatorFunction } from 'rxjs';
+import type { ApiSuccess, ApiError, ApiResult } from '@org/shared/utils';
 
-export type ApiSuccess<T> = { success: true; data: T; error: null };
-export type ApiError = { success: false; data: null; error: string };
-export type ApiResult<T> = ApiSuccess<T> | ApiError;
+export type { ApiResult, ApiSuccess, ApiError };
 
 export function apiResult<T>(): OperatorFunction<T, ApiResult<T>> {
   return (source: Observable<T>) =>

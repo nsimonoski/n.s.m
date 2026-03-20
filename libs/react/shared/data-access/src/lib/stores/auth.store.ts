@@ -31,50 +31,45 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         if (get().profile) return true;
 
         set({ isLoading: true, errorMessage: '' });
-        try {
-          const profile = await authService.getLoginInfo();
-          if (profile) {
-            set({ profile, isLoading: false });
-            return true;
-          }
-          set({ profile: null, isLoading: false });
-          return false;
-        } catch {
-          set({ profile: null, isLoading: false });
-          return false;
+        const { success, data } = await authService.getLoginInfo();
+        if (success && data) {
+          set({ profile: data, isLoading: false });
+          return true;
         }
+        set({ profile: null, isLoading: false });
+        return false;
       },
 
       async guestLogin(): Promise<void> {
         set({ isLoading: true, errorMessage: '' });
-        try {
-          const profile = await authService.guestLogin();
-          const workspace = await workspaceService.cloneDemoRepo();
-          set({ profile, workspace, isLoading: false });
-        } catch {
+        const loginResult = await authService.guestLogin();
+        if (!loginResult.success) {
           set({ isLoading: false, errorMessage: 'Failed to start guest session' });
+          return;
         }
+        const cloneResult = await workspaceService.cloneDemoRepo();
+        if (!cloneResult.success) {
+          set({ isLoading: false, errorMessage: 'Failed to start guest session' });
+          return;
+        }
+        set({ profile: loginResult.data, workspace: cloneResult.data, isLoading: false });
       },
 
       async cloneRepo(repoUrl: string): Promise<void> {
         set({ isLoading: true, errorMessage: '' });
-        try {
-          const workspace = await workspaceService.cloneRepo(repoUrl);
-          set({ workspace, isLoading: false });
-        } catch {
+        const { success, data } = await workspaceService.cloneRepo(repoUrl);
+        if (!success) {
           set({
             isLoading: false,
             errorMessage: 'Failed to clone repository. Check the URL and try again.',
           });
+          return;
         }
+        set({ workspace: data, isLoading: false });
       },
 
       async logout(): Promise<void> {
-        try {
-          await authService.logout();
-        } catch {
-          // ignore
-        }
+        await authService.logout();
         useAuthStore.persist.clearStorage();
         set({ profile: null, workspace: null });
       },

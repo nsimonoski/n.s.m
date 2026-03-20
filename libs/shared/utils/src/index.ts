@@ -7,3 +7,5 @@ export * as ResizeUtils from './lib/resize-utils/resize-utils';
 export { AppRoutes } from './lib/routes/routes';
 export * as ActivityBarConfig from './lib/activity-bar/activity-bar';
 export { browserStorage } from './lib/browser-storage/browser-storage';
+export { apiResult } from './lib/api-result/api-result';
+export type { ApiResult, ApiSuccess, ApiError } from './lib/api-result/api-result';
