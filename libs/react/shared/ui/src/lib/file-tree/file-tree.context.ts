@@ -6,6 +6,9 @@ export interface FileTreeContextValue {
   selectedPath: string | null;
   statusMap: Record<string, string>;
   renderCreateNode: ((level: number, parentPath: string) => React.ReactNode) | null;
+  renderNodeActions:
+    | ((node: DirectoryResponseDto | FileResponseDto) => React.ReactNode | null)
+    | null;
   renamingNode: DirectoryResponseDto | FileResponseDto | null;
   onToggleExpand: (node: DirectoryResponseDto) => void;
   onSelect: (node: DirectoryResponseDto | FileResponseDto) => void;

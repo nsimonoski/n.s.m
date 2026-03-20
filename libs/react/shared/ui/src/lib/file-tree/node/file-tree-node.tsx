@@ -94,6 +94,7 @@ export function FileTreeNode({ node, level }: FileTreeNodeProps) {
           <i className={`codicon ${icon.iconClass}`} />
         </span>
         {renderName()}
+        {ctx.renderNodeActions && ctx.renderNodeActions(node)}
       </div>
       {renderChildren()}
     </>

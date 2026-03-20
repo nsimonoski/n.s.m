@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {
+import type {
   GitBranchDto,
   GitLogEntryDto,
   GitShowResponseDto,
@@ -62,5 +62,10 @@ export const gitService = {
   checkout: (repoPath: string, branch: string) =>
     axios
       .post<void>(`${API}/checkout`, { branch }, { params: { path: repoPath } })
+      .then((r) => r.data),
+
+  getLog: (path: string, limit = 50) =>
+    axios
+      .get<GitLogEntryDto[]>(`${API}/log`, { params: { path, limit } })
       .then((r) => r.data),
 };

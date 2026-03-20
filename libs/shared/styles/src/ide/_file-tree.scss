@@ -165,6 +165,17 @@
   font-size: 13px;
 }
 
+.node-actions {
+  display: none;
+  flex-shrink: 0;
+  margin-left: auto;
+  gap: 2px;
+
+  .tree-node:hover & {
+    display: inline-flex;
+  }
+}
+
 .action-btn {
   display: inline-flex;
   align-items: center;
