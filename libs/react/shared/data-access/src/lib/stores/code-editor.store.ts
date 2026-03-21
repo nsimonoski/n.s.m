@@ -152,7 +152,10 @@ export const useCodeEditorStore = create<CodeEditorState & CodeEditorActions>((s
     if (paths.length === 0) return;
 
     const { success, data } = await fileExplorerService.getFiles(paths);
-    if (!success) return;
+    if (!success) {
+      storage.remove();
+      return;
+    }
 
     const fileMap = new Map(data.map((f) => [f.path, f]));
     const openFiles = paths

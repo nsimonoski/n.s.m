@@ -6,3 +6,4 @@ export * from './lib/tab-bar/tab-bar';
 export * from './lib/activity-bar/activity-bar';
 export * from './lib/collapsible-section/collapsible-section';
 export * from './lib/dropdown-menu/dropdown-menu';
+export * from './lib/command-palette/command-palette';

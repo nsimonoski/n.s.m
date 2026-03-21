@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { UserProfileDto, WorkspaceStatusDto } from '@org/shared/contracts';
+import { browserStorage } from '@org/shared/utils';
 import { authService } from '../services/auth.service';
 import { workspaceService } from '../services/workspace.service';
 
@@ -70,7 +71,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       async logout(): Promise<void> {
         await authService.logout();
-        useAuthStore.persist.clearStorage();
+        browserStorage('').clearAll(['ide-theme']);
         set({ profile: null, workspace: null });
       },
 

@@ -3,7 +3,6 @@ import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/
 import { FileUtils, GitTreeUtils } from '@org/shared/utils';
 import {
   useGitChangesStore,
-  useGitStatusStore,
   useGitWatcher,
   useAuthStore,
 } from '@org/react-data-access';
@@ -69,7 +68,6 @@ export function GitPanel() {
   useEffect(() => {
     if (!rootPath) return;
     initialExpandDone.current = false;
-    useGitStatusStore.getState().init();
     useGitChangesStore.getState().getStatus();
   }, [rootPath]);
 
