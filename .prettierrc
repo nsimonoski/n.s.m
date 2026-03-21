@@ -1,25 +1,17 @@
 {
-  "printWidth": 100,
-  "tabWidth": 2,
-  "useTabs": false,
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "all",
-  "bracketSpacing": true,
-  "arrowParens": "always",
-  "endOfLine": "lf",
-  "overrides": [
-    {
-      "files": "*.json",
-      "options": {
-        "singleQuote": false
-      }
-    },
-    {
-      "files": ["*.md", "*.mdx"],
-      "options": {
-        "proseWrap": "always"
-      }
-    }
-  ]
+  'printWidth': 100,
+  'tabWidth': 2,
+  'useTabs': false,
+  'semi': true,
+  'singleQuote': true,
+  'trailingComma': 'a
+    ll',
+  'bracketSpacing': true,
+  'arrowParens': 'always',
+  'endOfLine': 'lf',
+  'overrides':
+    [
+      { 'files': '*.json', 'options': { 'singleQuote': false } },
+      { 'files': ['*.md', '*.mdx'], 'options': { 'proseWrap': 'always' } },
+    ],
 }
