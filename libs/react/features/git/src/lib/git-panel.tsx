@@ -3,7 +3,7 @@ import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/
 import { FileUtils, GitTreeUtils } from '@org/shared/utils';
 import {
   useGitChangesStore,
-  useGitWatcher,
+  useGitCommitStore,
   useAuthStore,
 } from '@org/react-data-access';
 import {
@@ -15,6 +15,8 @@ import {
   DropdownMenu,
   DropdownMenuItem,
 } from '@org/react-ui';
+import { GitSync } from './git-sync/git-sync';
+import { CommitHistory } from './commit-history/commit-history';
 import './git-panel.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -69,9 +71,8 @@ export function GitPanel() {
     if (!rootPath) return;
     initialExpandDone.current = false;
     useGitChangesStore.getState().getStatus();
+    useGitCommitStore.getState().init();
   }, [rootPath]);
-
-  useGitWatcher(rootPath || null);
 
   useEffect(() => {
     if (changesTree && fileTreeRef.current && !initialExpandDone.current) {
@@ -171,6 +172,8 @@ export function GitPanel() {
         title="Changes"
         headerActions={<DropdownMenu items={HEADER_MENU_ITEMS} onAction={handleHeaderAction} />}
       >
+        <GitSync />
+
         {isLoading && <div className="loading">Loading...</div>}
 
         {changesTree && (
@@ -187,6 +190,10 @@ export function GitPanel() {
             onContextMenu={(x, y, node) => setContextMenu({ x, y, node })}
           />
         )}
+      </CollapsibleSection>
+
+      <CollapsibleSection id="commit-history" title="Commit History">
+        <CommitHistory />
       </CollapsibleSection>
 
       {contextMenu && (

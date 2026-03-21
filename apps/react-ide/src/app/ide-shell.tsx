@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useAuthStore, useCodeEditorStore, useFileExplorerStore, useFileWatcher, useGitStatusStore, useIdeLayoutStore } from '@org/react-data-access';
+import { useAuthStore, useCodeEditorStore, useFileExplorerStore, useFileWatcher, useGitWatcher, useGitStatusStore, useIdeLayoutStore } from '@org/react-data-access';
 import { ResizeUtils } from '@org/shared/utils';
 import { CodeEditor } from '@org/react-code-editor';
 import { FileExplorer } from '@org/react-file-explorer';
@@ -45,6 +45,7 @@ export function IdeShell() {
   }, [workspace?.rootPath]);
 
   useFileWatcher(directory?.path ?? null);
+  useGitWatcher(workspace?.rootPath ?? null);
 
   const onResizeStart = useCallback(
     (e: React.MouseEvent) => {
