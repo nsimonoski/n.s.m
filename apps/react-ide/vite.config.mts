@@ -1,5 +1,6 @@
 /// <reference types='vitest' />
 import { resolve } from 'path';
+import { cpSync } from 'fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
@@ -27,7 +28,20 @@ export default defineConfig(() => ({
     port: 4201,
     host: 'localhost',
   },
-  plugins: [nxViteTsPaths(), react()],
+  plugins: [
+    nxViteTsPaths(),
+    react(),
+    {
+      name: 'copy-monaco',
+      closeBundle() {
+        cpSync(
+          resolve(import.meta.dirname, '../../node_modules/monaco-editor/min'),
+          resolve(import.meta.dirname, 'dist/monaco-editor/min'),
+          { recursive: true },
+        );
+      },
+    },
+  ],
   css: {
     preprocessorOptions: {
       scss: {
