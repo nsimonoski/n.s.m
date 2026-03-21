@@ -56,3 +56,5 @@ test-output
 
 vitest.config.*.timestamp*
 .claude/ 
+
+skills-lock.json

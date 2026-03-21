@@ -98,4 +98,15 @@ export const gitService = {
         .get<GitLogEntryDto[]>(`${API}/log`, { params: { path, limit } })
         .then((r) => r.data),
     ),
+
+  createBranch: (repoPath: string, branch: string, sourceBranch?: string) =>
+    apiResult(
+      axios
+        .post<void>(
+          `${API}/create-branch`,
+          { branch, sourceBranch },
+          { params: { path: repoPath } },
+        )
+        .then((r) => r.data),
+    ),
 };
