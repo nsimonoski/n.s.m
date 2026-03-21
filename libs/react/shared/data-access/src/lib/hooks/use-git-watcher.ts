@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { GIT_CHANGE_EVENT, GIT_WATCH_EVENT, GitStatusTreeResponseDto } from '@org/shared/contracts';
 import { socketService } from '../services/socket.service';
 import { useGitChangesStore } from '../stores/git-changes.store';
+import { useGitCommitStore } from '../stores/git-commit.store';
 import { useGitStatusStore } from '../stores/git-status.store';
 
 export function useGitWatcher(path: string | null): void {
@@ -20,6 +21,7 @@ export function useGitWatcher(path: string | null): void {
         ahead: response.ahead,
         behind: response.behind,
       });
+      useGitCommitStore.getState().fetchLog();
     });
 
     return unsubscribe;
