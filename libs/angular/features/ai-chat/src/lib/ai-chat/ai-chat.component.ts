@@ -45,7 +45,8 @@ export class AiChatComponent {
   }
 
   onKeydown(event: KeyboardEvent): void {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       this.onSend();
     }
   }

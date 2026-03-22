@@ -42,7 +42,7 @@
     <textarea
       class="chat-input"
       [(ngModel)]="inputValue"
-      placeholder="Ask AI or describe a change... (Ctrl+Enter to send)"
+      placeholder="Ask AI or describe a change... (Enter to send)"
       rows="3"
       [disabled]="store.isStreaming() || store.isLimitReached()"
       (keydown)="onKeydown($event)"
