@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { DirectoryResponseDto, FileResponseDto, Enums, ContextMenu } from '@org/shared/contracts';
 import { useFileExplorerStore, useCodeEditorStore } from '@org/react-data-access';
 import {
@@ -32,12 +32,51 @@ export function FileExplorer() {
     null,
   );
 
+  const handleNodeOpen = useCallback((node: FileResponseDto) => {
+    useCodeEditorStore.getState().fetchAndOpenFile(node.path);
+  }, []);
+
+  const renderCreateNode = useCallback(
+    (level: number, parentPath: string) =>
+      inlineCreate?.parentPath === parentPath ? (
+        <FileTreeCreateNode
+          level={level}
+          inlineCreate={inlineCreate}
+          onConfirm={(event: ContextMenu.InlineCreateEvent) => {
+            const fullPath = `${event.parentPath}/${event.name}`;
+            const store = useFileExplorerStore.getState();
+            if (event.type === 'directory') {
+              store.createDirectory(fullPath);
+            } else {
+              store.createFile(fullPath);
+            }
+            setInlineCreate(null);
+          }}
+          onCancel={() => setInlineCreate(null)}
+        />
+      ) : null,
+    [inlineCreate],
+  );
+
+  const handleExpand = useCallback((node: DirectoryResponseDto) => {
+    useFileExplorerStore.getState().expandDirectory(node.path);
+  }, []);
+
+  const handleRename = useCallback((event: ContextMenu.InlineRenameEvent) => {
+    useFileExplorerStore.getState().rename({ path: event.node.path, newName: event.newName });
+  }, []);
+
+  const handleContextMenuOpen = useCallback(
+    (x: number, y: number, node: DirectoryResponseDto | FileResponseDto | null) => {
+      setContextMenu({ x, y, node });
+    },
+    [],
+  );
+
+  const handleCancelRename = useCallback(() => setRenamingNode(null), []);
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!directory) return null;
-
-  function handleNodeOpen(node: FileResponseDto) {
-    useCodeEditorStore.getState().fetchAndOpenFile(node.path);
-  }
 
   function handleContextMenuAction(action: ContextMenu.Action) {
     const node = contextMenu?.node ?? null;
@@ -71,19 +110,6 @@ export function FileExplorer() {
     }
   }
 
-  function handleInlineCreate(event: ContextMenu.InlineCreateEvent) {
-    const fullPath = `${event.parentPath}/${event.name}`;
-    const store = useFileExplorerStore.getState();
-
-    if (event.type === 'directory') {
-      store.createDirectory(fullPath);
-    } else {
-      store.createFile(fullPath);
-    }
-
-    setInlineCreate(null);
-  }
-
   function handleConfirmDelete() {
     if (dialog) {
       useFileExplorerStore.getState().deleteNode(dialog.path);
@@ -95,24 +121,13 @@ export function FileExplorer() {
     <div className="file-explorer">
       <FileTree
         directory={directory}
-        renderCreateNode={(level, parentPath) =>
-          inlineCreate?.parentPath === parentPath ? (
-            <FileTreeCreateNode
-              level={level}
-              inlineCreate={inlineCreate}
-              onConfirm={handleInlineCreate}
-              onCancel={() => setInlineCreate(null)}
-            />
-          ) : null
-        }
+        renderCreateNode={renderCreateNode}
         renamingNode={renamingNode}
-        onCancelRename={() => setRenamingNode(null)}
+        onCancelRename={handleCancelRename}
         onOpen={handleNodeOpen}
-        onExpand={(node) => useFileExplorerStore.getState().expandDirectory(node.path)}
-        onRename={(event) =>
-          useFileExplorerStore.getState().rename({ path: event.node.path, newName: event.newName })
-        }
-        onContextMenu={(x, y, node) => setContextMenu({ x, y, node })}
+        onExpand={handleExpand}
+        onRename={handleRename}
+        onContextMenu={handleContextMenuOpen}
       />
 
       {contextMenu && (

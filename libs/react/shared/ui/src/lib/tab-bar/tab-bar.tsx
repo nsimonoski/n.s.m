@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { ContextMenu } from '@org/shared/contracts';
 import { MonacoUtils } from '@org/shared/utils';
 import { useCodeEditorStore } from '@org/react-data-access';
@@ -11,46 +11,45 @@ interface ContextMenuState {
   tabId: string;
 }
 
+type ContextMenuSetter = (x: number, y: number, tabId: string) => void;
+
 export function TabBar() {
   const openFiles = useCodeEditorStore((s) => s.openFiles);
   const activeTabId = useCodeEditorStore((s) => s.activeTabId);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
-  function handleClose(e: React.MouseEvent, tabId: string) {
-    e.stopPropagation();
-    useCodeEditorStore.getState().closeFile(tabId);
-  }
+  const onContextMenuRef = useRef<ContextMenuSetter>((x, y, tabId) => {
+    setContextMenu({ x, y, tabId });
+  });
 
-  function handleContextMenu(e: React.MouseEvent, tabId: string) {
-    e.preventDefault();
-    e.stopPropagation();
-    setContextMenu({ x: e.clientX, y: e.clientY, tabId });
-  }
+  const handleMenuAction = useCallback((action: ContextMenu.Action) => {
+    setContextMenu((prev) => {
+      const tabId = prev?.tabId;
+      if (!tabId) return null;
 
-  function handleMenuAction(action: ContextMenu.Action) {
-    const tabId = contextMenu?.tabId;
-    setContextMenu(null);
-    if (!tabId) return;
+      const store = useCodeEditorStore.getState();
+      switch (action) {
+        case ContextMenu.Action.CLOSE:
+          store.closeFile(tabId);
+          break;
+        case ContextMenu.Action.CLOSE_OTHERS:
+          store.closeOthers(tabId);
+          break;
+        case ContextMenu.Action.CLOSE_TO_THE_RIGHT:
+          store.closeToTheRight(tabId);
+          break;
+        case ContextMenu.Action.CLOSE_SAVED:
+          store.closeSaved();
+          break;
+        case ContextMenu.Action.CLOSE_ALL:
+          store.closeAll();
+          break;
+      }
+      return null;
+    });
+  }, []);
 
-    const store = useCodeEditorStore.getState();
-    switch (action) {
-      case ContextMenu.Action.CLOSE:
-        store.closeFile(tabId);
-        break;
-      case ContextMenu.Action.CLOSE_OTHERS:
-        store.closeOthers(tabId);
-        break;
-      case ContextMenu.Action.CLOSE_TO_THE_RIGHT:
-        store.closeToTheRight(tabId);
-        break;
-      case ContextMenu.Action.CLOSE_SAVED:
-        store.closeSaved();
-        break;
-      case ContextMenu.Action.CLOSE_ALL:
-        store.closeAll();
-        break;
-    }
-  }
+  const handleContextMenuClose = useCallback(() => setContextMenu(null), []);
 
   return (
     <>
@@ -60,9 +59,7 @@ export function TabBar() {
             key={file.tabId}
             file={file}
             isActive={file.tabId === activeTabId}
-            onSelect={() => useCodeEditorStore.getState().setActiveFile(file.tabId)}
-            onClose={(e) => handleClose(e, file.tabId)}
-            onContextMenu={(e) => handleContextMenu(e, file.tabId)}
+            onContextMenuRef={onContextMenuRef}
           />
         ))}
       </div>
@@ -73,7 +70,7 @@ export function TabBar() {
           y={contextMenu.y}
           items={ContextMenu.TAB_ITEMS}
           onAction={handleMenuAction}
-          onClose={() => setContextMenu(null)}
+          onClose={handleContextMenuClose}
         />
       )}
     </>
@@ -83,26 +80,39 @@ export function TabBar() {
 interface TabProps {
   file: MonacoUtils.OpenFile;
   isActive: boolean;
-  onSelect: () => void;
-  onClose: (e: React.MouseEvent) => void;
-  onContextMenu: (e: React.MouseEvent) => void;
+  onContextMenuRef: React.RefObject<ContextMenuSetter>;
 }
 
-function Tab({ file, isActive, onSelect, onClose, onContextMenu }: TabProps) {
+const Tab = memo(function Tab({ file, isActive, onContextMenuRef }: TabProps) {
+  function handleSelect() {
+    useCodeEditorStore.getState().setActiveFile(file.tabId);
+  }
+
+  function handleClose(e: React.MouseEvent) {
+    e.stopPropagation();
+    useCodeEditorStore.getState().closeFile(file.tabId);
+  }
+
+  function handleContextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    onContextMenuRef.current(e.clientX, e.clientY, file.tabId);
+  }
+
   return (
     <div
       className={`tab${isActive ? ' active' : ''}`}
-      onClick={onSelect}
-      onContextMenu={onContextMenu}
+      onClick={handleSelect}
+      onContextMenu={handleContextMenu}
     >
       <span className="tab-name">
         {file.name}
         {file.mode === 'diff' ? ' (diff)' : ''}
       </span>
       {file.isDirty && <span className="dirty-indicator" />}
-      <button className="close-btn" onClick={onClose} title="Close">
+      <button className="close-btn" onClick={handleClose} title="Close">
         <i className="codicon codicon-close" />
       </button>
     </div>
   );
-}
+});

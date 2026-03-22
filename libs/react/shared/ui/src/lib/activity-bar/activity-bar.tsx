@@ -4,9 +4,7 @@ import { useIdeLayoutStore, useGitStatusStore } from '@org/react-data-access';
 export function ActivityBar() {
   const activePanel = useIdeLayoutStore((s) => s.activePanel);
   const setActivePanel = useIdeLayoutStore((s) => s.setActivePanel);
-  const stagedCount = useGitStatusStore((s) => s.stagedCount);
-  const changesCount = useGitStatusStore((s) => s.changesCount);
-  const changeCount = stagedCount + changesCount;
+  const changeCount = useGitStatusStore((s) => s.stagedCount + s.changesCount);
 
   return (
     <div className="activity-bar">

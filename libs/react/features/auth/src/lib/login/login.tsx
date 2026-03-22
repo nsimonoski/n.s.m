@@ -5,11 +5,9 @@ import './login.scss';
 export function Login() {
   const navigate = useNavigate();
   const isLoading = useAuthStore((s) => s.isLoading);
-  const githubAuthUrl = useAuthStore((s) => s.githubAuthUrl);
-  const guestLogin = useAuthStore((s) => s.guestLogin);
 
   async function handleGuestLogin(): Promise<void> {
-    await guestLogin();
+    await useAuthStore.getState().guestLogin();
     const { workspace } = useAuthStore.getState();
     navigate(workspace?.ready ? '/ide' : '/ide/clone-repo');
   }
@@ -25,7 +23,7 @@ export function Login() {
         <div className="actions">
           <button
             className="btn btn-primary"
-            onClick={() => (window.location.href = githubAuthUrl())}
+            onClick={() => (window.location.href = useAuthStore.getState().githubAuthUrl())}
             disabled={isLoading}
           >
             <i className="codicon codicon-github"></i>
