@@ -4,6 +4,7 @@ import type { UserProfileDto, WorkspaceStatusDto } from '@org/shared/contracts';
 import { browserStorage } from '@org/shared/utils';
 import { authService } from '../services/auth.service';
 import { workspaceService } from '../services/workspace.service';
+import { useCodeEditorStore } from './code-editor.store';
 
 interface AuthState {
   profile: UserProfileDto | null;
@@ -71,7 +72,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       async logout(): Promise<void> {
         await authService.logout();
-        browserStorage('').clearAll(['ide-theme']);
+        browserStorage('').clearAll();
+        useCodeEditorStore.getState().closeAll();
         set({ profile: null, workspace: null });
       },
 

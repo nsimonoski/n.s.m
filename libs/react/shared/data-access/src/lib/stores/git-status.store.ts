@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { GitBranchDto } from '@org/shared/contracts';
 import { gitService } from '../services/git.service';
 import { useAuthStore } from './auth.store';
+import { useSnackbarStore } from './snackbar.store';
 
 interface GitStatusState {
   rootPath: string;
@@ -74,7 +75,10 @@ export const useGitStatusStore = create<GitStatusState & GitStatusActions>((set,
     if (!rootPath) return;
 
     const result = await gitService.checkout(rootPath, branch);
-    if (!result.success) return;
+    if (!result.success) {
+      useSnackbarStore.getState().error(result.error);
+      return;
+    }
 
     await get().listBranches();
   },
@@ -84,9 +88,13 @@ export const useGitStatusStore = create<GitStatusState & GitStatusActions>((set,
     if (!rootPath) return;
 
     const result = await gitService.createBranch(rootPath, branch, sourceBranch);
-    if (!result.success) return;
+    if (!result.success) {
+      useSnackbarStore.getState().error(result.error);
+      return;
+    }
 
     await get().listBranches();
+    useSnackbarStore.getState().success(`Branch "${get().branch}" created`);
   },
 
   init() {

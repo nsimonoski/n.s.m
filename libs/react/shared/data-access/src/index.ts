@@ -7,4 +7,7 @@ export { useGitChangesStore } from './lib/stores/git-changes.store';
 export { useGitCommitStore } from './lib/stores/git-commit.store';
 export { useFileWatcher } from './lib/hooks/use-file-watcher';
 export { useGitWatcher } from './lib/hooks/use-git-watcher';
+export { useThemeStore } from './lib/stores/theme.store';
+export { useSnackbarStore } from './lib/stores/snackbar.store';
+export { fileExplorerService } from './lib/services/file-explorer.service';
 export { setupAxiosInterceptor } from './lib/services/axios-interceptor';

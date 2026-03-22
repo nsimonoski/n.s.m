@@ -18,8 +18,8 @@
   <ide-footer />
 </div>
 
-@if (showFilePicker()) {
-  <ide-file-picker (fileSelected)="onFileSelected($event)" (closed)="onFilePickerClosed()" />
+@if (showFileSearch()) {
+  <ide-file-search (fileSelected)="onFileSelected($event)" (closed)="onFileSearchClosed()" />
 }
 
 <ui-snackbar />

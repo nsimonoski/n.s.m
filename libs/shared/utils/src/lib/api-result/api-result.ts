@@ -10,7 +10,15 @@ export async function apiResult<T>(promise: Promise<T>): Promise<ApiResult<T>> {
     return {
       success: false,
       data: null,
-      error: err instanceof Error ? err.message : 'Unknown error',
+      error: extractErrorMessage(err),
     };
   }
+}
+
+function extractErrorMessage(err: unknown): string {
+  if (typeof err === 'object' && err !== null && 'response' in err) {
+    const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+    if (message) return message;
+  }
+  return err instanceof Error ? err.message : 'Unknown error';
 }

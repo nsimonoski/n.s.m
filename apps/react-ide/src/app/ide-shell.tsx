@@ -1,21 +1,27 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useAuthStore, useCodeEditorStore, useFileExplorerStore, useFileWatcher, useGitWatcher, useGitStatusStore, useIdeLayoutStore } from '@org/react-data-access';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useAuthStore,
+  useCodeEditorStore,
+  useFileExplorerStore,
+  useFileWatcher,
+  useGitWatcher,
+  useGitStatusStore,
+  useIdeLayoutStore,
+  useThemeStore,
+} from '@org/react-data-access';
 import { ResizeUtils } from '@org/shared/utils';
 import { CodeEditor } from '@org/react-code-editor';
 import { FileExplorer } from '@org/react-file-explorer';
 import { GitPanel } from '@org/react-git';
 import { AiChat } from '@org/react-ai-chat';
-import { ActivityBar } from '@org/react-ui';
-import { Footer } from '@org/react-ide';
+import { ActivityBar, Snackbar } from '@org/react-ui';
+import { FileSearch, Footer } from '@org/react-ide';
 
 function SidePanel({ sidebarOpen, children }: { sidebarOpen: boolean; children: React.ReactNode }) {
   const width = useIdeLayoutStore((s) => s.width);
 
   return (
-    <div
-      className={`panel-content${sidebarOpen ? ' mobile-open' : ''}`}
-      style={{ width }}
-    >
+    <div className={`panel-content${sidebarOpen ? ' mobile-open' : ''}`} style={{ width }}>
       {children}
     </div>
   );
@@ -29,6 +35,11 @@ export function IdeShell() {
   const setWidth = useIdeLayoutStore((s) => s.setWidth);
   const closeSidebar = useIdeLayoutStore((s) => s.closeSidebar);
   const resizeRef = useRef({ startX: 0, startWidth: 0 });
+  const [showFileSearch, setShowFileSearch] = useState(false);
+
+  useEffect(() => {
+    useThemeStore.getState().initTheme();
+  }, []);
 
   useEffect(() => {
     if (!workspace?.rootPath) return;
@@ -46,6 +57,23 @@ export function IdeShell() {
 
   useFileWatcher(directory?.path ?? null);
   useGitWatcher(workspace?.rootPath ?? null);
+
+  useEffect(() => {
+    function handleKeydown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 't') {
+        e.preventDefault();
+        setShowFileSearch((v) => !v);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, []);
+
+  const closeFileSearch = useCallback(() => setShowFileSearch(false), []);
 
   const onResizeStart = useCallback(
     (e: React.MouseEvent) => {
@@ -89,6 +117,8 @@ export function IdeShell() {
       <div className="editor-area">
         <CodeEditor />
       </div>
+      {showFileSearch && <FileSearch onClose={closeFileSearch} />}
+      <Snackbar />
     </div>
   );
 }
