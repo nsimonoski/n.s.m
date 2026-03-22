@@ -137,33 +137,50 @@ export function GitPanel() {
     setPendingDiscardPaths([]);
   }
 
-  function renderNodeActions(node: DirectoryResponseDto | FileResponseDto) {
-    const actions = node.path.startsWith('/staged')
-      ? STAGED_ACTIONS
-      : node.path.startsWith('/changes')
-        ? CHANGES_ACTIONS
-        : [];
+  const renderNodeActions = useCallback(
+    (node: DirectoryResponseDto | FileResponseDto) => {
+      const actions = node.path.startsWith('/staged')
+        ? STAGED_ACTIONS
+        : node.path.startsWith('/changes')
+          ? CHANGES_ACTIONS
+          : [];
 
-    if (actions.length === 0) return null;
+      if (actions.length === 0) return null;
 
-    return (
-      <span className="node-actions">
-        {actions.map((action) => (
-          <button
-            key={action.id}
-            className="action-btn"
-            title={action.tooltip}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAction(action.id as ContextMenu.Action, node);
-            }}
-          >
-            <i className={`codicon ${action.icon}`} />
-          </button>
-        ))}
-      </span>
-    );
-  }
+      return (
+        <span className="node-actions">
+          {actions.map((action) => (
+            <button
+              key={action.id}
+              className="action-btn"
+              title={action.tooltip}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAction(action.id as ContextMenu.Action, node);
+              }}
+            >
+              <i className={`codicon ${action.icon}`} />
+            </button>
+          ))}
+        </span>
+      );
+    },
+    [],
+  );
+
+  const handleContextMenuClose = useCallback(() => setContextMenu(null), []);
+
+  const handleDiscardCancel = useCallback(() => {
+    setDiscardDialogOpen(false);
+    setPendingDiscardPaths([]);
+  }, []);
+
+  const handleContextMenuOpen = useCallback(
+    (x: number, y: number, node: DirectoryResponseDto | FileResponseDto | null) => {
+      setContextMenu({ x, y, node });
+    },
+    [],
+  );
 
   return (
     <div className="git-explorer">
@@ -187,7 +204,7 @@ export function GitPanel() {
             onOpen={handleFileClick}
             onExpand={noop}
             onRename={noop}
-            onContextMenu={(x, y, node) => setContextMenu({ x, y, node })}
+            onContextMenu={handleContextMenuOpen}
           />
         )}
       </CollapsibleSection>
@@ -202,7 +219,7 @@ export function GitPanel() {
           y={contextMenu.y}
           items={getMenuItems()}
           onAction={handleContextMenuAction}
-          onClose={() => setContextMenu(null)}
+          onClose={handleContextMenuClose}
         />
       )}
 
@@ -211,10 +228,7 @@ export function GitPanel() {
         title="Discard Changes"
         message="Are you sure you want to discard changes? This cannot be undone."
         onConfirm={handleDiscardConfirmed}
-        onCancel={() => {
-          setDiscardDialogOpen(false);
-          setPendingDiscardPaths([]);
-        }}
+        onCancel={handleDiscardCancel}
       />
     </div>
   );

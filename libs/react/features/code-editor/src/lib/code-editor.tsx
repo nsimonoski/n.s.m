@@ -4,11 +4,11 @@ import { MonacoEditor } from './monaco-editor/monaco-editor';
 import './code-editor.scss';
 
 export function CodeEditor() {
-  const openFiles = useCodeEditorStore((s) => s.openFiles);
+  const hasOpenFiles = useCodeEditorStore((s) => s.openFiles.length > 0);
 
   return (
     <div className="code-editor">
-      {openFiles.length > 0 ? (
+      {hasOpenFiles ? (
         <>
           <TabBar />
           <MonacoEditor />

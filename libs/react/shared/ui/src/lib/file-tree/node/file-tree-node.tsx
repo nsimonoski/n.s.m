@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { DirectoryResponseDto, FileResponseDto, Enums } from '@org/shared/contracts';
 import { FileUtils } from '@org/shared/utils';
 import { useFileTreeContext } from '../file-tree.context';
@@ -8,7 +9,7 @@ interface FileTreeNodeProps {
   level: number;
 }
 
-export function FileTreeNode({ node, level }: FileTreeNodeProps) {
+export const FileTreeNode = memo(function FileTreeNode({ node, level }: FileTreeNodeProps) {
   const ctx = useFileTreeContext();
 
   const isDirectory = node.type === Enums.FileType.DIRECTORY;
@@ -99,4 +100,4 @@ export function FileTreeNode({ node, level }: FileTreeNodeProps) {
       {renderChildren()}
     </>
   );
-}
+});

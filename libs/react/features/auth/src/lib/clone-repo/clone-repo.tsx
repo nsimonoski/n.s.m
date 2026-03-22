@@ -8,15 +8,13 @@ export function CloneRepo() {
   const profile = useAuthStore((s) => s.profile);
   const isLoading = useAuthStore((s) => s.isLoading);
   const errorMessage = useAuthStore((s) => s.errorMessage);
-  const cloneRepo = useAuthStore((s) => s.cloneRepo);
-  const logout = useAuthStore((s) => s.logout);
 
   const [repoUrl, setRepoUrl] = useState('https://github.com/nsimonoski/n.s.m');
 
   async function handleClone(): Promise<void> {
     const url = repoUrl.trim();
     if (!url) return;
-    await cloneRepo(url);
+    await useAuthStore.getState().cloneRepo(url);
     const { workspace } = useAuthStore.getState();
     if (workspace?.ready) {
       navigate('/ide');
@@ -24,7 +22,7 @@ export function CloneRepo() {
   }
 
   async function handleLogout(): Promise<void> {
-    await logout();
+    await useAuthStore.getState().logout();
     navigate('/login');
   }
 

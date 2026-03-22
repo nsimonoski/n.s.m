@@ -4,6 +4,8 @@ import { FileTreeProvider, FileTreeContextValue } from './file-tree.context';
 import { FileTreeNode } from './node/file-tree-node';
 import './file-tree.scss';
 
+const EMPTY_STATUS_MAP: Record<string, string> = {};
+
 interface FileTreeProps {
   directory: DirectoryResponseDto;
   statusMap?: Record<string, string>;
@@ -29,7 +31,7 @@ export interface FileTreeHandle {
 export const FileTree = forwardRef<FileTreeHandle, FileTreeProps>(function FileTree(
   {
     directory,
-    statusMap = {},
+    statusMap = EMPTY_STATUS_MAP,
     renderCreateNode,
     renderNodeActions,
     renamingNode,
@@ -106,7 +108,10 @@ export const FileTree = forwardRef<FileTreeHandle, FileTreeProps>(function FileT
     onContextMenu(e.clientX, e.clientY, null);
   }
 
-  const rootNodes = [...directory.directories, ...directory.files];
+  const rootNodes = useMemo(
+    () => [...directory.directories, ...directory.files],
+    [directory.directories, directory.files],
+  );
 
   return (
     <FileTreeProvider value={contextValue}>

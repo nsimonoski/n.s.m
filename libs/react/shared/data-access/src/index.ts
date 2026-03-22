@@ -9,5 +9,7 @@ export { useFileWatcher } from './lib/hooks/use-file-watcher';
 export { useGitWatcher } from './lib/hooks/use-git-watcher';
 export { useThemeStore } from './lib/stores/theme.store';
 export { useSnackbarStore } from './lib/stores/snackbar.store';
+export { useAiChatStore } from './lib/stores/ai-chat.store';
+export type { ChatMessage } from './lib/stores/ai-chat.store';
 export { fileExplorerService } from './lib/services/file-explorer.service';
 export { setupAxiosInterceptor } from './lib/services/axios-interceptor';
