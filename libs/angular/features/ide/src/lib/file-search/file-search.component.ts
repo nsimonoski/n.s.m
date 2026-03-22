@@ -1,16 +1,16 @@
 import { Component, computed, inject, OnDestroy, output } from '@angular/core';
 import { FileResponseDto } from '@org/shared/contracts';
 import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
-import { FileSearchStore } from './file-picker.store';
+import { FileSearchStore } from './file-search.store';
 
 @Component({
-  selector: 'ide-file-picker',
+  selector: 'ide-file-search',
   standalone: true,
   imports: [CommandPaletteComponent],
   providers: [FileSearchStore],
-  templateUrl: './file-picker.component.html',
+  templateUrl: './file-search.component.html',
 })
-export class FilePickerComponent implements OnDestroy {
+export class FileSearchComponent implements OnDestroy {
   readonly fileSelected = output<FileResponseDto>();
   readonly closed = output<void>();
 

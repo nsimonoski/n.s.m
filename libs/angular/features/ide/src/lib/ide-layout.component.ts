@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FileResponseDto } from '@org/shared/contracts';
 import { ResizeUtils } from '@org/shared/utils';
-import { FilePickerComponent } from './file-picker/file-picker.component';
+import { FileSearchComponent } from './file-search/file-search.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
 import { SnackbarComponent } from '@org/angular/ui';
@@ -15,7 +15,7 @@ import { IdeStore } from '@org/angular-data-access';
     RouterOutlet,
     ActivityBarComponent,
     FooterComponent,
-    FilePickerComponent,
+    FileSearchComponent,
     SnackbarComponent,
   ],
   templateUrl: './ide-layout.component.html',
@@ -26,7 +26,7 @@ import { IdeStore } from '@org/angular-data-access';
 })
 export class IdeLayoutComponent {
   readonly layoutStore = inject(IdeStore.IdeLayoutStore);
-  readonly showFilePicker = signal(false);
+  readonly showFileSearch = signal(false);
 
   onResizeStart(event: MouseEvent): void {
     this.resizing = true;
@@ -39,18 +39,18 @@ export class IdeLayoutComponent {
   }
 
   onFileSelected(file: FileResponseDto): void {
-    this.showFilePicker.set(false);
+    this.showFileSearch.set(false);
     this.layoutStore.openFile(file.path);
   }
 
-  onFilePickerClosed(): void {
-    this.showFilePicker.set(false);
+  onFileSearchClosed(): void {
+    this.showFileSearch.set(false);
   }
 
   handleKeydown(event: KeyboardEvent): void {
     if ((event.ctrlKey || event.metaKey) && event.key === 't') {
       event.preventDefault();
-      this.showFilePicker.update((v) => !v);
+      this.showFileSearch.update((v) => !v);
     }
   }
 

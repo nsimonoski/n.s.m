@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useAuthStore, useGitStatusStore } from '@org/react-data-access';
+import { ThemeToggle } from '@org/react-ui';
 import { BranchPicker } from '../branch-picker/branch-picker';
 import { CreateBranchDialog, type CreateBranchEvent } from '../create-branch-dialog/create-branch-dialog';
 import './footer.scss';
@@ -56,6 +57,8 @@ export function Footer() {
           {profile?.username}
           {profile?.isGuest && <span className="badge">guest</span>}
         </span>
+
+        <ThemeToggle />
 
         <button className="footer-btn" onClick={logout} title="Logout">
           <i className="codicon codicon-sign-out" />

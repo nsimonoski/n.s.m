@@ -7,3 +7,5 @@ export * from './lib/activity-bar/activity-bar';
 export * from './lib/collapsible-section/collapsible-section';
 export * from './lib/dropdown-menu/dropdown-menu';
 export * from './lib/command-palette/command-palette';
+export * from './lib/theme-toggle/theme-toggle';
+export * from './lib/snackbar/snackbar';
