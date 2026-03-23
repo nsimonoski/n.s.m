@@ -20,3 +20,5 @@ export const terminal: PanelDefinition = {
   icon: 'icons/terminal.svg',
   tooltip: 'Terminal',
 };
+
+export const panels: PanelDefinition[] = [explorer, git, ai];

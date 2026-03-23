@@ -47,7 +47,7 @@ export class DockerPtyProvider extends PtyProvider {
         stream.write(data);
       },
       resize(cols: number, rows: number): void {
-        exec.resize({ h: rows, w: cols }).catch(() => {});
+        exec.resize({ h: rows, w: cols }).catch(() => { /* resize may fail after disconnect */ });
       },
       kill(): void {
         stream.end();

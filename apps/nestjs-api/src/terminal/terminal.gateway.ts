@@ -112,7 +112,7 @@ export class TerminalGateway implements OnModuleDestroy {
     const handle = sessions?.get(body.sessionId);
     if (handle) {
       handle.kill();
-      sessions!.delete(body.sessionId);
+      sessions?.delete(body.sessionId);
       this.logger.log(`[${client.id}] Terminal session closed: ${body.sessionId}`);
     }
   }

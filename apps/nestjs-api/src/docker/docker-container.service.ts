@@ -44,10 +44,7 @@ export class DockerContainerService implements OnModuleInit {
       Image: WORKSPACE_IMAGE,
       Labels: { [WORKSPACE_LABEL]: sessionId },
       HostConfig: {
-        Binds: [
-          `${hostWorkspacePath}:/workspace`,
-          'nsm-npm-cache:/home/workspace/.npm',
-        ],
+        Binds: [`${hostWorkspacePath}:/workspace`, 'nsm-npm-cache:/home/workspace/.npm'],
         Memory: 1024 * 1024 * 1024,
         NanoCpus: 1 * 1e9,
         PidsLimit: 200,
@@ -66,7 +63,9 @@ export class DockerContainerService implements OnModuleInit {
   async removeContainer(containerId: string): Promise<void> {
     try {
       const container = this.docker.getContainer(containerId);
-      await container.stop({ t: 5 }).catch(() => {});
+      await container.stop({ t: 5 }).catch(() => {
+        /* graceful stop may fail */
+      });
       await container.remove({ force: true });
       this.logger.log(`Container removed: ${containerId}`);
     } catch (error) {
