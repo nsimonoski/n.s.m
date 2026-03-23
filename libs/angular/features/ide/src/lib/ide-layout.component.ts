@@ -52,6 +52,10 @@ export class IdeLayoutComponent {
       event.preventDefault();
       this.showFileSearch.update((v) => !v);
     }
+    if ((event.ctrlKey || event.metaKey) && event.key === '`') {
+      event.preventDefault();
+      this.layoutStore.toggleTerminal();
+    }
   }
 
   private resizing = false;

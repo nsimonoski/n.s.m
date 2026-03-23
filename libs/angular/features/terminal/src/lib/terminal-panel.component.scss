@@ -1,0 +1,11 @@
+@use 'ide/terminal-panel';
+
+:host {
+  display: block;
+}
+
+.terminal-host {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}

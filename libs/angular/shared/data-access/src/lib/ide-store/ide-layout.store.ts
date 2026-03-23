@@ -15,6 +15,8 @@ import { CodeEditorStore } from './code-editor.store';
 export interface IdeLayoutState {
   width: number;
   sidebarOpen: boolean;
+  terminalOpen: boolean;
+  terminalHeight: number;
 }
 
 export const IdeLayoutStore = signalStore(
@@ -22,6 +24,8 @@ export const IdeLayoutStore = signalStore(
   withState<IdeLayoutState>({
     width: ResizeUtils.DEFAULT_PANEL_WIDTH,
     sidebarOpen: false,
+    terminalOpen: false,
+    terminalHeight: 250,
   }),
   partialStore.withBrowserStorage({ key: 'ide-layout' }),
   partialStore.withRouting(),
@@ -52,6 +56,20 @@ export const IdeLayoutStore = signalStore(
     },
     closeSidebar: () => {
       patchState(store, { sidebarOpen: false });
+    },
+    toggleTerminal: () => {
+      const next = !store.terminalOpen();
+      patchState(store, { terminalOpen: next });
+      store.saveToStorage({ terminalOpen: next });
+    },
+    closeTerminal: () => {
+      patchState(store, { terminalOpen: false });
+      store.saveToStorage({ terminalOpen: false });
+    },
+    setTerminalHeight: (height: number) => {
+      const clamped = Math.max(100, Math.min(600, height));
+      patchState(store, { terminalHeight: clamped });
+      store.saveToStorage({ terminalHeight: clamped });
     },
   })),
   withHooks({

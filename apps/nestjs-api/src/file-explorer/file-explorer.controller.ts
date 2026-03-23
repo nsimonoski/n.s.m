@@ -46,8 +46,8 @@ export class FileExplorerController {
     }
 
     return this.service.searchFiles(
-      decodeURIComponent(searchPath),
-      decodeURIComponent(query),
+      searchPath,
+      query,
       limit ? parseInt(limit, 10) : 20,
     );
   }
@@ -58,12 +58,12 @@ export class FileExplorerController {
       throw new BadRequestException('Paths array is required');
     }
 
-    return this.service.getFiles(paths.map(decodeURIComponent));
+    return this.service.getFiles(paths);
   }
 
   @Get('file')
   async getFile(@Query('path') id: string): Promise<FileResponseDto> {
-    const file = await this.service.getFile(decodeURIComponent(id));
+    const file = await this.service.getFile(id);
 
     if (!file) {
       throw new BadRequestException(`File not found: ${id}`);

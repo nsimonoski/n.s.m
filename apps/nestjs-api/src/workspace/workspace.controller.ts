@@ -13,10 +13,7 @@ export class WorkspaceController {
 
   @Post('clone')
   @UseGuards(PermissionGuard(Permission.FileWrite))
-  async clone(
-    @Req() req: Request & { session: UserSession },
-    @Body('repoUrl') repoUrl: string,
-  ) {
+  async clone(@Req() req: Request & { session: UserSession }, @Body('repoUrl') repoUrl: string) {
     return this.workspaceService.cloneRepo(req.session, repoUrl);
   }
 

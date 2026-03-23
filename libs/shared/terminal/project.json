@@ -1,0 +1,21 @@
+{
+  "name": "shared-terminal",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/terminal/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:util"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/terminal",
+        "main": "libs/shared/terminal/src/index.ts",
+        "tsConfig": "libs/shared/terminal/tsconfig.lib.json",
+        "assets": [],
+        "external": "all",
+        "skipTypeCheck": true
+      }
+    }
+  }
+}

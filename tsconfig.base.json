@@ -27,7 +27,9 @@
       "@org/react-auth": ["libs/react/features/auth/src/index.ts"],
       "@org/react-git": ["libs/react/features/git/src/index.ts"],
       "@org/react-ai-chat": ["libs/react/features/ai-chat/src/index.ts"],
-      "@org/react-ide": ["libs/react/features/ide/src/index.ts"]
+      "@org/react-ide": ["libs/react/features/ide/src/index.ts"],
+      "@org/shared/terminal": ["libs/shared/terminal/src/index.ts"],
+      "@org/angular-terminal": ["libs/angular/features/terminal/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

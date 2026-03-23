@@ -1,4 +1,9 @@
 <div class="ide-shell">
   <ide-layout />
-  <ide-code-editor />
+  <div class="editor-area">
+    <ide-code-editor />
+    @if (layoutStore.terminalOpen()) {
+      <ide-terminal-panel />
+    }
+  </div>
 </div>

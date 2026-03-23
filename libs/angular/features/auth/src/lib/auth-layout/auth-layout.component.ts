@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { ThemeToggleComponent } from '@org/angular/ui';
+import { SnackbarComponent, ThemeToggleComponent } from '@org/angular/ui';
 
 @Component({
   selector: 'ide-auth-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, ThemeToggleComponent],
+  imports: [RouterOutlet, RouterLink, ThemeToggleComponent, SnackbarComponent],
   templateUrl: './auth-layout.component.html',
   styleUrls: ['./auth-layout.component.scss'],
 })

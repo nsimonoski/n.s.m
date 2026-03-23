@@ -1,0 +1,55 @@
+import type { ITheme } from '@xterm/xterm';
+
+export function getTerminalTheme(isDark: boolean): ITheme {
+  if (isDark) {
+    return {
+      background: '#1e1e1e',
+      foreground: '#cccccc',
+      cursor: '#aeafad',
+      cursorAccent: '#000000',
+      selectionBackground: '#264f78',
+      selectionForeground: '#ffffff',
+      black: '#000000',
+      red: '#cd3131',
+      green: '#0dbc79',
+      yellow: '#e5e510',
+      blue: '#2472c8',
+      magenta: '#bc3fbc',
+      cyan: '#11a8cd',
+      white: '#e5e5e5',
+      brightBlack: '#666666',
+      brightRed: '#f14c4c',
+      brightGreen: '#23d18b',
+      brightYellow: '#f5f543',
+      brightBlue: '#3b8eea',
+      brightMagenta: '#d670d6',
+      brightCyan: '#29b8db',
+      brightWhite: '#e5e5e5',
+    };
+  }
+
+  return {
+    background: '#ffffff',
+    foreground: '#383a42',
+    cursor: '#526eff',
+    cursorAccent: '#ffffff',
+    selectionBackground: '#add6ff',
+    selectionForeground: '#000000',
+    black: '#383a42',
+    red: '#e45649',
+    green: '#50a14f',
+    yellow: '#c18401',
+    blue: '#4078f2',
+    magenta: '#a626a4',
+    cyan: '#0184bc',
+    white: '#fafafa',
+    brightBlack: '#4f525e',
+    brightRed: '#e06c75',
+    brightGreen: '#98c379',
+    brightYellow: '#e5c07b',
+    brightBlue: '#528bff',
+    brightMagenta: '#c678dd',
+    brightCyan: '#56b6c2',
+    brightWhite: '#ffffff',
+  };
+}

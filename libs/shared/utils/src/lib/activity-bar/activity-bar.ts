@@ -4,8 +4,21 @@ export interface PanelDefinition {
   tooltip: string;
 }
 
-export const panels: PanelDefinition[] = [
-  { id: 'explorer', icon: 'icons/explorer.svg', tooltip: 'Explorer' },
-  { id: 'git', icon: 'icons/source-control.svg', tooltip: 'Source Control' },
-  { id: 'ai', icon: 'icons/ai.svg', tooltip: 'AI Assistant' },
-];
+export const explorer: PanelDefinition = {
+  id: 'explorer',
+  icon: 'icons/explorer.svg',
+  tooltip: 'Explorer',
+};
+export const git: PanelDefinition = {
+  id: 'git',
+  icon: 'icons/source-control.svg',
+  tooltip: 'Source Control',
+};
+export const ai: PanelDefinition = { id: 'ai', icon: 'icons/ai.svg', tooltip: 'AI Assistant' };
+export const terminal: PanelDefinition = {
+  id: 'terminal',
+  icon: 'icons/terminal.svg',
+  tooltip: 'Terminal',
+};
+
+export const panels: PanelDefinition[] = [explorer, git, ai];

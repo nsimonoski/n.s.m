@@ -11,7 +11,8 @@ import {
 
 import { GIT_CHANGE_EVENT, GIT_WATCH_EVENT } from '@org/shared/contracts';
 import { GitTreeUtils } from '@org/shared/utils';
-import { getCorsOrigins, FileWatcherService } from '../common';
+import { getCorsOrigins, FileWatcherService, createWsAuthMiddleware } from '../common';
+import { SessionService } from '../auth/session.service';
 import { GitProvider } from './domain/git.provider';
 
 const THROTTLE_MS = 1000;
@@ -32,7 +33,12 @@ export class GitGateway implements OnModuleDestroy {
   constructor(
     private readonly gitProvider: GitProvider,
     private readonly fileWatcherService: FileWatcherService,
+    private readonly sessionService: SessionService,
   ) {}
+
+  afterInit(server: Server): void {
+    server.use(createWsAuthMiddleware(this.sessionService));
+  }
 
   @WebSocketServer()
   server!: Server;

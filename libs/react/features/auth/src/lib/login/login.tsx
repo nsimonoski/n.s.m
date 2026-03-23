@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@org/react-data-access';
+import { ThemeToggle } from '@org/react-ui';
 import './login.scss';
 
 export function Login() {
@@ -45,8 +46,6 @@ export function Login() {
           clone your own repos with full read/write access.
         </p>
 
-        <p className="note">The React version is a work in progress. For the full experience,</p>
-
         <div className="version-switch">
           <a href="/angular/login" target="_blank" rel="noopener noreferrer">
             <i className="codicon codicon-arrow-swap"></i>
@@ -79,6 +78,11 @@ export function Login() {
             <span>CV</span>
           </a>
         </div>
+      </div>
+
+      <div className="auth-footer">
+        <span className="spacer"></span>
+        <ThemeToggle />
       </div>
     </div>
   );

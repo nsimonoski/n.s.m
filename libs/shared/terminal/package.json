@@ -1,0 +1,15 @@
+{
+  "name": "@org/shared/terminal",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "dependencies": {
+    "@org/contracts": "0.0.1",
+    "@swc/helpers": "~0.5.18",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/addon-web-links": "^0.12.0",
+    "@xterm/xterm": "^6.0.0"
+  }
+}

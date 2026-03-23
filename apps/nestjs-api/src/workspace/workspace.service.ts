@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { WorkspaceStatusDto } from '@org/shared/contracts';
 import { GitProvider } from '../git/domain/git.provider';
 import { EnvironmentVariables, FileSystemService } from '../common';
+import { DockerContainerService } from '../docker/docker-container.service';
 import { GithubApiService } from '../github-api';
 import { SessionService, UserSession } from '../auth/session.service';
 
@@ -15,6 +16,7 @@ export class WorkspaceService {
     private readonly sessionService: SessionService,
     private readonly fileSystemService: FileSystemService,
     private readonly githubApi: GithubApiService,
+    private readonly dockerService: DockerContainerService,
     private readonly config: ConfigService,
   ) {}
 
@@ -44,7 +46,17 @@ export class WorkspaceService {
       `${session.githubUsername}@users.noreply.github.com`,
     );
 
-    const updated = await this.sessionService.initializeWorkspace(session.id, repoUrl, isPrivate);
+    const hostWorkspacePath = this.resolveHostPath(workspacePath);
+    const containerId = await this.dockerService.createWorkspaceContainer(
+      session.id,
+      hostWorkspacePath,
+    );
+    const updated = await this.sessionService.initializeWorkspace(
+      session.id,
+      repoUrl,
+      isPrivate,
+      containerId,
+    );
     return this.getWorkspace(updated);
   }
 
@@ -61,7 +73,17 @@ export class WorkspaceService {
     await this.gitProvider.clone(demoRepoUrl, workspacePath);
     await this.gitProvider.checkout(workspacePath, 'dev');
 
-    const updated = await this.sessionService.initializeWorkspace(session.id, demoRepoUrl, false);
+    const hostWorkspacePath = this.resolveHostPath(workspacePath);
+    const containerId = await this.dockerService.createWorkspaceContainer(
+      session.id,
+      hostWorkspacePath,
+    );
+    const updated = await this.sessionService.initializeWorkspace(
+      session.id,
+      demoRepoUrl,
+      false,
+      containerId,
+    );
     return this.getWorkspace(updated);
   }
 
@@ -86,6 +108,17 @@ export class WorkspaceService {
     } catch (error) {
       throw this.fileSystemService.mapToHttpException(error);
     }
+  }
+
+  private resolveHostPath(containerPath: string): string {
+    const hostBase = this.config.get<string>(EnvironmentVariables.WORKSPACE_HOST_PATH, '');
+    if (!hostBase) return containerPath;
+
+    const containerBase = this.config.get<string>(
+      EnvironmentVariables.WORKSPACE_BASE_DIR,
+      '/tmp/workspaces',
+    );
+    return containerPath.replace(containerBase, hostBase);
   }
 
   private parseGithubUrl(repoUrl: string): { owner: string; repo: string } {

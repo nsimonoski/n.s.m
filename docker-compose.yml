@@ -15,21 +15,56 @@ services:
       - REACT_IDE_URL=https://kod3.dev/react
       - OAUTH_CALLBACK_URL=https://kod3.dev/api/auth/github/callback
       - WORKSPACE_BASE_DIR=/data/workspaces
+      - WORKSPACE_HOST_PATH=/opt/kode/workspaces
+      - DOCKER_HOST=tcp://docker-proxy:2375
+      - WORKSPACE_NETWORK=workspace-net
     env_file:
       - .env.production
     tmpfs:
       - /tmp/private-workspaces:size=512M
     volumes:
-      - workspace-data:/data/workspaces
+      - /opt/kode/workspaces:/data/workspaces
+    networks:
+      - internal
     depends_on:
       - redis
+      - docker-proxy
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     volumes:
       - redis-data:/data
+    networks:
+      - internal
+
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: unless-stopped
+    environment:
+      - CONTAINERS=1
+      - EXEC=1
+      - POST=1
+      - PING=1
+      - NETWORKS=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal
+
+  workspace:
+    build:
+      context: .
+      dockerfile: docker/workspace/Dockerfile
+    image: nsm-workspace:latest
+    profiles:
+      - build-only
 
 volumes:
   redis-data:
-  workspace-data:
+
+networks:
+  internal:
+    internal: true
+  workspace-net:
+    driver: bridge
