@@ -25,6 +25,7 @@ services:
     volumes:
       - /opt/kode/workspaces:/data/workspaces
     networks:
+      - default
       - internal
     depends_on:
       - redis
