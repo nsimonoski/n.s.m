@@ -118,7 +118,7 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => {
           store.socketService.disconnect();
-          store.snackbar.info('Cleaning up workspace...', 8000);
+          store.snackbar.info('Cleaning up workspace...', 25000);
         }),
         switchMap(() => store.authService.logout()),
         tap(() => {

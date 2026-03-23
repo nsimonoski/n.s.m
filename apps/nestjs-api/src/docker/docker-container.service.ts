@@ -44,10 +44,13 @@ export class DockerContainerService implements OnModuleInit {
       Image: WORKSPACE_IMAGE,
       Labels: { [WORKSPACE_LABEL]: sessionId },
       HostConfig: {
-        Binds: [`${hostWorkspacePath}:/workspace`],
-        Memory: 512 * 1024 * 1024,
-        NanoCpus: 0.5 * 1e9,
-        PidsLimit: 100,
+        Binds: [
+          `${hostWorkspacePath}:/workspace`,
+          'nsm-npm-cache:/home/workspace/.npm',
+        ],
+        Memory: 1024 * 1024 * 1024,
+        NanoCpus: 1 * 1e9,
+        PidsLimit: 200,
         NetworkMode: this.workspaceNetwork ?? 'none',
         SecurityOpt: ['no-new-privileges'],
       },
