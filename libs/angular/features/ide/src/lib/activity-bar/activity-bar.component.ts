@@ -1,10 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { ActivityBarConfig } from '@org/shared/utils';
 import { IdeStore } from '@org/angular-data-access';
+import { ActivityBarItemComponent } from './item/activity-bar-item.component';
 
 @Component({
   selector: 'ide-activity-bar',
   standalone: true,
+  imports: [ActivityBarItemComponent],
   templateUrl: './activity-bar.component.html',
   styleUrls: ['./activity-bar.component.scss'],
 })
@@ -14,7 +16,7 @@ export class ActivityBarComponent {
 
   readonly changeCount = computed(() => this.gitStatusStore.stagedCount() + this.gitStatusStore.changesCount());
 
-  readonly panels = ActivityBarConfig.panels;
+  readonly panels = ActivityBarConfig;
 
   onPanelClick(panelId: string): void {
     this.layoutStore.setActivePanel(panelId);

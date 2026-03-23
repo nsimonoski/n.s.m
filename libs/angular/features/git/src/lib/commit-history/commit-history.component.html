@@ -4,6 +4,7 @@
       class="commit-entry"
       (mouseenter)="onEntryEnter($event, entry)"
       (mouseleave)="onEntryLeave()"
+      (click)="onEntryClick($event, entry)"
     >
       <div class="commit-info">
         <span class="commit-message">{{ entry.message }}</span>

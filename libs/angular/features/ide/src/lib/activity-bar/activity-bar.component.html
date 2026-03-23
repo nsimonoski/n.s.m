@@ -1,15 +1,24 @@
 <div class="activity-bar">
-  @for (panel of panels; track panel.id) {
-    <button
-      class="activity-bar-item"
-      [class.active]="layoutStore.activePanel() === panel.id"
-      [title]="panel.tooltip"
-      (click)="onPanelClick(panel.id)"
-    >
-      <img class="icon" [src]="panel.icon" [alt]="panel.tooltip" />
-      @if (panel.id === 'git' && changeCount() > 0) {
-        <span class="badge">{{ changeCount() }}</span>
-      }
-    </button>
-  }
+  <ide-activity-bar-item
+    [panel]="panels.explorer"
+    [activePanel]="layoutStore.activePanel()"
+    (clicked)="onPanelClick(panels.explorer.id)"
+  />
+  <ide-activity-bar-item
+    [panel]="panels.git"
+    [activePanel]="layoutStore.activePanel()"
+    (clicked)="onPanelClick(panels.git.id)"
+  >
+    @if (changeCount() > 0) {
+      <span class="badge">{{ changeCount() }}</span>
+    }
+  </ide-activity-bar-item>
+  <ide-activity-bar-item
+    [panel]="panels.ai"
+    [activePanel]="layoutStore.activePanel()"
+    (clicked)="onPanelClick(panels.ai.id)"
+  />
+
+  <div style="flex: 1"></div>
+  <ide-activity-bar-item [panel]="panels.terminal" (clicked)="layoutStore.toggleTerminal()" />
 </div>

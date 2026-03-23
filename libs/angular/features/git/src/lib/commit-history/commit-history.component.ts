@@ -1,4 +1,5 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { GitLogEntryDto } from '@org/shared/contracts';
 import { CommitHistoryTooltipComponent } from '../commit-history-tooltip/commit-history-tooltip.component';
 
@@ -6,6 +7,7 @@ export interface TooltipState {
   entry: GitLogEntryDto;
   top: number;
   left: number;
+  pinned: boolean;
 }
 
 @Component({
@@ -26,17 +28,56 @@ export class CommitHistoryComponent {
     })),
   );
 
-  onEntryEnter(event: MouseEvent, entry: GitLogEntryDto): void {
-    const el = event.currentTarget as HTMLElement;
-    const entryRect = el.getBoundingClientRect();
-    const panel = el.closest('.panel-content');
-    const left = panel ? panel.getBoundingClientRect().right : entryRect.right;
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly outsideClickHandler = (e: MouseEvent) => this.onOutsideClick(e);
 
-    this.tooltip.set({ entry, top: entryRect.top, left });
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('click', this.outsideClickHandler);
+    });
+  }
+
+  onEntryEnter(event: MouseEvent, entry: GitLogEntryDto): void {
+    if (this.tooltip()?.pinned) return;
+    const pos = this.getTooltipPosition(event.currentTarget as HTMLElement);
+    this.tooltip.set({ entry, ...pos, pinned: false });
   }
 
   onEntryLeave(): void {
+    if (this.tooltip()?.pinned) return;
     this.tooltip.set(null);
+  }
+
+  onEntryClick(event: MouseEvent, entry: GitLogEntryDto): void {
+    event.stopPropagation();
+    const current = this.tooltip();
+    if (current?.pinned && current.entry.hash === entry.hash) {
+      this.unpin();
+      return;
+    }
+    const pos = this.getTooltipPosition(event.currentTarget as HTMLElement);
+    this.tooltip.set({ entry, ...pos, pinned: true });
+    this.document.addEventListener('click', this.outsideClickHandler);
+  }
+
+  private unpin(): void {
+    this.tooltip.set(null);
+    this.document.removeEventListener('click', this.outsideClickHandler);
+  }
+
+  private getTooltipPosition(el: HTMLElement): { top: number; left: number } {
+    const entryRect = el.getBoundingClientRect();
+    const panel = el.closest('.panel-content');
+    const left = panel ? panel.getBoundingClientRect().right : entryRect.right;
+    return { top: entryRect.top, left };
+  }
+
+  private onOutsideClick(e: MouseEvent): void {
+    const target = e.target as HTMLElement;
+    if (!target.closest('ide-commit-history')) {
+      this.unpin();
+    }
   }
 
   private authorInitials(fullName: string): string {
