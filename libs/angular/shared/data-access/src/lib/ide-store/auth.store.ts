@@ -12,6 +12,7 @@ import { AppRoutes } from '@org/shared/utils';
 import { partialStore, sockets } from '@org/angular-utils';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { map, of, pipe, switchMap, tap } from 'rxjs';
+import { SnackbarService } from '@org/angular/ui';
 import { AuthService } from '../auth.service';
 import { WorkspaceService } from '../workspace.service';
 
@@ -42,21 +43,22 @@ export const AuthStore = signalStore(
     authService: inject(AuthService),
     workspaceService: inject(WorkspaceService),
     socketService: inject(sockets.SocketService),
+    snackbar: inject(SnackbarService),
   })),
 
-  withMethods((state) => ({
+  withMethods((store) => ({
     getLoginInfo() {
-      if (state.profile()) {
+      if (store.profile()) {
         return of(true);
       }
 
-      state.setLoading(true, '');
-      return state.authService.getLoginInfo().pipe(
+      store.setLoading(true, '');
+      return store.authService.getLoginInfo().pipe(
         tap(({ success, data }) => {
           if (success && data) {
-            state.saveToStorage({ profile: data });
+            store.saveToStorage({ profile: data });
           }
-          state.setLoading(false);
+          store.setLoading(false);
         }),
         map(({ success, data }) => success && !!data),
       );
@@ -64,22 +66,27 @@ export const AuthStore = signalStore(
 
     guestLogin: rxMethod<void>(
       pipe(
-        tap(() => state.setLoading(true, '')),
-        switchMap(() => state.authService.guestLogin()),
+        tap(() => {
+          store.setLoading(true, '');
+          store.snackbar.info('Creating workspace...', 5000);
+        }),
+        switchMap(() => store.authService.guestLogin()),
         switchMap(({ success, data: profile }) => {
           if (!success) {
-            state.setLoading(false, 'Failed to start guest session');
+            store.setLoading(false, 'Failed to start guest session');
             return of(null);
           }
-          return state.workspaceService.cloneDemoRepo().pipe(
+          return store.workspaceService.cloneDemoRepo().pipe(
             tap(({ success: cloneSuccess, data: workspace }) => {
               if (!cloneSuccess) {
-                state.setLoading(false, 'Failed to start guest session');
+                store.setLoading(false, 'Failed to start guest session');
                 return;
               }
-              state.saveToStorage({ profile, workspace });
-              state.setLoading(false);
-              state.navigate(AppRoutes.ide.root);
+              store.saveToStorage({ profile, workspace });
+              store.socketService.reconnect();
+              store.setLoading(false);
+              store.snackbar.dismiss();
+              store.navigate(AppRoutes.ide.root);
             }),
           );
         }),
@@ -88,34 +95,43 @@ export const AuthStore = signalStore(
 
     cloneRepo: rxMethod<string>(
       pipe(
-        tap(() => state.setLoading(true, '')),
-        switchMap((repoUrl) => state.workspaceService.cloneRepo(repoUrl)),
+        tap(() => {
+          store.setLoading(true, '');
+          store.snackbar.info('Creating workspace...', 5000);
+        }),
+        switchMap((repoUrl) => store.workspaceService.cloneRepo(repoUrl)),
         tap(({ success, data }) => {
           if (!success) {
-            state.setLoading(false, 'Failed to clone repository. Check the URL and try again.');
+            store.setLoading(false, 'Failed to clone repository. Check the URL and try again.');
             return;
           }
-          state.saveToStorage({ workspace: data });
-          state.setLoading(false);
-          state.navigate(AppRoutes.ide.root);
+          store.saveToStorage({ workspace: data });
+          store.socketService.reconnect();
+          store.setLoading(false);
+          store.snackbar.dismiss();
+          store.navigate(AppRoutes.ide.root);
         }),
       ),
     ),
 
     logout: rxMethod<void>(
       pipe(
-        tap(() => state.socketService.disconnect()),
-        switchMap(() => state.authService.logout()),
         tap(() => {
-          state.clearAllStorage(['ide-theme']);
-          state.navigate(AppRoutes.login);
+          store.socketService.disconnect();
+          store.snackbar.info('Cleaning up workspace...', 8000);
+        }),
+        switchMap(() => store.authService.logout()),
+        tap(() => {
+          store.clearAllStorage(['ide-theme']);
+          store.navigate(AppRoutes.login);
+          store.snackbar.dismiss();
           window.location.reload();
         }),
       ),
     ),
 
     githubAuthUrl(): string {
-      return state.authService.getGithubAuthUrl();
+      return store.authService.getGithubAuthUrl();
     },
   })),
 

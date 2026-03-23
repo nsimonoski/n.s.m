@@ -26,8 +26,8 @@ export class SnackbarService {
     this.show(message, SnackbarType.Error);
   }
 
-  info(message = 'Info'): void {
-    this.show(message, SnackbarType.Info);
+  info(message = 'Info', duration?: number): void {
+    this.show(message, SnackbarType.Info, duration);
   }
 
   dismiss(): void {

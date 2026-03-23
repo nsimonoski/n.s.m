@@ -1,0 +1,117 @@
+.terminal-panel {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-primary);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.terminal-tabs {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-primary);
+  padding: 0 4px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-primary);
+  }
+}
+
+.terminal-tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+.terminal-tab-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+.terminal-container {
+  overflow: hidden;
+  position: relative;
+  padding: 4px;
+  box-sizing: border-box;
+
+  .xterm {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.terminal-container-active {
+  display: block;
+}
+
+.terminal-resize-handle {
+  height: 4px;
+  cursor: ns-resize;
+  background: transparent;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--accent-primary);
+  }
+}
+
+@media (max-width: 767px) {
+  .terminal-panel {
+    display: none;
+  }
+}

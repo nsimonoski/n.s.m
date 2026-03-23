@@ -47,8 +47,16 @@ export class WorkspaceService {
     );
 
     const hostWorkspacePath = this.resolveHostPath(workspacePath);
-    const containerId = await this.dockerService.createWorkspaceContainer(session.id, hostWorkspacePath);
-    const updated = await this.sessionService.initializeWorkspace(session.id, repoUrl, isPrivate, containerId);
+    const containerId = await this.dockerService.createWorkspaceContainer(
+      session.id,
+      hostWorkspacePath,
+    );
+    const updated = await this.sessionService.initializeWorkspace(
+      session.id,
+      repoUrl,
+      isPrivate,
+      containerId,
+    );
     return this.getWorkspace(updated);
   }
 
@@ -66,8 +74,16 @@ export class WorkspaceService {
     await this.gitProvider.checkout(workspacePath, 'dev');
 
     const hostWorkspacePath = this.resolveHostPath(workspacePath);
-    const containerId = await this.dockerService.createWorkspaceContainer(session.id, hostWorkspacePath);
-    const updated = await this.sessionService.initializeWorkspace(session.id, demoRepoUrl, false, containerId);
+    const containerId = await this.dockerService.createWorkspaceContainer(
+      session.id,
+      hostWorkspacePath,
+    );
+    const updated = await this.sessionService.initializeWorkspace(
+      session.id,
+      demoRepoUrl,
+      false,
+      containerId,
+    );
     return this.getWorkspace(updated);
   }
 

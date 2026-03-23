@@ -22,16 +22,14 @@ export class FileExplorerService {
   getFile(path: string): Observable<ApiResult<FileResponseDto>> {
     return this.http
       .get<FileResponseDto>(`${this.API_BASE}/file`, {
-        params: { path: encodeURIComponent(path) },
+        params: { path },
       })
       .pipe(apiResult());
   }
 
   getFiles(paths: string[]): Observable<ApiResult<FileResponseDto[]>> {
     return this.http
-      .post<FileResponseDto[]>(`${this.API_BASE}/files`, {
-        paths: paths.map(encodeURIComponent),
-      })
+      .post<FileResponseDto[]>(`${this.API_BASE}/files`, { paths })
       .pipe(apiResult());
   }
 
@@ -62,11 +60,7 @@ export class FileExplorerService {
   ): Observable<ApiResult<FileResponseDto[]>> {
     return this.http
       .get<FileResponseDto[]>(`${this.API_BASE}/search`, {
-        params: {
-          query: encodeURIComponent(query),
-          path: encodeURIComponent(rootPath),
-          limit: limit.toString(),
-        },
+        params: { query, path: rootPath, limit: limit.toString() },
       })
       .pipe(apiResult());
   }
