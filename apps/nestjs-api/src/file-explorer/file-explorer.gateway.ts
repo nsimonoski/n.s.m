@@ -11,7 +11,8 @@ import {
 
 import type { FileChangeEvent } from '@org/shared/contracts';
 import { FILE_CHANGE_EVENT, FILE_WATCH_EVENT } from '@org/shared/contracts';
-import { getCorsOrigins, FileWatcherService } from '../common';
+import { getCorsOrigins, FileWatcherService, createWsAuthMiddleware } from '../common';
+import { SessionService } from '../auth/session.service';
 
 const DEBOUNCE_MS = 500;
 
@@ -26,7 +27,14 @@ export class FileExplorerGateway implements OnModuleDestroy {
   private readonly logger = new Logger(FileExplorerGateway.name);
   private readonly clientWatchers = new Map<string, ClientWatcher>();
 
-  constructor(private readonly fileWatcherService: FileWatcherService) {}
+  constructor(
+    private readonly fileWatcherService: FileWatcherService,
+    private readonly sessionService: SessionService,
+  ) {}
+
+  afterInit(server: Server): void {
+    server.use(createWsAuthMiddleware(this.sessionService));
+  }
 
   @WebSocketServer()
   server!: Server;

@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { EnvironmentVariables, PathUtils, FileSystemService, CryptoService } from '../common';
+import { DockerContainerService } from '../docker/docker-container.service';
 import { RedisService } from '../redis/redis.service';
 
 export interface UserSession {
@@ -11,6 +12,7 @@ export interface UserSession {
   avatarUrl: string;
   workspacePath: string | null;
   repoUrl: string | null;
+  containerId: string | null;
   isGuest: boolean;
   isPrivateRepo: boolean;
 }
@@ -31,6 +33,7 @@ export class SessionService implements OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly fileSystemService: FileSystemService,
     private readonly cryptoService: CryptoService,
+    private readonly dockerService: DockerContainerService,
   ) {
     this.publicWorkspaceBase = this.config.get<string>(
       EnvironmentVariables.WORKSPACE_BASE_DIR,
@@ -64,6 +67,7 @@ export class SessionService implements OnModuleDestroy {
       avatarUrl: params.avatarUrl,
       workspacePath: null,
       repoUrl: null,
+      containerId: null,
       isGuest: params.isGuest,
       isPrivateRepo: false,
     };
@@ -81,6 +85,7 @@ export class SessionService implements OnModuleDestroy {
     sessionId: string,
     repoUrl: string,
     isPrivate: boolean,
+    containerId: string | null = null,
   ): Promise<UserSession> {
     const session = await this.findById(sessionId);
     if (!session) throw new Error(`Session ${sessionId} not found`);
@@ -89,6 +94,7 @@ export class SessionService implements OnModuleDestroy {
       ...session,
       workspacePath: this.getWorkspacePath(sessionId, isPrivate),
       repoUrl,
+      containerId,
       isPrivateRepo: isPrivate,
     };
 
@@ -115,6 +121,10 @@ export class SessionService implements OnModuleDestroy {
     const session = await this.findById(id);
     if (!session) return;
 
+    if (session.containerId) {
+      await this.dockerService.removeContainer(session.containerId);
+    }
+
     await this.redis.del(`${SESSION_PREFIX}${id}`);
     if (session.workspacePath) {
       await this.fileSystemService.removeDirectory(session.workspacePath).catch((error) => {
@@ -134,8 +144,27 @@ export class SessionService implements OnModuleDestroy {
   }
 
   private async cleanupOrphanedWorkspaces(): Promise<void> {
+    const activeSessionIds = await this.getActiveSessionIds();
+    await this.dockerService.cleanupOrphanedContainers(activeSessionIds);
+
     for (const base of [this.publicWorkspaceBase, this.privateWorkspaceBase]) {
       await this.cleanupDirectory(base);
+    }
+  }
+
+  private async getActiveSessionIds(): Promise<string[]> {
+    try {
+      const ids: string[] = [];
+      for (const base of [this.publicWorkspaceBase, this.privateWorkspaceBase]) {
+        const dirs = await this.fileSystemService.listDirectory(base).catch(() => [] as string[]);
+        for (const dir of dirs) {
+          const exists = await this.redis.get(`${SESSION_PREFIX}${dir}`);
+          if (exists) ids.push(dir);
+        }
+      }
+      return ids;
+    } catch {
+      return [];
     }
   }
 

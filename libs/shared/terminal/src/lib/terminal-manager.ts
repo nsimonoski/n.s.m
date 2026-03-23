@@ -19,6 +19,7 @@ export class TerminalManager {
   private activeId: string | null = null;
   private isDark = true;
   private tabCounter = 0;
+  private disposed = false;
   private stateCallback: TerminalStateCallback | null = null;
 
   setStateCallback(callback: TerminalStateCallback): void {
@@ -39,26 +40,49 @@ export class TerminalManager {
     socket: TerminalSocketAdapter,
     cwd: string,
   ): Promise<string | null> {
-    if (this.sessions.size >= MAX_SESSIONS) return null;
+    if (this.disposed || this.sessions.size >= MAX_SESSIONS) return null;
 
     return new Promise<string | null>((resolve) => {
       let settled = false;
 
-      const timeout = setTimeout(() => {
-        if (settled) return;
+      const settle = () => {
         settled = true;
         unsub();
+        unsubError();
+        unsubConnect?.();
+      };
+
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        settle();
         container.remove();
         resolve(null);
       }, 5000);
+
+      const unsubError = socket.on<TerminalContracts.TerminalErrorDto>(
+        TerminalContracts.TERMINAL_ERROR_EVENT,
+        (error) => {
+          if (settled) return;
+          clearTimeout(timeout);
+          settle();
+          container.remove();
+          resolve(null);
+          console.error('[TerminalManager] Error:', error.message);
+        },
+      );
 
       const unsub = socket.on<TerminalContracts.TerminalCreatedResponseDto>(
         TerminalContracts.TERMINAL_CREATED_EVENT,
         (response) => {
           if (settled) return;
-          settled = true;
           clearTimeout(timeout);
-          unsub();
+          settle();
+
+          if (this.disposed) {
+            container.remove();
+            resolve(null);
+            return;
+          }
 
           const session = new TerminalSession(
             response.sessionId,
@@ -82,6 +106,8 @@ export class TerminalManager {
       let unsubConnect: (() => void) | null = null;
       unsubConnect = socket.onConnect(() => {
         unsubConnect?.();
+        unsubConnect = null;
+        if (this.disposed) return;
         socket.emit(TerminalContracts.TERMINAL_CREATE_EVENT, {
           cols: 80,
           rows: 24,
@@ -106,13 +132,17 @@ export class TerminalManager {
     this.tabs = this.tabs.filter((t) => t.sessionId !== sessionId);
 
     if (this.activeId === sessionId) {
-      this.activeId = this.tabs.length > 0 ? this.tabs[this.tabs.length - 1].sessionId : null;
-      if (this.activeId) {
-        this.showSessionContainer(this.activeId);
+      const next = this.tabs.length > 0 ? this.tabs[this.tabs.length - 1].sessionId : null;
+      if (next) {
+        this.showSessionContainer(next);
+        this.setActive(next);
+      } else {
+        this.activeId = null;
+        this.notifyState();
       }
+    } else {
+      this.notifyState();
     }
-
-    this.notifyState();
   }
 
   setActive(sessionId: string): void {
@@ -165,16 +195,19 @@ export class TerminalManager {
 
   resizeActive(socket: TerminalSocketAdapter): void {
     if (!this.activeId) return;
-    const session = this.sessions.get(this.activeId);
+    const sessionId = this.activeId;
+    const session = this.sessions.get(sessionId);
     if (!session) return;
 
-    session.fit();
-    const { cols, rows } = session.terminal;
-    socket.emit(TerminalContracts.TERMINAL_RESIZE_EVENT, {
-      sessionId: this.activeId,
-      cols,
-      rows,
-    } satisfies TerminalContracts.TerminalResizeDto);
+    requestAnimationFrame(() => {
+      session.fit();
+      const { cols, rows } = session.terminal;
+      socket.emit(TerminalContracts.TERMINAL_RESIZE_EVENT, {
+        sessionId,
+        cols,
+        rows,
+      } satisfies TerminalContracts.TerminalResizeDto);
+    });
   }
 
   setTheme(isDark: boolean): void {
@@ -186,16 +219,19 @@ export class TerminalManager {
   }
 
   disposeAll(socket: TerminalSocketAdapter): void {
+    this.disposed = true;
     for (const [sessionId, session] of this.sessions) {
       socket.emit(TerminalContracts.TERMINAL_CLOSE_EVENT, {
         sessionId,
       } satisfies TerminalContracts.TerminalCloseDto);
+      const container = session.terminal.element?.parentElement;
       session.dispose();
+      container?.remove();
     }
     this.sessions.clear();
     this.tabs = [];
     this.activeId = null;
-    this.notifyState();
+    this.stateCallback = null;
   }
 
   getTabs(): TerminalTabInfo[] {
@@ -220,13 +256,17 @@ export class TerminalManager {
       this.tabs = this.tabs.filter((t) => t.sessionId !== sessionId);
 
       if (this.activeId === sessionId) {
-        this.activeId = this.tabs.length > 0 ? this.tabs[this.tabs.length - 1].sessionId : null;
-        if (this.activeId) {
-          this.showSessionContainer(this.activeId);
+        const next = this.tabs.length > 0 ? this.tabs[this.tabs.length - 1].sessionId : null;
+        if (next) {
+          this.showSessionContainer(next);
+          this.setActive(next);
+        } else {
+          this.activeId = null;
+          this.notifyState();
         }
+      } else {
+        this.notifyState();
       }
-
-      this.notifyState();
     }
   }
 

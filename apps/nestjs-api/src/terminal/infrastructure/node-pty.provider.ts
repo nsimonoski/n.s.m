@@ -2,7 +2,12 @@ import * as pty from 'node-pty';
 import { PtyProvider, PtyHandle } from '../domain/pty.provider';
 
 export class NodePtyProvider extends PtyProvider {
-  spawn(cols: number, rows: number, cwd: string): PtyHandle {
+  createAndStartTerminal(
+    cols: number,
+    rows: number,
+    cwd: string,
+    _containerId: string | null,
+  ): PtyHandle {
     const shell = process.platform === 'darwin' ? '/bin/zsh' : '/bin/bash';
 
     const ptyProcess = pty.spawn(shell, [], {

@@ -9,7 +9,8 @@ import {
 } from '@nestjs/websockets';
 
 import { Terminal } from '@org/shared/contracts';
-import { getCorsOrigins } from '../common';
+import { getCorsOrigins, createWsAuthMiddleware, AuthenticatedSocket } from '../common';
+import { SessionService } from '../auth/session.service';
 import { PtyProvider, PtyHandle } from './domain/pty.provider';
 
 const MAX_SESSIONS_PER_CLIENT = 4;
@@ -21,42 +22,76 @@ export class TerminalGateway implements OnModuleDestroy {
   private readonly logger = new Logger(TerminalGateway.name);
   private readonly clientSessions = new Map<string, Map<string, PtyHandle>>();
 
-  constructor(private readonly ptyProvider: PtyProvider) {}
+  constructor(
+    private readonly ptyProvider: PtyProvider,
+    private readonly sessionService: SessionService,
+  ) {}
 
   @WebSocketServer()
   server!: Server;
 
+  afterInit(server: Server): void {
+    server.use(createWsAuthMiddleware(this.sessionService));
+  }
+
   @SubscribeMessage(Terminal.TERMINAL_CREATE_EVENT)
-  handleCreate(
+  async handleCreate(
     @MessageBody() body: Terminal.TerminalCreateRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const sessions = this.getOrCreateSessions(client.id);
+    const session = (client as AuthenticatedSocket).data.session;
+    if (!session) {
+      client.emit(Terminal.TERMINAL_ERROR_EVENT, { message: 'Not authenticated' });
+      return;
+    }
 
+    if (!session.containerId) {
+      client.emit(Terminal.TERMINAL_ERROR_EVENT, { message: 'No workspace available' });
+      return;
+    }
+
+    if (session.workspacePath && !body.cwd.startsWith(session.workspacePath)) {
+      client.emit(Terminal.TERMINAL_ERROR_EVENT, { message: 'Invalid working directory' });
+      return;
+    }
+
+    const sessions = this.getOrCreateSessions(client.id);
     if (sessions.size >= MAX_SESSIONS_PER_CLIENT) {
       this.logger.warn(`[${client.id}] Max sessions reached`);
       return;
     }
 
-    const sessionId = crypto.randomUUID();
-    const handle = this.ptyProvider.spawn(body.cols, body.rows, body.cwd);
-    sessions.set(sessionId, handle);
+    try {
+      const sessionId = crypto.randomUUID();
+      const handle = await this.ptyProvider.createAndStartTerminal(
+        body.cols,
+        body.rows,
+        body.cwd,
+        session.containerId,
+      );
+      sessions.set(sessionId, handle);
 
-    this.logger.log(`[${client.id}] Terminal session created: ${sessionId}`);
+      this.logger.log(`[${client.id}] Terminal session created: ${sessionId}`);
 
-    handle.onData((data) => {
-      const payload: Terminal.TerminalDataDto = { sessionId, data };
-      client.emit(Terminal.TERMINAL_DATA_EVENT, payload);
-    });
+      handle.onData((data) => {
+        const payload: Terminal.TerminalDataDto = { sessionId, data };
+        client.emit(Terminal.TERMINAL_DATA_EVENT, payload);
+      });
 
-    handle.onExit((exitCode) => {
-      const payload: Terminal.TerminalExitDto = { sessionId, exitCode };
-      client.emit(Terminal.TERMINAL_EXIT_EVENT, payload);
-      sessions.delete(sessionId);
-    });
+      handle.onExit((exitCode) => {
+        const payload: Terminal.TerminalExitDto = { sessionId, exitCode };
+        client.emit(Terminal.TERMINAL_EXIT_EVENT, payload);
+        sessions.delete(sessionId);
+      });
 
-    const response: Terminal.TerminalCreatedResponseDto = { sessionId };
-    client.emit(Terminal.TERMINAL_CREATED_EVENT, response);
+      const response: Terminal.TerminalCreatedResponseDto = { sessionId };
+      client.emit(Terminal.TERMINAL_CREATED_EVENT, response);
+    } catch (error) {
+      this.logger.error(`[${client.id}] Failed to create terminal: ${(error as Error).message}`);
+      client.emit(Terminal.TERMINAL_ERROR_EVENT, {
+        message: 'Failed to create terminal session',
+      } satisfies Terminal.TerminalErrorDto);
+    }
   }
 
   @SubscribeMessage(Terminal.TERMINAL_DATA_EVENT)

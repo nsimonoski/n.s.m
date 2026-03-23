@@ -22,6 +22,13 @@ rsync -avz --delete apps/react-ide/dist/ "$SERVER:/var/www/$DOMAIN/react/"
 echo "=== Uploading API + Docker files to server ==="
 rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json "$SERVER:/opt/kode/"
 rsync -avz Dockerfile docker-compose.yml "$SERVER:/opt/kode/"
+rsync -avz docker/workspace/Dockerfile "$SERVER:/opt/kode/docker/workspace/Dockerfile"
+
+echo "=== Creating workspace directory on server ==="
+ssh "$SERVER" "mkdir -p /opt/kode/workspaces /opt/kode/docker/workspace"
+
+echo "=== Building workspace image ==="
+ssh "$SERVER" "cd /opt/kode && docker build -t nsm-workspace:latest -f docker/workspace/Dockerfile ."
 
 echo "=== Building and starting API on server ==="
 ssh "$SERVER" "cd /opt/kode && docker compose up -d --build"

@@ -7,5 +7,10 @@ export interface PtyHandle {
 }
 
 export abstract class PtyProvider {
-  abstract spawn(cols: number, rows: number, cwd: string): PtyHandle;
+  abstract createAndStartTerminal(
+    cols: number,
+    rows: number,
+    cwd: string,
+    containerId: string | null,
+  ): PtyHandle | Promise<PtyHandle>;
 }

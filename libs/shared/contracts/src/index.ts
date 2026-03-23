@@ -7,3 +7,4 @@ export * as ContextMenu from './lib/context-menu.contract';
 
 export * as Enums from './lib/enums';
 export * as Ai from './lib/ai.contract';
+export * as Terminal from './lib/terminal.contract';

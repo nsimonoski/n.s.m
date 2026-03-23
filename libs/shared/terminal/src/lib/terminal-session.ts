@@ -8,6 +8,7 @@ import type { TerminalSocketAdapter } from './terminal-socket.adapter';
 export class TerminalSession {
   readonly terminal: Terminal;
   private readonly fitAddon: FitAddon;
+  private readonly resizeObserver: ResizeObserver;
   private readonly unsubscribes: (() => void)[] = [];
 
   constructor(
@@ -30,7 +31,13 @@ export class TerminalSession {
     this.terminal.loadAddon(new WebLinksAddon());
 
     this.terminal.open(container);
-    this.fitAddon.fit();
+
+    this.resizeObserver = new ResizeObserver(() => {
+      if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+        this.fitAddon.fit();
+      }
+    });
+    this.resizeObserver.observe(container);
 
     this.terminal.onData((data) => {
       socket.emit(TerminalContracts.TERMINAL_DATA_EVENT, {
@@ -73,6 +80,7 @@ export class TerminalSession {
   }
 
   dispose(): void {
+    this.resizeObserver.disconnect();
     for (const unsub of this.unsubscribes) {
       unsub();
     }
