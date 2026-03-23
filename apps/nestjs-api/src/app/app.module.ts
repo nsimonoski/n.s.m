@@ -8,6 +8,7 @@ import { WorkspaceModule } from '../workspace/workspace.module';
 import { FileExplorerModule } from '../file-explorer/file-explorer.module';
 import { GitModule } from '../git/git.module';
 import { AiModule } from '../ai/ai.module';
+import { TerminalModule } from '../terminal/terminal.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AiModule } from '../ai/ai.module';
     FileExplorerModule,
     GitModule,
     AiModule,
+    TerminalModule,
   ],
 })
 export class AppModule implements NestModule {
