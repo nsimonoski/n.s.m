@@ -84,11 +84,11 @@ export class TerminalManager {
             return;
           }
 
-          const session = new TerminalSession(
+          const session = new TerminalSession(container, getTerminalTheme(this.isDark));
+
+          session.connect(
             response.sessionId,
-            container,
             socket,
-            getTerminalTheme(this.isDark),
             (sessionId) => this.handleSessionExit(sessionId, socket),
           );
 
@@ -246,7 +246,7 @@ export class TerminalManager {
     return this.sessions.size;
   }
 
-  private handleSessionExit(sessionId: string, socket: TerminalSocketAdapter): void {
+  private handleSessionExit(sessionId: string, _socket: TerminalSocketAdapter): void {
     const session = this.sessions.get(sessionId);
     if (session) {
       const container = session.terminal.element?.parentElement;

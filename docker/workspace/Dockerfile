@@ -1,9 +1,12 @@
 FROM node:22-alpine
-RUN apk add --no-cache git bash curl openssh-client python3 make g++
-RUN addgroup -S workspace && adduser -S workspace -G workspace
+RUN apk add --no-cache git bash curl openssh-client python3 make g++ su-exec
+RUN addgroup -S workspace && adduser -S workspace -G workspace -s /bin/bash
 WORKDIR /workspace
-RUN chown workspace:workspace /workspace
-RUN mkdir -p /home/workspace/.npm && chown workspace:workspace /home/workspace/.npm
-USER workspace
+RUN mkdir -p /home/workspace/.npm && chown workspace:workspace /home/workspace/.npm \
+    && printf 'bind "set enable-bracketed-paste off"\nPS1="\\h:\\w\\$ "\n' > /home/workspace/.bashrc \
+    && chown workspace:workspace /home/workspace/.bashrc
+COPY docker/workspace/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 ENV TERM=xterm-256color HOME=/home/workspace
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sleep", "infinity"]

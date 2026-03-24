@@ -71,7 +71,7 @@ export class TerminalGateway implements OnModuleDestroy {
       );
       sessions.set(sessionId, handle);
 
-      this.logger.log(`[${client.id}] Terminal session created: ${sessionId}`);
+      this.logger.log(`[${client.id}] Terminal session created: ${sessionId} (cols=${body.cols}, rows=${body.rows})`);
 
       handle.onData((data) => {
         const payload: Terminal.TerminalDataDto = { sessionId, data };
