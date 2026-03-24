@@ -42,6 +42,19 @@ export class FileSystemService {
     return fs.mkdir(path, { recursive });
   }
 
+  async changeOwner(path: string, uid: number, gid: number): Promise<void> {
+    await fs.chown(path, uid, gid);
+    const entries = await fs.readdir(path, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = `${path}/${entry.name}`;
+      if (entry.isDirectory()) {
+        await this.changeOwner(fullPath, uid, gid);
+      } else {
+        await fs.chown(fullPath, uid, gid);
+      }
+    }
+  }
+
   removeDirectory(path: string): Promise<void> {
     return fs.rm(path, { recursive: true, force: true });
   }

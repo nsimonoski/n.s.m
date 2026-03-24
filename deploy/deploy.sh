@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-SERVER="root@204.168.150.34"
+SERVER="deploy@204.168.150.34"
 DOMAIN="kod3.dev"
 
 echo "=== Building Angular ==="
