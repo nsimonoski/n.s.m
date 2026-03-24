@@ -45,6 +45,7 @@ export class WorkspaceService {
       session.githubUsername,
       `${session.githubUsername}@users.noreply.github.com`,
     );
+    await this.fileSystemService.changeOwner(workspacePath, 1000, 1000);
 
     const hostWorkspacePath = this.resolveHostPath(workspacePath);
     const containerId = await this.dockerService.createWorkspaceContainer(
@@ -72,6 +73,7 @@ export class WorkspaceService {
     this.logger.log(`Cloning demo repo for guest session ${session.id}`);
     await this.gitProvider.clone(demoRepoUrl, workspacePath);
     await this.gitProvider.checkout(workspacePath, 'dev');
+    await this.fileSystemService.changeOwner(workspacePath, 1000, 1000);
 
     const hostWorkspacePath = this.resolveHostPath(workspacePath);
     const containerId = await this.dockerService.createWorkspaceContainer(

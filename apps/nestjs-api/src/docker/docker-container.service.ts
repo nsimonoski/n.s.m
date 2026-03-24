@@ -43,6 +43,7 @@ export class DockerContainerService implements OnModuleInit {
     const container = await this.docker.createContainer({
       Image: WORKSPACE_IMAGE,
       Labels: { [WORKSPACE_LABEL]: sessionId },
+      User: '1000:1000',
       HostConfig: {
         Binds: [`${hostWorkspacePath}:/workspace`, 'nsm-npm-cache:/home/workspace/.npm'],
         Memory: 1024 * 1024 * 1024,
