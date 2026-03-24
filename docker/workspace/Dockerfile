@@ -8,7 +8,7 @@ RUN mkdir -p /home/workspace/.npm && chown workspace:workspace /home/workspace/.
     && chown workspace:workspace /home/workspace/.bashrc
 COPY docker/workspace/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-ENV TERM=xterm-256color HOME=/home/workspace
+ENV TERM=xterm-256color HOME=/home/workspace npm_config_cache=/home/workspace/.npm
 USER workspace
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sleep", "infinity"]

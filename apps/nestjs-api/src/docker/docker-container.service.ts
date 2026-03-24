@@ -46,7 +46,7 @@ export class DockerContainerService implements OnModuleInit {
       User: '1000:1000',
       HostConfig: {
         Binds: [`${hostWorkspacePath}:/workspace`, 'nsm-npm-cache:/home/workspace/.npm'],
-        Memory: 1024 * 1024 * 1024,
+        Memory: 2 * 1024 * 1024 * 1024,
         NanoCpus: 1 * 1e9,
         PidsLimit: 200,
         NetworkMode: this.workspaceNetwork ?? 'none',
