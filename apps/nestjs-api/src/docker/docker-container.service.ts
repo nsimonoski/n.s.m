@@ -51,7 +51,6 @@ export class DockerContainerService implements OnModuleInit {
         NetworkMode: this.workspaceNetwork ?? 'none',
         SecurityOpt: ['no-new-privileges'],
       },
-      User: 'workspace',
       WorkingDir: '/workspace',
     });
 
@@ -86,7 +85,8 @@ export class DockerContainerService implements OnModuleInit {
       AttachStdout: true,
       AttachStderr: true,
       Tty: true,
-      Env: ['TERM=xterm-256color'],
+      User: 'workspace',
+      Env: ['TERM=xterm-256color', 'HOME=/home/workspace'],
     });
 
     const stream = await exec.start({ hijack: true, stdin: true, Tty: true });

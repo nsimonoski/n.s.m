@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   ViewChild,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -31,6 +32,13 @@ export class TerminalPanelComponent implements AfterViewInit, OnDestroy {
   private readonly authStore = inject(IdeStore.AuthStore);
   private readonly themeStore = inject(ThemeStore);
   private manager!: TerminalManager;
+
+  constructor() {
+    effect(() => {
+      const isDark = this.themeStore.theme() === 'dark';
+      this.manager?.setTheme(isDark);
+    });
+  }
 
   ngAfterViewInit(): void {
     this.manager = new TerminalManager();
@@ -95,14 +103,14 @@ export class TerminalPanelComponent implements AfterViewInit, OnDestroy {
 
     const wrapper = document.createElement('div');
     wrapper.className = 'terminal-container';
-    wrapper.style.display = 'none';
+    this.hideAllContainers();
+    wrapper.style.display = 'block';
+    wrapper.style.height = '100%';
     this.terminalHost.nativeElement.appendChild(wrapper);
 
     const sessionId = await this.manager.createSession(wrapper, this.terminalWs, cwd);
     if (sessionId) {
       wrapper.dataset['sessionId'] = sessionId;
-      this.showContainer(wrapper);
-      this.manager.resizeActive(this.terminalWs);
     }
   }
 

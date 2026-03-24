@@ -93,6 +93,22 @@
     width: 100%;
     height: 100%;
   }
+
+  .xterm-helpers {
+    height: 0;
+    overflow: visible;
+  }
+
+  .xterm-helper-textarea {
+    opacity: 0;
+  }
+
+  .xterm-width-cache-measure-container {
+    position: fixed;
+    left: -9999px;
+    top: -9999px;
+    pointer-events: none;
+  }
 }
 
 .terminal-container-active {
@@ -110,8 +126,3 @@
   }
 }
 
-@media (max-width: 767px) {
-  .terminal-panel {
-    display: none;
-  }
-}

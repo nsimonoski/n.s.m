@@ -53,6 +53,7 @@ jobs:
         run: |
           rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json root@204.168.150.34:/opt/kode/
           rsync -avz Dockerfile docker-compose.yml root@204.168.150.34:/opt/kode/
+          rsync -avz --delete docker/ root@204.168.150.34:/opt/kode/docker/
 
       - name: Create .env.production on server
         run: |
@@ -63,6 +64,9 @@ jobs:
           GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
           SESSION_ENCRYPTION_KEY=${{ secrets.SESSION_ENCRYPTION_KEY }}
           EOF"
+
+      - name: Build workspace image
+        run: ssh root@204.168.150.34 "cd /opt/kode && docker compose --profile build-only build workspace"
 
       - name: Restart API
         run: ssh root@204.168.150.34 "cd /opt/kode && docker compose up -d --build"
