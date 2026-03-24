@@ -30,8 +30,8 @@
             Continue as Guest
           </p>
           <p class="card-text">
-            Explore a read-only demo of this IDE's own source code. Browse files, read code, try
-            the editor, and chat with the AI assistant - no account needed.
+            Explore a read-only demo of this IDE's own source code. Browse files, read code, try the
+            editor, and chat with the AI assistant - no account needed.
           </p>
         </div>
       </div>
@@ -71,6 +71,11 @@
             <td class="check">&#10003;</td>
           </tr>
           <tr>
+            <td>Terminal</td>
+            <td class="check">&#10003;</td>
+            <td class="check">&#10003;</td>
+          </tr>
+          <tr>
             <td>AI assistant</td>
             <td class="check">&#10003;</td>
             <td class="check">&#10003;</td>
@@ -84,7 +89,8 @@
       <h2 class="section-title">Cloning Repositories</h2>
       <p class="docs-text">
         After signing in with GitHub, you'll be prompted to enter a repository URL. Only GitHub
-        repositories are supported.
+        repositories are supported. Each repository is cloned into its own isolated Docker container
+        - your workspace is fully sandboxed and private to your session.
       </p>
       <ul class="feature-list">
         <li><strong>Public repos</strong> are cloned directly - no token needed.</li>
@@ -95,6 +101,11 @@
         <li>
           Your GitHub token is <strong>never</strong> stored in the cloned repository or persisted
           to disk.
+        </li>
+        <li>
+          Each workspace container includes <strong>git</strong>, <strong>Node.js</strong>, and a
+          <strong>shell</strong> - you can install packages, run scripts, and use the integrated
+          terminal.
         </li>
       </ul>
 
@@ -256,6 +267,72 @@
       </div>
     </section>
 
+    <!-- Terminal -->
+    <section class="docs-section">
+      <h2 class="section-title">Terminal</h2>
+      <p class="docs-text">
+        The integrated terminal gives you direct shell access to your workspace container. It is
+        powered by
+        <a href="https://xtermjs.org/" target="_blank" rel="noopener noreferrer">xterm.js</a>
+        and connects to the backend via WebSocket, providing a real PTY session inside your Docker
+        workspace.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-terminal"></i>
+            Multi-tab Sessions
+          </p>
+          <p class="card-text">
+            Open up to 4 terminal tabs simultaneously. Switch between them, close individual tabs,
+            or add new ones. Tab count is persisted across page reloads.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-screen-full"></i>
+            Resizable Panel
+          </p>
+          <p class="card-text">
+            Drag the top edge of the terminal panel to resize it. The terminal automatically re-fits
+            to the new dimensions and notifies the server to resize the PTY.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-symbol-color"></i>
+            Theme Sync
+          </p>
+          <p class="card-text">
+            The terminal theme updates instantly when you toggle between dark and light mode - no
+            refresh required.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-layers"></i>
+            Shared Architecture
+          </p>
+          <p class="card-text">
+            The terminal logic lives in a shared library (<code>&#64;org/shared/terminal</code>)
+            used by both Angular and React IDEs. Only the component wrappers are framework-specific.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p class="callout-title">How it works</p>
+        <p class="callout-text">
+          When you open a terminal, the client creates an xterm.js instance and connects via
+          Socket.IO. The server spawns a PTY process inside your Docker workspace container using
+          <code>docker exec</code>. Input and output are streamed in real time. The terminal
+          supports full ANSI escape sequences, colors, cursor movement, and interactive programs
+          like <code>vim</code> and <code>top</code>.
+        </p>
+      </div>
+    </section>
+
     <!-- Theme -->
     <section class="docs-section">
       <h2 class="section-title">Theme</h2>
@@ -269,7 +346,7 @@
     <!-- IDE Layout -->
     <section class="docs-section">
       <h2 class="section-title">IDE Layout</h2>
-      <p class="docs-text">The interface is divided into four main areas:</p>
+      <p class="docs-text">The interface is divided into five main areas:</p>
 
       <div class="feature-grid">
         <div class="feature-card">
@@ -278,8 +355,8 @@
             Activity Bar
           </p>
           <p class="card-text">
-            Left-side icons for Explorer, Source Control (with change badge), and AI Assistant.
-            Click to toggle panels.
+            Left-side icons for Explorer, Source Control (with change badge), AI Assistant, and
+            Terminal. Click to toggle panels.
           </p>
         </div>
         <div class="feature-card">
@@ -302,6 +379,16 @@
         </div>
         <div class="feature-card">
           <p class="card-title">
+            <i class="codicon codicon-terminal"></i>
+            Terminal
+          </p>
+          <p class="card-text">
+            Bottom panel with multi-tab terminal sessions. Resizable, with real PTY access to your
+            Docker workspace.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
             <i class="codicon codicon-layout-statusbar"></i>
             Status Bar
           </p>
@@ -319,7 +406,7 @@
     </section>
 
     <!-- Architecture -->
-    <section class="docs-section docs-section--last">
+    <section class="docs-section">
       <h2 class="section-title">Architecture - Nx Monorepo</h2>
       <p class="docs-text">
         The project is structured as an
@@ -599,6 +686,331 @@
         utility functions, and SCSS styles - while each framework maintains its own feature
         libraries, UI components, and state management.
       </p>
+    </section>
+
+    <!-- Deployment Architecture -->
+    <section class="docs-section docs-section--last">
+      <h2 class="section-title">Deployment - Docker Architecture</h2>
+      <p class="docs-text">
+        The application is deployed as a set of Docker containers orchestrated with Docker Compose.
+        To ensure full security, each user gets their own dockerized sandbox environment - a
+        completely isolated container with its own filesystem, shell, and processes. No other user
+        can access your workspace, files, or terminal session.
+      </p>
+
+      <div class="architecture-diagram">
+        <svg
+          viewBox="0 0 600 480"
+          xmlns="http://www.w3.org/2000/svg"
+          font-family="var(--font-family), system-ui, sans-serif"
+        >
+          <!-- Browser -->
+          <rect
+            x="170"
+            y="15"
+            width="260"
+            height="45"
+            rx="6"
+            fill="var(--accent-primary)"
+            opacity="0.15"
+            stroke="var(--accent-primary)"
+            stroke-width="1.5"
+          />
+          <text
+            x="300"
+            y="43"
+            font-size="13"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            Browser (Angular / React IDE)
+          </text>
+
+          <!-- Arrow: Browser → Nginx -->
+          <line
+            x1="300"
+            y1="60"
+            x2="300"
+            y2="90"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead2)"
+          />
+          <text x="312" y="80" font-size="9" fill="var(--text-muted)">HTTPS</text>
+
+          <!-- Server box -->
+          <rect
+            x="20"
+            y="90"
+            width="560"
+            height="375"
+            rx="8"
+            fill="none"
+            stroke="var(--text-muted)"
+            stroke-width="1"
+            stroke-dasharray="6 3"
+          />
+          <text
+            x="40"
+            y="110"
+            font-size="10"
+            font-weight="600"
+            fill="var(--text-muted)"
+            letter-spacing="1"
+          >
+            HOST SERVER
+          </text>
+
+          <!-- Nginx -->
+          <rect
+            x="170"
+            y="120"
+            width="260"
+            height="45"
+            rx="6"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1.5"
+          />
+          <text
+            x="300"
+            y="148"
+            font-size="12"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            Nginx (Reverse Proxy)
+          </text>
+
+          <!-- Arrows: Nginx → Static + API -->
+          <line
+            x1="220"
+            y1="165"
+            x2="160"
+            y2="200"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead2)"
+          />
+          <text x="165" y="188" font-size="9" fill="var(--text-muted)">Static</text>
+          <line
+            x1="380"
+            y1="165"
+            x2="440"
+            y2="200"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead2)"
+          />
+          <text x="418" y="188" font-size="9" fill="var(--text-muted)">API + WS</text>
+
+          <!-- Static Files -->
+          <rect
+            x="50"
+            y="200"
+            width="220"
+            height="40"
+            rx="5"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="160" y="225" font-size="11" fill="var(--text-primary)" text-anchor="middle">
+            Static Files (Angular / React)
+          </text>
+
+          <!-- NestJS API Container -->
+          <rect
+            x="330"
+            y="200"
+            width="220"
+            height="40"
+            rx="5"
+            fill="var(--accent-primary)"
+            opacity="0.12"
+            stroke="var(--accent-primary)"
+            stroke-width="1"
+          />
+          <text
+            x="440"
+            y="225"
+            font-size="11"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            NestJS API Container
+          </text>
+
+          <!-- Line: API ↔ Redis -->
+          <line x1="330" y1="240" x2="270" y2="280" stroke="var(--text-muted)" stroke-width="0.8" />
+          <text x="320" y="268" font-size="9" fill="var(--text-muted)">Sessions</text>
+
+          <!-- Arrow: API → Workspace -->
+          <line
+            x1="440"
+            y1="240"
+            x2="440"
+            y2="310"
+            stroke="var(--text-muted)"
+            stroke-width="1.5"
+            marker-end="url(#arrowhead2)"
+          />
+          <text x="452" y="280" font-size="9" fill="var(--text-muted)">docker exec</text>
+
+          <!-- Redis -->
+          <rect
+            x="50"
+            y="280"
+            width="220"
+            height="40"
+            rx="5"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="160" y="305" font-size="11" fill="var(--text-primary)" text-anchor="middle">
+            Redis (Session Store)
+          </text>
+
+          <!-- Workspace Containers -->
+          <rect
+            x="330"
+            y="310"
+            width="220"
+            height="80"
+            rx="5"
+            fill="var(--accent-primary)"
+            opacity="0.08"
+            stroke="var(--accent-primary)"
+            stroke-width="1"
+          />
+          <text
+            x="440"
+            y="335"
+            font-size="11"
+            font-weight="600"
+            fill="var(--text-primary)"
+            text-anchor="middle"
+          >
+            Workspace Containers
+          </text>
+          <text x="440" y="355" font-size="10" fill="var(--text-muted)" text-anchor="middle">
+            1 per user (isolated)
+          </text>
+          <text x="440" y="372" font-size="10" fill="var(--text-muted)" text-anchor="middle">
+            git, node, shell, PTY
+          </text>
+
+          <!-- Docker Proxy note -->
+          <rect
+            x="50"
+            y="350"
+            width="220"
+            height="40"
+            rx="5"
+            fill="var(--bg-secondary)"
+            stroke="var(--bg-tertiary)"
+            stroke-width="1"
+          />
+          <text x="160" y="375" font-size="11" fill="var(--text-primary)" text-anchor="middle">
+            Docker Socket Proxy
+          </text>
+
+          <!-- Arrow: API → Docker Proxy -->
+          <line
+            x1="380"
+            y1="235"
+            x2="270"
+            y2="360"
+            stroke="var(--text-muted)"
+            stroke-width="1"
+            stroke-dasharray="4 3"
+            marker-end="url(#arrowhead2)"
+          />
+
+          <!-- Caption -->
+          <text
+            x="300"
+            y="440"
+            font-size="11"
+            fill="var(--text-muted)"
+            text-anchor="middle"
+            font-style="italic"
+          >
+            Each user gets an isolated Docker container. The API manages containers
+          </text>
+          <text
+            x="300"
+            y="455"
+            font-size="11"
+            fill="var(--text-muted)"
+            text-anchor="middle"
+            font-style="italic"
+          >
+            via a Docker socket proxy for security. Terminal I/O is streamed via WebSocket.
+          </text>
+
+          <!-- Arrowhead marker -->
+          <defs>
+            <marker
+              id="arrowhead2"
+              markerWidth="8"
+              markerHeight="6"
+              refX="8"
+              refY="3"
+              orient="auto"
+            >
+              <polygon points="0 0, 8 3, 0 6" fill="var(--text-muted)" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-server"></i>
+            NestJS API
+          </p>
+          <p class="card-text">
+            Handles authentication, file operations, git commands, and terminal sessions. Runs as a
+            Docker container with access to the Docker socket proxy.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-terminal"></i>
+            Workspace Containers
+          </p>
+          <p class="card-text">
+            Each user gets an isolated Debian container with git, Node.js, and a shell. The API uses
+            <code>docker exec</code> to spawn PTY sessions for the terminal.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-shield"></i>
+            Docker Socket Proxy
+          </p>
+          <p class="card-text">
+            The API never accesses the Docker socket directly. A proxy container restricts API
+            access to only the required Docker endpoints.
+          </p>
+        </div>
+        <div class="feature-card">
+          <p class="card-title">
+            <i class="codicon codicon-database"></i>
+            Redis Sessions
+          </p>
+          <p class="card-text">
+            User sessions and encrypted GitHub tokens are stored in Redis with automatic expiry. No
+            sensitive data is written to disk.
+          </p>
+        </div>
+      </div>
     </section>
   </div>
 </div>
