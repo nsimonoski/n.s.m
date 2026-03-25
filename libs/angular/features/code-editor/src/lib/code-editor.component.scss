@@ -1,4 +1,5 @@
 @use 'ide/code-editor';
+@use 'components/save-fab';
 
 :host {
   display: flex;

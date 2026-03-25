@@ -17,4 +17,9 @@ export class CodeEditorComponent implements OnInit {
   ngOnInit(): void {
     this.store.initialize();
   }
+
+  save(): void {
+    const path = this.store.activeFile()?.path;
+    if (path) this.store.saveFile(path);
+  }
 }

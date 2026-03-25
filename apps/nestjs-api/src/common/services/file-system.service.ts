@@ -43,15 +43,20 @@ export class FileSystemService {
   }
 
   async changeOwner(path: string, uid: number, gid: number): Promise<void> {
-    await fs.chown(path, uid, gid);
-    const entries = await fs.readdir(path, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = `${path}/${entry.name}`;
-      if (entry.isDirectory()) {
-        await this.changeOwner(fullPath, uid, gid);
-      } else {
-        await fs.chown(fullPath, uid, gid);
+    try {
+      await fs.chown(path, uid, gid);
+      const entries = await fs.readdir(path, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = `${path}/${entry.name}`;
+        if (entry.isDirectory()) {
+          await this.changeOwner(fullPath, uid, gid);
+        } else {
+          await fs.chown(fullPath, uid, gid);
+        }
       }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'EPERM') return;
+      throw error;
     }
   }
 
