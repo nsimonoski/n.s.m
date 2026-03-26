@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["scope:shared", "type:util"],
   "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "reportsDirectory": "../../../coverage/libs/shared/utils"
+      }
+    },
     "build": {
       "executor": "@nx/js:swc",
       "outputs": ["{options.outputPath}"],

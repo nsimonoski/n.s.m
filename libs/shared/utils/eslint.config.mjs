@@ -9,7 +9,7 @@ export default [
         'error',
         {
           ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}'],
-          ignoredDependencies: ['@org/contracts', 'monaco-editor'],
+          ignoredDependencies: ['@org/contracts', 'monaco-editor', 'vite', '@nx/vite'],
         },
       ],
     },
