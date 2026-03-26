@@ -14,15 +14,15 @@ echo "=== Building NestJS API ==="
 npx nx build nestjs-api
 
 echo "=== Uploading Angular to server ==="
-rsync -avz --delete dist/apps/angular-ide/browser/ "$SERVER:/var/www/$DOMAIN/angular/"
+rsync -avz --no-owner --no-group --delete dist/apps/angular-ide/browser/ "$SERVER:/var/www/$DOMAIN/angular/"
 
 echo "=== Uploading React to server ==="
-rsync -avz --delete apps/react-ide/dist/ "$SERVER:/var/www/$DOMAIN/react/"
+rsync -avz --no-owner --no-group --delete apps/react-ide/dist/ "$SERVER:/var/www/$DOMAIN/react/"
 
 echo "=== Uploading API + Docker files to server ==="
-rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json "$SERVER:/opt/kode/"
-rsync -avz Dockerfile docker-compose.yml "$SERVER:/opt/kode/"
-rsync -avz docker/workspace/Dockerfile "$SERVER:/opt/kode/docker/workspace/Dockerfile"
+rsync -avz --no-owner --no-group apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json "$SERVER:/opt/kode/"
+rsync -avz --no-owner --no-group Dockerfile docker-compose.yml "$SERVER:/opt/kode/"
+rsync -avz --no-owner --no-group docker/workspace/Dockerfile docker/workspace/entrypoint.sh "$SERVER:/opt/kode/docker/workspace/"
 
 echo "=== Creating workspace directory on server ==="
 ssh "$SERVER" "mkdir -p /opt/kode/workspaces /opt/kode/docker/workspace"
