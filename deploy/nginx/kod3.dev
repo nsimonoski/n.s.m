@@ -38,6 +38,42 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
+    # UAT Angular SPA
+    location /uat/angular/ {
+        alias /var/www/kod3.dev/uat/angular/;
+        try_files $uri $uri/ /uat/angular/index.html;
+    }
+
+    # UAT React SPA
+    location /uat/react/ {
+        alias /var/www/kod3.dev/uat/react/;
+        try_files $uri $uri/ /uat/react/index.html;
+    }
+
+    # UAT NestJS API
+    location /uat/api/ {
+        rewrite ^/uat/api/(.*) /api/$1 break;
+        proxy_pass http://localhost:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 300s;
+    }
+
+    # UAT WebSocket (socket.io)
+    location /uat/socket.io/ {
+        rewrite ^/uat/socket.io/(.*) /socket.io/$1 break;
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
     # Root redirect to Angular
     location = / {
         return 302 /angular/;

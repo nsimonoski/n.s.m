@@ -7,7 +7,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  base: '/react/',
+  base: process.env.VITE_BASE || '/react/',
   cacheDir: '../../node_modules/.vite/apps/react-ide',
   server: {
     port: 4201,
