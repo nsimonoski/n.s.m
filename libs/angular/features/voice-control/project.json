@@ -1,0 +1,13 @@
+{
+  "name": "angular-voice-control",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/angular/features/voice-control/src",
+  "prefix": "ide",
+  "projectType": "library",
+  "tags": ["scope:angular", "type:feature"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

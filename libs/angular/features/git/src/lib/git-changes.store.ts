@@ -17,8 +17,8 @@ import {
   GitStatusStore,
   GitWsService,
   IdeStore,
+  withGitActions,
 } from '@org/angular-data-access';
-import { SnackbarService } from '@org/angular/ui';
 
 interface GitChangesState {
   changesTree: DirectoryResponseDto | null;
@@ -31,13 +31,13 @@ export const GitChangesStore = signalStore(
     statusMap: {},
   }),
   partialStore.withLoading(),
+  withGitActions(),
   withProps(() => ({
     gitStatusStore: inject(GitStatusStore),
     service: inject(GitService),
     wsService: inject(GitWsService),
     fileService: inject(FileExplorerService),
     editorStore: inject(IdeStore.CodeEditorStore),
-    snackbar: inject(SnackbarService),
   })),
   withMethods((state) => ({
     getStatus: rxMethod<string>(
@@ -64,52 +64,6 @@ export const GitChangesStore = signalStore(
             ahead,
             behind,
           });
-        }),
-      ),
-    ),
-    stage: rxMethod<string[]>(
-      pipe(
-        switchMap((paths: string[]) => state.service.stage(state.gitStatusStore.rootPath(), paths)),
-      ),
-    ),
-    unstage: rxMethod<string[]>(
-      pipe(
-        switchMap((paths: string[]) =>
-          state.service.unstage(state.gitStatusStore.rootPath(), paths),
-        ),
-      ),
-    ),
-    discard: rxMethod<string[]>(
-      pipe(
-        switchMap((paths: string[]) =>
-          state.service.discard(state.gitStatusStore.rootPath(), paths),
-        ),
-      ),
-    ),
-    stash: rxMethod<void>(
-      pipe(
-        switchMap(() => state.service.stash(state.gitStatusStore.rootPath())),
-        tap(({ success, error }) => {
-          if (!success) return state.snackbar.error(error);
-          state.snackbar.success('Stashed!');
-        }),
-      ),
-    ),
-    stashPop: rxMethod<void>(
-      pipe(
-        switchMap(() => state.service.stashPop(state.gitStatusStore.rootPath())),
-        tap(({ success, error }) => {
-          if (!success) return state.snackbar.error(error);
-          state.snackbar.success('Stash popped!');
-        }),
-      ),
-    ),
-    stashApply: rxMethod<void>(
-      pipe(
-        switchMap(() => state.service.stashApply(state.gitStatusStore.rootPath())),
-        tap(({ success, error }) => {
-          if (!success) return state.snackbar.error(error);
-          state.snackbar.success('Stash applied!');
         }),
       ),
     ),

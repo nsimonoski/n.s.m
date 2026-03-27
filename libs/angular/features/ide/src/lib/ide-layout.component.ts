@@ -7,6 +7,7 @@ import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
 import { SnackbarComponent } from '@org/angular/ui';
 import { IdeStore } from '@org/angular-data-access';
+import { VoiceControlComponent } from '@org/angular-voice-control';
 
 @Component({
   selector: 'ide-layout',
@@ -17,6 +18,7 @@ import { IdeStore } from '@org/angular-data-access';
     FooterComponent,
     FileSearchComponent,
     SnackbarComponent,
+    VoiceControlComponent,
   ],
   templateUrl: './ide-layout.component.html',
   styleUrls: ['./ide-layout.component.scss'],
