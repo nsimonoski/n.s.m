@@ -1,0 +1,20 @@
+name: Deploy UAT
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-shared.yml
+    with:
+      branch: test
+      angular-base-href: /uat/angular/
+      vite-base: /uat/react/
+      angular-upload-path: /var/www/kod3.dev/uat/angular/
+      react-upload-path: /var/www/kod3.dev/uat/react/
+      deploy-dir: /opt/kode-uat
+      compose-file: docker-compose.uat.yml
+      env-file: .env.uat.production
+    secrets: inherit

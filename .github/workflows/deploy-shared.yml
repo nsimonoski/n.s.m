@@ -1,0 +1,98 @@
+name: Deploy (shared)
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+      angular-base-href:
+        required: true
+        type: string
+      vite-base:
+        required: true
+        type: string
+      angular-upload-path:
+        required: true
+        type: string
+      react-upload-path:
+        required: true
+        type: string
+      deploy-dir:
+        required: true
+        type: string
+      compose-file:
+        required: true
+        type: string
+      env-file:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: ${{ inputs.branch }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Lint
+        run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD
+
+      - name: Build Angular
+        run: npx nx build angular-ide --configuration=production --base-href ${{ inputs.angular-base-href }}
+
+      - name: Build React
+        run: npx nx build react-ide
+        env:
+          VITE_BASE: ${{ inputs.vite-base }}
+
+      - name: Build NestJS API
+        run: npx nx build nestjs-api
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 204.168.150.34 >> ~/.ssh/known_hosts
+
+      - name: Upload Angular
+        run: rsync -avz --delete dist/apps/angular-ide/browser/ deploy@204.168.150.34:${{ inputs.angular-upload-path }}
+
+      - name: Upload React
+        run: rsync -avz --delete apps/react-ide/dist/ deploy@204.168.150.34:${{ inputs.react-upload-path }}
+
+      - name: Upload API + Docker files
+        run: |
+          rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json deploy@204.168.150.34:${{ inputs.deploy-dir }}/
+          rsync -avz Dockerfile deploy@204.168.150.34:${{ inputs.deploy-dir }}/
+          rsync -avz ${{ inputs.compose-file }} deploy@204.168.150.34:${{ inputs.deploy-dir }}/docker-compose.yml
+          rsync -avz --delete docker/ deploy@204.168.150.34:${{ inputs.deploy-dir }}/docker/
+
+      - name: Create env file on server
+        run: |
+          ssh deploy@204.168.150.34 "cat > ${{ inputs.deploy-dir }}/${{ inputs.env-file }} << 'EOF'
+          OAUTH_CLIENT_ID=${{ secrets.OAUTH_CLIENT_ID }}
+          OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}
+          DEMO_REPO_URL=${{ secrets.DEMO_REPO_URL }}
+          GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+          SESSION_ENCRYPTION_KEY=${{ secrets.SESSION_ENCRYPTION_KEY }}
+          EOF"
+
+      - name: Build workspace image
+        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose --profile build-only build workspace"
+
+      - name: Restart API
+        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose up -d --build"

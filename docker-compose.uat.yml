@@ -1,0 +1,73 @@
+name: kode-uat
+
+services:
+  uat-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis://uat-redis:6379
+      - CORS_ORIGINS=https://kod3.dev
+      - ANGULAR_IDE_URL=https://kod3.dev/uat/angular
+      - REACT_IDE_URL=https://kod3.dev/uat/react
+      - OAUTH_CALLBACK_URL=https://kod3.dev/uat/api/auth/github/callback
+      - WORKSPACE_BASE_DIR=/data/workspaces
+      - WORKSPACE_HOST_PATH=/opt/kode-uat/workspaces
+      - DOCKER_HOST=tcp://uat-docker-proxy:2375
+      - WORKSPACE_NETWORK=workspace-net-uat
+    env_file:
+      - .env.uat.production
+    tmpfs:
+      - /tmp/private-workspaces:size=512M
+    volumes:
+      - /opt/kode-uat/workspaces:/data/workspaces
+    networks:
+      - default
+      - internal
+    depends_on:
+      - uat-redis
+      - uat-docker-proxy
+
+  uat-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data-uat:/data
+    networks:
+      - internal
+
+  uat-docker-proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: unless-stopped
+    environment:
+      - CONTAINERS=1
+      - EXEC=1
+      - POST=1
+      - PING=1
+      - NETWORKS=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal
+
+  workspace:
+    build:
+      context: .
+      dockerfile: docker/workspace/Dockerfile
+    image: nsm-workspace:latest
+    profiles:
+      - build-only
+
+volumes:
+  redis-data-uat:
+
+networks:
+  internal:
+    internal: true
+  workspace-net-uat:
+    driver: bridge
