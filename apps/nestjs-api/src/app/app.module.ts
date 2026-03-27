@@ -10,6 +10,7 @@ import { FileExplorerModule } from '../file-explorer/file-explorer.module';
 import { GitModule } from '../git/git.module';
 import { AiModule } from '../ai/ai.module';
 import { TerminalModule } from '../terminal/terminal.module';
+import { VoiceModule } from '../voice/voice.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TerminalModule } from '../terminal/terminal.module';
     GitModule,
     AiModule,
     TerminalModule,
+    VoiceModule,
   ],
 })
 export class AppModule implements NestModule {
