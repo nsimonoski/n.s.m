@@ -8,4 +8,6 @@ export { GitService } from './lib/git.service';
 export { GitWsService } from './lib/git-ws.service';
 export { TerminalWsService } from './lib/terminal-ws.service';
 export { GitStatusStore } from './lib/ide-store';
+export { VoiceService } from './lib/voice.service';
+export { withGitActions } from './lib/partial-store/with-git-actions.store';
 export * as IdeStore from './lib/ide-store';

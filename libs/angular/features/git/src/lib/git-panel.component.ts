@@ -118,20 +118,20 @@ export class GitPanelComponent {
   }
 
   onDiscardConfirmed(): void {
-    this.changesStore.discard(this.pendingDiscardPaths);
+    this.changesStore.gitDiscard(this.pendingDiscardPaths);
     this.closeDiscardDialog();
   }
 
   onHeaderAction(id: string): void {
     switch (id) {
       case HeaderAction.StashAll:
-        this.changesStore.stash();
+        this.changesStore.gitStash();
         break;
       case HeaderAction.StashPop:
-        this.changesStore.stashPop();
+        this.changesStore.gitStashPop();
         break;
       case HeaderAction.StashApply:
-        this.changesStore.stashApply();
+        this.changesStore.gitStashApply();
         break;
     }
   }
@@ -149,10 +149,10 @@ export class GitPanelComponent {
 
     switch (action) {
       case ContextMenu.Action.STAGE:
-        this.changesStore.stage(paths);
+        this.changesStore.gitStage(paths);
         break;
       case ContextMenu.Action.UNSTAGE:
-        this.changesStore.unstage(paths);
+        this.changesStore.gitUnstage(paths);
         break;
       case ContextMenu.Action.DISCARD:
         this.pendingDiscardPaths = paths;
