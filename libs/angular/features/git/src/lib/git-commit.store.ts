@@ -11,7 +11,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { GitLogEntryDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
-import { GitService, GitStatusStore, GitWsService } from '@org/angular-data-access';
+import { GitService, GitStatusStore, GitWsService, withGitActions } from '@org/angular-data-access';
 import { SnackbarService } from '@org/angular/ui';
 
 interface GitCommitState {
@@ -25,6 +25,7 @@ export const GitCommitStore = signalStore(
     commitHistory: [],
   }),
   partialStore.withBrowserStorage({ key: 'git-explorer' }),
+  withGitActions(),
   withProps(() => ({
     gitStatusStore: inject(GitStatusStore),
     service: inject(GitService),
@@ -53,11 +54,7 @@ export const GitCommitStore = signalStore(
     ),
     sync: rxMethod<void>(
       pipe(
-        switchMap(() => state.service.push(state.gitStatusStore.rootPath())),
-        tap(({ success, error }) => {
-          if (!success) return state.snackbar.error(error);
-          state.snackbar.success('Pushed!');
-        }),
+        tap(() => state.gitPush()),
       ),
     ),
     fetchLog: rxMethod<string>(

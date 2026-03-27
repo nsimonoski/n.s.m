@@ -46,6 +46,7 @@ export class TerminalPanelComponent implements AfterViewInit, OnDestroy {
     this.manager.setStateCallback((newTabs, newActiveId) => {
       this.tabs.set([...newTabs]);
       this.activeId.set(newActiveId);
+      this.layoutStore.setActiveTerminalSessionId(newActiveId);
       this.cdr.markForCheck();
       if (newTabs.length === 0) {
         this.layoutStore.closeTerminal();
