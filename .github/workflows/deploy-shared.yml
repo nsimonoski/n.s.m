@@ -27,6 +27,13 @@ on:
       env-file:
         required: true
         type: string
+      angular-configuration:
+        required: true
+        type: string
+      vite-env:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   deploy:
@@ -51,12 +58,13 @@ jobs:
         run: npx nx affected -t lint --base=$NX_BASE --head=$NX_HEAD
 
       - name: Build Angular
-        run: npx nx build angular-ide --configuration=production --base-href ${{ inputs.angular-base-href }}
+        run: npx nx build angular-ide --configuration=${{ inputs.angular-configuration }} --base-href ${{ inputs.angular-base-href }}
 
       - name: Build React
         run: npx nx build react-ide
         env:
           VITE_BASE: ${{ inputs.vite-base }}
+          VITE_ENV: ${{ inputs.vite-env }}
 
       - name: Build NestJS API
         run: npx nx build nestjs-api
