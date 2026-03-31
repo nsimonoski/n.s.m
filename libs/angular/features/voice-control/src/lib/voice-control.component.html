@@ -19,7 +19,7 @@
       }
     }
     <div class="actions">
-      <button class="btn-execute" (click)="store.executeCommand()">Execute</button>
+      <button class="btn-execute" [disabled]="isUnknownCommand()" (click)="store.executeCommand()">Execute</button>
       <button class="btn-cancel" (click)="store.dismiss()">Cancel</button>
     </div>
   </div>

@@ -17,7 +17,6 @@ export interface IdeLayoutState {
   sidebarOpen: boolean;
   terminalOpen: boolean;
   terminalHeight: number;
-  activeTerminalSessionId: string | null;
 }
 
 export const IdeLayoutStore = signalStore(
@@ -27,7 +26,6 @@ export const IdeLayoutStore = signalStore(
     sidebarOpen: false,
     terminalOpen: false,
     terminalHeight: 250,
-    activeTerminalSessionId: null,
   }),
   partialStore.withBrowserStorage({ key: 'ide-layout' }),
   partialStore.withRouting(),
@@ -72,9 +70,6 @@ export const IdeLayoutStore = signalStore(
       const clamped = Math.max(100, Math.min(600, height));
       patchState(store, { terminalHeight: clamped });
       store.saveToStorage({ terminalHeight: clamped });
-    },
-    setActiveTerminalSessionId: (id: string | null) => {
-      patchState(store, { activeTerminalSessionId: id });
     },
   })),
   withHooks({
