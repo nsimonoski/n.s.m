@@ -268,6 +268,155 @@
       </div>
     </section>
 
+    <!-- Voice Control -->
+    <section class="docs-section">
+      <h2 class="section-title">Voice Control</h2>
+      <p class="docs-text">
+        Control the IDE hands-free using voice commands. Click the microphone button in the status bar
+        to start recording, speak your command, then confirm or cancel. Voice transcription is powered
+        by Whisper and intent parsing by Llama 3.3 via
+        <a href="https://groq.com/" target="_blank" rel="noopener noreferrer">Groq</a>.
+      </p>
+
+      <p class="docs-text"><strong>Available commands:</strong></p>
+
+      <table class="permissions-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Command</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="8"><i class="codicon codicon-git-commit"></i> Git</td>
+            <td>Commit</td>
+            <td><em>"commit with message fix login bug"</em></td>
+          </tr>
+          <tr>
+            <td>Push</td>
+            <td><em>"push to remote"</em></td>
+          </tr>
+          <tr>
+            <td>Stage All</td>
+            <td><em>"stage all changes"</em></td>
+          </tr>
+          <tr>
+            <td>Stash / Pop Stash</td>
+            <td><em>"stash my changes"</em> / <em>"pop stash"</em></td>
+          </tr>
+          <tr>
+            <td>Unstage All</td>
+            <td><em>"unstage all"</em></td>
+          </tr>
+          <tr>
+            <td>Discard Changes</td>
+            <td><em>"discard all changes"</em></td>
+          </tr>
+          <tr>
+            <td>Checkout Branch</td>
+            <td><em>"checkout main"</em></td>
+          </tr>
+          <tr>
+            <td colspan="2" class="docs-text" style="font-size: 12px; padding-top: 0">
+              Git commands require authentication.
+            </td>
+          </tr>
+          <tr>
+            <td rowspan="4"><i class="codicon codicon-file-code"></i> Editor</td>
+            <td>Save File</td>
+            <td><em>"save the file"</em></td>
+          </tr>
+          <tr>
+            <td>Close Tab</td>
+            <td><em>"close this tab"</em></td>
+          </tr>
+          <tr>
+            <td>Close All Tabs</td>
+            <td><em>"close all tabs"</em></td>
+          </tr>
+          <tr>
+            <td>Close Other Tabs</td>
+            <td><em>"close other tabs"</em></td>
+          </tr>
+          <tr>
+            <td rowspan="3"><i class="codicon codicon-layout"></i> Layout</td>
+            <td>Toggle Terminal</td>
+            <td><em>"open terminal"</em></td>
+          </tr>
+          <tr>
+            <td>Toggle Sidebar</td>
+            <td><em>"toggle sidebar"</em></td>
+          </tr>
+          <tr>
+            <td>Switch Panel</td>
+            <td><em>"switch to git panel"</em></td>
+          </tr>
+          <tr>
+            <td rowspan="5"><i class="codicon codicon-hubot"></i> AI</td>
+            <td>Chat</td>
+            <td><em>"ask AI how to implement sorting"</em></td>
+          </tr>
+          <tr>
+            <td>Explain</td>
+            <td><em>"explain this file"</em></td>
+          </tr>
+          <tr>
+            <td>Review</td>
+            <td><em>"review this code"</em></td>
+          </tr>
+          <tr>
+            <td>Refactor</td>
+            <td><em>"refactor to use async await"</em></td>
+          </tr>
+          <tr>
+            <td>Clear Chat</td>
+            <td><em>"clear chat"</em></td>
+          </tr>
+          <tr>
+            <td rowspan="4"><i class="codicon codicon-terminal"></i> Terminal</td>
+            <td>Run Command</td>
+            <td><em>"run npm install"</em></td>
+          </tr>
+          <tr>
+            <td>Clear Terminal</td>
+            <td><em>"clear the terminal"</em></td>
+          </tr>
+          <tr>
+            <td>New Session</td>
+            <td><em>"new terminal session"</em></td>
+          </tr>
+          <tr>
+            <td>Kill Process</td>
+            <td><em>"stop the terminal"</em></td>
+          </tr>
+          <tr>
+            <td rowspan="2"><i class="codicon codicon-new-file"></i> File</td>
+            <td>Create File</td>
+            <td><em>"create file utils.ts"</em></td>
+          </tr>
+          <tr>
+            <td>Create Directory</td>
+            <td><em>"create directory src/helpers"</em></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="docs-text" style="margin-top: 12px">
+        You can also browse all available commands by clicking the command list button next to the
+        microphone. Commands without required parameters can be executed directly from the list.
+      </p>
+
+      <div class="callout">
+        <p class="callout-title">File &amp; directory creation</p>
+        <p class="callout-text">
+          New files and directories are created relative to the currently active file's directory. If
+          no file is open, they are created at the workspace root.
+        </p>
+      </div>
+    </section>
+
     <!-- Terminal -->
     <section class="docs-section">
       <h2 class="section-title">Terminal</h2>

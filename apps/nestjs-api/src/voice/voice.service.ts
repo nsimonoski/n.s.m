@@ -30,6 +30,20 @@ Examples:
 - "run ls" → { "intent": "terminal:run", "params": { "command": "ls" }, "confidence": 0.9 }
 - "create file utils.ts" → { "intent": "file:create", "params": { "path": "utils.ts" }, "confidence": 0.85 }
 - "create directory src/helpers" → { "intent": "dir:create", "params": { "path": "src/helpers" }, "confidence": 0.85 }
+- "clear the terminal" → { "intent": "terminal:clear", "params": {}, "confidence": 0.95 }
+- "new terminal session" or "open new terminal" → { "intent": "terminal:new-session", "params": {}, "confidence": 0.9 }
+- "kill the process" or "stop the terminal" → { "intent": "terminal:kill", "params": {}, "confidence": 0.9 }
+- "review this code" → { "intent": "ai:review", "params": {}, "confidence": 0.9 }
+- "refactor to use async await" → { "intent": "ai:refactor", "params": { "instruction": "refactor to use async await" }, "confidence": 0.9 }
+- "fix the null pointer error" → { "intent": "ai:fix-error", "params": { "instruction": "fix the null pointer error" }, "confidence": 0.9 }
+- "pop stash" → { "intent": "git:stash-pop", "params": {}, "confidence": 0.9 }
+- "unstage all" → { "intent": "git:unstage-all", "params": {}, "confidence": 0.9 }
+- "discard all changes" → { "intent": "git:discard-all", "params": {}, "confidence": 0.9 }
+- "checkout main" → { "intent": "git:checkout", "params": { "branch": "main" }, "confidence": 0.9 }
+- "close all tabs" → { "intent": "editor:close-all", "params": {}, "confidence": 0.9 }
+- "close other tabs" → { "intent": "editor:close-others", "params": {}, "confidence": 0.9 }
+- "toggle sidebar" → { "intent": "layout:toggle-sidebar", "params": {}, "confidence": 0.9 }
+- "clear chat" → { "intent": "ai:clear-chat", "params": {}, "confidence": 0.9 }
 
 If the intent is unclear, use "unknown" with confidence 0.
 Only return the JSON object, no explanation.`;
@@ -88,7 +102,10 @@ export class VoiceService {
     }
   }
 
-  async processCommand(audioBuffer: Buffer, mimeType: string): Promise<VoiceControl.VoiceCommandResult> {
+  async processCommand(
+    audioBuffer: Buffer,
+    mimeType: string,
+  ): Promise<VoiceControl.VoiceCommandResult> {
     const estimatedSeconds = audioBuffer.length / 16000;
     await this.rateLimitGuard.checkAudioQuota(estimatedSeconds);
 

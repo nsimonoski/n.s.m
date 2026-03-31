@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { VoiceControl } from '@org/shared/contracts';
 import { VoiceControlStore } from './voice-control.store';
 import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
 import { VoiceControl as VoiceControlUtils } from '@org/shared/utils';
@@ -26,6 +27,10 @@ export class VoiceControlComponent {
 
     return { label, paramText };
   });
+
+  readonly isUnknownCommand = computed(
+    () => this.store.commandResult()?.intent === VoiceControl.VoiceIntent.Unknown,
+  );
 
   onCommandSelected(item: CommandPaletteItem): void {
     const cmd = VoiceControlUtils.VOICE_COMMANDS.find((c) => c.intent === item.id);

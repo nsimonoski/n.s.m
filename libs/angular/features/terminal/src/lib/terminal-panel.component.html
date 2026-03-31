@@ -1,17 +1,17 @@
 <div class="terminal-panel" [style.height.px]="layoutStore.terminalHeight()">
   <div class="terminal-resize-handle" (mousedown)="onResizeStart($event)"></div>
   <div class="terminal-tabs">
-    @for (tab of tabs(); track tab.sessionId) {
+    @for (tab of store.tabs(); track tab.sessionId) {
       <button
         class="terminal-tab"
-        [class.active]="tab.sessionId === activeId()"
+        [class.active]="tab.sessionId === store.activeSessionId()"
         (click)="onTabClick(tab.sessionId)"
       >
         {{ tab.name }}
         <button class="terminal-tab-close" (click)="onCloseTab($event, tab.sessionId)" title="Close">×</button>
       </button>
     }
-    @if (tabs().length < 4) {
+    @if (store.tabs().length < 4) {
       <button class="terminal-tab-add" (click)="onAddTab()" title="New Terminal">+</button>
     }
   </div>
