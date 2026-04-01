@@ -41,7 +41,7 @@ export const TerminalSessionStore = signalStore(
         }
       });
 
-      manager.setTheme(document.documentElement.classList.contains('dark'));
+      manager.setTheme(document.documentElement.getAttribute('data-theme') === 'dark');
       restoreSessions(store);
     },
 
