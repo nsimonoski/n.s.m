@@ -1,7 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 
-import { RequestLoggerMiddleware } from '../common';
+import { RequestLoggerMiddleware, RateLimitGuard } from '../common';
 import { RedisModule } from '../redis/redis.module';
 import { DockerModule } from '../docker/docker.module';
 import { GithubAuthModule } from '../github-auth/github-auth.module';
@@ -13,6 +14,7 @@ import { TerminalModule } from '../terminal/terminal.module';
 import { VoiceModule } from '../voice/voice.module';
 
 @Module({
+  providers: [{ provide: APP_GUARD, useClass: RateLimitGuard }],
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: 'apps/nestjs-api/.env' }),
     RedisModule,

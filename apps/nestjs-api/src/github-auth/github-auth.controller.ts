@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import type { UserProfileDto } from '@org/shared/contracts';
 import { GUEST_PERMISSIONS } from '@org/shared/contracts';
-import { EnvironmentVariables } from '../common';
+import { EnvironmentVariables, RateLimitAuth } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserSession } from '../auth/session.service';
 import { GithubAuthService } from './github-auth.service';
 
+@RateLimitAuth()
 @Controller('auth')
 export class GithubAuthController {
   constructor(

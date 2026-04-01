@@ -17,10 +17,11 @@ import type {
 } from '@org/shared/contracts';
 import { Permission } from '@org/shared/contracts';
 
-import { PermissionGuard } from '../common';
+import { PermissionGuard, RateLimitRead, RateLimitWrite } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import { FileSystemProvider } from './domain/file-system.provider';
 
+@RateLimitRead()
 @UseGuards(AuthGuard)
 @Controller('file-explorer')
 export class FileExplorerController {
@@ -72,12 +73,14 @@ export class FileExplorerController {
     return file;
   }
 
+  @RateLimitWrite()
   @Put('file')
   @UseGuards(PermissionGuard(Permission.FileWrite))
   async updateFile(@Body() fileDto: FileResponseDto): Promise<FileResponseDto> {
     return this.service.updateFile(fileDto);
   }
 
+  @RateLimitWrite()
   @Put('rename')
   @UseGuards(PermissionGuard(Permission.FileWrite))
   async rename(@Body() body: RenameRequestDto): Promise<{ path: string }> {
@@ -90,6 +93,7 @@ export class FileExplorerController {
     return this.service.rename(path, newName);
   }
 
+  @RateLimitWrite()
   @Post('file')
   @UseGuards(PermissionGuard(Permission.FileWrite))
   async createFile(
@@ -103,6 +107,7 @@ export class FileExplorerController {
     return this.service.createFile(path, content);
   }
 
+  @RateLimitWrite()
   @Post('directory')
   @UseGuards(PermissionGuard(Permission.FileWrite))
   async createDirectory(@Body('path') path: string): Promise<DirectoryResponseDto> {
@@ -113,6 +118,7 @@ export class FileExplorerController {
     return this.service.createDirectory(path);
   }
 
+  @RateLimitWrite()
   @Delete()
   @UseGuards(PermissionGuard(Permission.FileWrite))
   async delete(@Body('path') path: string): Promise<{ path: string }> {
