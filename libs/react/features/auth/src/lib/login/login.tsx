@@ -77,6 +77,11 @@ export function Login() {
             <i className="codicon codicon-file-text"></i>
             <span>CV</span>
           </a>
+          <span>|</span>
+          <a href="https://dev.to/nsimonoski/how-a-monorepo-keeps-multiple-projects-in-sync-from-shared-code-to-atomic-deployments-1i16" target="_blank" rel="noopener noreferrer">
+            <i className="codicon codicon-note"></i>
+            <span>Blog</span>
+          </a>
         </div>
       </div>
 
