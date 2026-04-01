@@ -154,15 +154,8 @@ export class SessionService implements OnModuleDestroy {
 
   private async getActiveSessionIds(): Promise<string[]> {
     try {
-      const ids: string[] = [];
-      for (const base of [this.publicWorkspaceBase, this.privateWorkspaceBase]) {
-        const dirs = await this.fileSystemService.listDirectory(base).catch(() => [] as string[]);
-        for (const dir of dirs) {
-          const exists = await this.redis.get(`${SESSION_PREFIX}${dir}`);
-          if (exists) ids.push(dir);
-        }
-      }
-      return ids;
+      const keys = await this.redis.keys(`${SESSION_PREFIX}*`);
+      return keys.map((key) => key.replace(SESSION_PREFIX, ''));
     } catch {
       return [];
     }
