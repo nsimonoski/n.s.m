@@ -4,7 +4,8 @@ import Docker from 'dockerode';
 import { EnvironmentVariables } from '../common/configs/env.config';
 
 const WORKSPACE_IMAGE = 'nsm-workspace:latest';
-const WORKSPACE_LABEL = 'nsm.workspace';
+const WORKSPACE_LABEL_KEY = 'nsm.workspace';
+const WORKSPACE_ENV_LABEL_KEY = 'nsm.env';
 
 export interface DockerExecHandle {
   stream: NodeJS.ReadWriteStream;
@@ -16,10 +17,12 @@ export class DockerContainerService implements OnModuleInit {
   private readonly logger = new Logger(DockerContainerService.name);
   private readonly docker: Docker;
   private readonly workspaceNetwork: string | undefined;
+  private readonly envLabel: string;
 
   constructor(private readonly configService: ConfigService) {
     const dockerHost = this.configService.get<string>(EnvironmentVariables.DOCKER_HOST);
     this.workspaceNetwork = this.configService.get<string>(EnvironmentVariables.WORKSPACE_NETWORK);
+    this.envLabel = this.configService.get<string>(EnvironmentVariables.WORKSPACE_NETWORK, 'default');
 
     if (dockerHost) {
       const url = new URL(dockerHost);
@@ -42,7 +45,7 @@ export class DockerContainerService implements OnModuleInit {
   async createWorkspaceContainer(sessionId: string, hostWorkspacePath: string): Promise<string> {
     const container = await this.docker.createContainer({
       Image: WORKSPACE_IMAGE,
-      Labels: { [WORKSPACE_LABEL]: sessionId },
+      Labels: { [WORKSPACE_LABEL_KEY]: sessionId, [WORKSPACE_ENV_LABEL_KEY]: this.envLabel },
       User: '1000:1000',
       HostConfig: {
         Binds: [`${hostWorkspacePath}:/workspace`, 'nsm-npm-cache:/home/workspace/.npm'],
@@ -104,11 +107,11 @@ export class DockerContainerService implements OnModuleInit {
     try {
       const containers = await this.docker.listContainers({
         all: true,
-        filters: { label: [WORKSPACE_LABEL] },
+        filters: { label: [WORKSPACE_LABEL_KEY, `${WORKSPACE_ENV_LABEL_KEY}=${this.envLabel}`] },
       });
 
       for (const info of containers) {
-        const sessionId = info.Labels[WORKSPACE_LABEL];
+        const sessionId = info.Labels[WORKSPACE_LABEL_KEY];
         if (!activeSessionIds.includes(sessionId)) {
           await this.removeContainer(info.Id);
           this.logger.log(`Cleaned up orphaned container for session: ${sessionId}`);
