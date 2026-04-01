@@ -53,9 +53,9 @@ export class MonacoDiffEditorUtils {
 
   dispose(): void {
     const model = this.editor?.getModel();
-    model?.original?.dispose();
-    model?.modified?.dispose();
     this.editor?.dispose();
     this.editor = null;
+    model?.original?.dispose();
+    model?.modified?.dispose();
   }
 }

@@ -17,4 +17,5 @@ jobs:
       deploy-dir: /opt/kode
       compose-file: docker-compose.yml
       env-file: .env.production
+      angular-configuration: production
     secrets: inherit

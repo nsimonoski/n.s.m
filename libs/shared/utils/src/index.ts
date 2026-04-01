@@ -9,3 +9,4 @@ export * as ActivityBarConfig from './lib/activity-bar/activity-bar';
 export { browserStorage } from './lib/browser-storage/browser-storage';
 export { apiResult } from './lib/api-result/api-result';
 export type { ApiResult, ApiSuccess, ApiError } from './lib/api-result/api-result';
+export * as VoiceControl from './lib/voice-control/index';

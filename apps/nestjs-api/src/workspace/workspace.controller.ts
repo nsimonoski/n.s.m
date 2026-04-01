@@ -1,11 +1,12 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { Permission } from '@org/shared/contracts';
-import { PermissionGuard } from '../common';
+import { PermissionGuard, RateLimitWrite } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserSession } from '../auth/session.service';
 import { WorkspaceService } from './workspace.service';
 
+@RateLimitWrite()
 @UseGuards(AuthGuard)
 @Controller('workspace')
 export class WorkspaceController {

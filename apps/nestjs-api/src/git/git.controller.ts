@@ -24,11 +24,12 @@ import type {
   GitStatusTreeResponseDto,
 } from '@org/shared/contracts';
 import { GitTreeUtils } from '@org/shared/utils';
-import { PermissionGuard } from '../common';
+import { PermissionGuard, RateLimitRead, RateLimitWrite } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import type { UserSession } from '../auth/session.service';
 import { GitProvider } from './domain/git.provider';
 
+@RateLimitRead()
 @UseGuards(AuthGuard)
 @Controller('git')
 export class GitController {
@@ -83,6 +84,7 @@ export class GitController {
     return this.service.log(path, limit ? parseInt(limit, 10) : undefined);
   }
 
+  @RateLimitWrite()
   @Post('clone')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async clone(@Body() body: GitCloneRequestDto): Promise<void> {
@@ -93,6 +95,7 @@ export class GitController {
     return this.service.clone(body.url, body.path);
   }
 
+  @RateLimitWrite()
   @Post('checkout')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async checkout(@Query('path') path: string, @Body() body: GitCheckoutRequestDto): Promise<void> {
@@ -103,6 +106,7 @@ export class GitController {
     return this.service.checkout(path, body.branch);
   }
 
+  @RateLimitWrite()
   @Post('create-branch')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async createBranch(
@@ -116,6 +120,7 @@ export class GitController {
     return this.service.checkoutOrCreateBranch(path, body.branch, body.sourceBranch);
   }
 
+  @RateLimitWrite()
   @Post('fetch')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async fetch(@Query('path') path: string, @Req() req: { session: UserSession }): Promise<void> {
@@ -126,6 +131,7 @@ export class GitController {
     return this.service.fetch(path, req.session.githubToken ?? undefined);
   }
 
+  @RateLimitWrite()
   @Post('pull')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async pull(
@@ -140,6 +146,7 @@ export class GitController {
     return this.service.pull(path, body.remote, body.branch, req.session.githubToken ?? undefined);
   }
 
+  @RateLimitWrite()
   @Post('push')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async push(
@@ -154,6 +161,7 @@ export class GitController {
     return this.service.push(path, body.remote, body.branch, req.session.githubToken ?? undefined);
   }
 
+  @RateLimitWrite()
   @Post('commit')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async commit(
@@ -167,6 +175,7 @@ export class GitController {
     return this.service.commit(path, body.message);
   }
 
+  @RateLimitWrite()
   @Post('stage')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async stage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
@@ -177,6 +186,7 @@ export class GitController {
     return this.service.stage(path, body.paths);
   }
 
+  @RateLimitWrite()
   @Post('unstage')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async unstage(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
@@ -187,6 +197,7 @@ export class GitController {
     return this.service.unstage(path, body.paths);
   }
 
+  @RateLimitWrite()
   @Post('discard')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async discard(@Query('path') path: string, @Body() body: GitStageRequestDto): Promise<void> {
@@ -197,6 +208,7 @@ export class GitController {
     return this.service.discard(path, body.paths);
   }
 
+  @RateLimitWrite()
   @Post('stash')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async stash(@Query('path') path: string): Promise<void> {
@@ -207,6 +219,7 @@ export class GitController {
     return this.service.stash(path);
   }
 
+  @RateLimitWrite()
   @Post('stash/pop')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async stashPop(@Query('path') path: string): Promise<void> {
@@ -217,6 +230,7 @@ export class GitController {
     return this.service.stashPop(path);
   }
 
+  @RateLimitWrite()
   @Post('stash/apply')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async stashApply(@Query('path') path: string): Promise<void> {
@@ -241,6 +255,7 @@ export class GitController {
     return { content };
   }
 
+  @RateLimitWrite()
   @Post('undo-commit')
   @UseGuards(PermissionGuard(Permission.GitWrite))
   async undoCommit(@Query('path') path: string): Promise<void> {
