@@ -9,10 +9,10 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
-import { GitLogEntryDto } from '@org/shared/contracts';
-import { partialStore } from '@org/angular-utils';
-import { GitService, GitStatusStore, GitWsService, withGitActions } from '@org/angular-data-access';
-import { SnackbarService } from '@org/angular/ui';
+import { GIT_CHANGE_EVENT, GitLogEntryDto, GitStatusTreeResponseDto } from '@org/shared/contracts';
+import { partialStore, sockets } from '@org/angular-utils';
+import { uiStore } from '@org/angular/ui';
+import { GitService, GitStatusStore, withGitActions } from '@org/angular-data-access';
 
 interface GitCommitState {
   commitMessage: string;
@@ -26,11 +26,11 @@ export const GitCommitStore = signalStore(
   }),
   partialStore.withBrowserStorage({ key: 'git-explorer' }),
   withGitActions(),
+  uiStore.withSnackbar(),
   withProps(() => ({
     gitStatusStore: inject(GitStatusStore),
     service: inject(GitService),
-    wsService: inject(GitWsService),
-    snackbar: inject(SnackbarService),
+    ws: inject(sockets.WebSocketStore),
   })),
   withMethods((state) => ({
     setCommitMessage: rxMethod<string>(
@@ -46,17 +46,13 @@ export const GitCommitStore = signalStore(
           state.service.commit(state.gitStatusStore.rootPath(), message),
         ),
         tap(({ success, error }) => {
-          if (!success) return state.snackbar.error(error);
+          if (!success) return state.showError(error);
           state.saveToStorage({ commitMessage: '' });
-          state.snackbar.success('Committed!');
+          state.showSuccess('Committed!');
         }),
       ),
     ),
-    sync: rxMethod<void>(
-      pipe(
-        tap(() => state.gitPush()),
-      ),
-    ),
+    sync: rxMethod<void>(pipe(tap(() => state.gitPush()))),
     fetchLog: rxMethod<string>(
       pipe(
         switchMap((path: string) => state.service.getLog(path)),
@@ -68,7 +64,7 @@ export const GitCommitStore = signalStore(
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
-        switchMap(() => state.wsService.gitChanges$),
+        switchMap(() => state.ws.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT)),
         switchMap(() => state.service.getLog(state.gitStatusStore.rootPath())),
         tap(({ success, data }) => {
           if (!success) return;

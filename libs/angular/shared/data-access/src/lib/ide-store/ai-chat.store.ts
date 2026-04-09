@@ -12,6 +12,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, filter, pipe, switchMap, tap } from 'rxjs';
 import { Ai, FileResponseDto } from '@org/shared/contracts';
 import { partialStore } from '@org/angular-utils';
+import { uiStore } from '@org/angular/ui';
 import { AiService } from '../ai.service';
 import { CodeEditorStore } from './code-editor.store';
 
@@ -36,7 +37,7 @@ export const AiChatStore = signalStore(
     isStreaming: false,
   }),
   partialStore.withBrowserStorage({ key: 'ai-chat' }),
-  partialStore.withSnackbar(),
+  uiStore.withSnackbar(),
   withProps(() => ({
     aiService: inject(AiService),
     editorStore: inject(CodeEditorStore),
@@ -126,7 +127,7 @@ export const AiChatStore = signalStore(
                 );
               patchState(store, { messages, isStreaming: false });
               store.saveToStorage({ messages });
-              store.showSnackBar('AI request failed');
+              store.showError('AI request failed');
               return EMPTY;
             }),
           );

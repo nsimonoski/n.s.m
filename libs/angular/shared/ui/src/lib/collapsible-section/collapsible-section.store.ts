@@ -1,7 +1,7 @@
-import { inject, isDevMode } from '@angular/core';
+import { isDevMode } from '@angular/core';
 import { signalStore, withMethods, withProps, withState } from '@ngrx/signals';
 import { partialStore } from '@org/angular-utils';
-import { SnackbarService } from '../snackbar/snackbar.service';
+import { withSnackbar } from '../snackbar/with-snackbar.store';
 
 interface State {
   sections: Record<string, boolean>;
@@ -11,14 +11,14 @@ export const CollapsibleSectionStore = signalStore(
   { providedIn: 'root' },
   withState<State>({ sections: {} }),
   partialStore.withBrowserStorage({ key: 'collapsible-sections' }),
+  withSnackbar(),
   withProps(() => ({
-    snackbar: inject(SnackbarService),
     registeredIds: new Set<string>(),
   })),
   withMethods((state) => ({
     register(id: string): void {
       if (isDevMode() && state.registeredIds.has(id)) {
-        state.snackbar.error(`CollapsibleSection: duplicate id "${id}"`);
+        state.showError(`CollapsibleSection: duplicate id "${id}"`);
       }
       state.registeredIds.add(id);
     },

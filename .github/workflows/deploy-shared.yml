@@ -97,10 +97,11 @@ jobs:
           DEMO_REPO_URL=${{ secrets.DEMO_REPO_URL }}
           GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
           SESSION_ENCRYPTION_KEY=${{ secrets.SESSION_ENCRYPTION_KEY }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           EOF"
 
       - name: Build workspace image
-        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose --profile build-only build workspace"
+        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose --env-file ${{ inputs.env-file }} --profile build-only build workspace"
 
       - name: Restart API
-        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose up -d --build"
+        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose --env-file ${{ inputs.env-file }} up -d --build"

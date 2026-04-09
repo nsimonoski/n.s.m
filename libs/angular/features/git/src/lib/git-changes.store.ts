@@ -9,13 +9,12 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { forkJoin, pipe, switchMap, tap } from 'rxjs';
-import { DirectoryResponseDto } from '@org/shared/contracts';
-import { partialStore } from '@org/angular-utils';
+import { DirectoryResponseDto, GIT_CHANGE_EVENT, GitStatusTreeResponseDto } from '@org/shared/contracts';
+import { partialStore, sockets } from '@org/angular-utils';
 import {
   FileExplorerService,
   GitService,
   GitStatusStore,
-  GitWsService,
   IdeStore,
   withGitActions,
 } from '@org/angular-data-access';
@@ -35,7 +34,7 @@ export const GitChangesStore = signalStore(
   withProps(() => ({
     gitStatusStore: inject(GitStatusStore),
     service: inject(GitService),
-    wsService: inject(GitWsService),
+    ws: inject(sockets.WebSocketStore),
     fileService: inject(FileExplorerService),
     editorStore: inject(IdeStore.CodeEditorStore),
   })),
@@ -85,7 +84,7 @@ export const GitChangesStore = signalStore(
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
-        switchMap(() => state.wsService.gitChanges$),
+        switchMap(() => state.ws.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT)),
         tap(
           ({ tree: changesTree, statusMap, branch, stagedCount, changesCount, ahead, behind }) => {
             patchState(state, { changesTree, statusMap });

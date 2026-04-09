@@ -18,12 +18,12 @@ export class SnackbarService {
 
   private timer: ReturnType<typeof setTimeout> | null = null;
 
-  success(message = 'Success!'): void {
-    this.show(message, SnackbarType.Success);
+  success(message = 'Success!', duration?: number): void {
+    this.show(message, SnackbarType.Success, duration);
   }
 
-  error(message = 'Failure!'): void {
-    this.show(message, SnackbarType.Error);
+  error(message = 'Failure!', duration?: number): void {
+    this.show(message, SnackbarType.Error, duration);
   }
 
   info(message = 'Info', duration?: number): void {

@@ -9,11 +9,10 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { distinctUntilChanged, EMPTY, filter, map, pipe, switchMap, tap } from 'rxjs';
-import { FileResponseDto } from '@org/shared/contracts';
-import { partialStore } from '@org/angular-utils';
+import { FILE_CHANGE_EVENT, FileChangeEvent, FileResponseDto } from '@org/shared/contracts';
+import { partialStore, sockets } from '@org/angular-utils';
 import { AppRoutes, MonacoUtils, TabManager } from '@org/shared/utils';
 import { FileExplorerService } from '../file-explorer.service';
-import { FileExplorerWsService } from '../file-explorer-ws.service';
 
 interface State {
   openFiles: MonacoUtils.OpenFile[];
@@ -32,7 +31,7 @@ export const CodeEditorStore = signalStore(
   partialStore.withRouting(),
   withProps(() => ({
     service: inject(FileExplorerService),
-    wsService: inject(FileExplorerWsService),
+    ws: inject(sockets.WebSocketStore),
   })),
   withComputed((state) => ({
     activeFile: computed(() => {
@@ -218,7 +217,7 @@ export const CodeEditorStore = signalStore(
     ),
     listenToFileChanges: rxMethod<void>(
       pipe(
-        switchMap(() => state.wsService.fileChanges$),
+        switchMap(() => state.ws.on<FileChangeEvent>(FILE_CHANGE_EVENT)),
         filter((event) => event.type === 'change'),
         filter((event) => state.openFiles().some((f) => f.path === event.path)),
         switchMap((event) => state.service.getFile(event.path)),
