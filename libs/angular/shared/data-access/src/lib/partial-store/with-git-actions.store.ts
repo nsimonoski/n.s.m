@@ -2,16 +2,16 @@ import { inject } from '@angular/core';
 import { signalStoreFeature, withMethods, withProps } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
-import { SnackbarService } from '@org/angular/ui';
+import { uiStore } from '@org/angular/ui';
 import { GitService } from '../git.service';
 import { GitStatusStore } from '../ide-store';
 
 export const withGitActions = () =>
   signalStoreFeature(
+    uiStore.withSnackbar(),
     withProps(() => ({
       _gitService: inject(GitService),
       _gitStatusStore: inject(GitStatusStore),
-      _gitSnackbar: inject(SnackbarService),
     })),
     withMethods((store) => ({
       gitCommit: rxMethod<string>(
@@ -20,8 +20,8 @@ export const withGitActions = () =>
             store._gitService.commit(store._gitStatusStore.rootPath(), message),
           ),
           tap(({ success, error }) => {
-            if (!success) return store._gitSnackbar.error(error);
-            store._gitSnackbar.success('Committed!');
+            if (!success) return store.showError(error);
+            store.showSuccess('Committed!');
           }),
         ),
       ),
@@ -29,8 +29,8 @@ export const withGitActions = () =>
         pipe(
           switchMap(() => store._gitService.push(store._gitStatusStore.rootPath())),
           tap(({ success, error }) => {
-            if (!success) return store._gitSnackbar.error(error);
-            store._gitSnackbar.success('Pushed!');
+            if (!success) return store.showError(error);
+            store.showSuccess('Pushed!');
           }),
         ),
       ),
@@ -59,8 +59,8 @@ export const withGitActions = () =>
         pipe(
           switchMap(() => store._gitService.stash(store._gitStatusStore.rootPath())),
           tap(({ success, error }) => {
-            if (!success) return store._gitSnackbar.error(error);
-            store._gitSnackbar.success('Stashed!');
+            if (!success) return store.showError(error);
+            store.showSuccess('Stashed!');
           }),
         ),
       ),
@@ -68,8 +68,8 @@ export const withGitActions = () =>
         pipe(
           switchMap(() => store._gitService.stashPop(store._gitStatusStore.rootPath())),
           tap(({ success, error }) => {
-            if (!success) return store._gitSnackbar.error(error);
-            store._gitSnackbar.success('Stash popped!');
+            if (!success) return store.showError(error);
+            store.showSuccess('Stash popped!');
           }),
         ),
       ),
@@ -77,8 +77,8 @@ export const withGitActions = () =>
         pipe(
           switchMap(() => store._gitService.stashApply(store._gitStatusStore.rootPath())),
           tap(({ success, error }) => {
-            if (!success) return store._gitSnackbar.error(error);
-            store._gitSnackbar.success('Stash applied!');
+            if (!success) return store.showError(error);
+            store.showSuccess('Stash applied!');
           }),
         ),
       ),

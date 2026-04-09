@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, from, pipe, switchMap, tap } from 'rxjs';
 import { Ai, Terminal, VoiceControl } from '@org/shared/contracts';
 import { VoiceControl as VoiceControlUtils } from '@org/shared/utils';
-import { SnackbarService } from '@org/angular/ui';
+import { uiStore } from '@org/angular/ui';
 import {
   IdeStore,
   TerminalWsService,
@@ -33,6 +33,7 @@ export const VoiceControlStore = signalStore(
     showCommandList: false,
   }),
   withGitActions(),
+  uiStore.withSnackbar(),
   withProps(() => ({
     recorder: new VoiceControlUtils.AudioRecorder(),
     voiceService: inject(VoiceService),
@@ -44,12 +45,11 @@ export const VoiceControlStore = signalStore(
     terminalSessionStore: inject(TerminalSessionStore),
     terminalWs: inject(TerminalWsService),
     authStore: inject(IdeStore.AuthStore),
-    snackbar: inject(SnackbarService),
   })),
   withMethods((store) => ({
     async startRecording(): Promise<void> {
       if (!VoiceControlUtils.AudioRecorder.isSupported()) {
-        store.snackbar.error('Voice recording is not supported in this browser');
+        store.showError('Voice recording is not supported in this browser');
         return;
       }
       try {
@@ -57,7 +57,7 @@ export const VoiceControlStore = signalStore(
         patchState(store, { phase: 'recording', error: '' });
       } catch {
         patchState(store, { phase: 'error', error: 'Microphone access denied' });
-        store.snackbar.error('Microphone access denied');
+        store.showError('Microphone access denied');
       }
     },
 
@@ -86,7 +86,7 @@ export const VoiceControlStore = signalStore(
         }),
         catchError((err) => {
           patchState(store, { phase: 'error', error: String(err?.message ?? err) });
-          store.snackbar.error(String(err?.message ?? 'Voice command failed'));
+          store.showError(String(err?.message ?? 'Voice command failed'));
           return EMPTY;
         }),
       ),
@@ -144,7 +144,7 @@ export const VoiceControlStore = signalStore(
           const activeFile = store.editorStore.activeFile();
           if (activeFile) {
             store.editorStore.saveFile(activeFile.path);
-            store.snackbar.success('File saved');
+            store.showSuccess('File saved');
           }
           break;
         }
@@ -231,7 +231,7 @@ export const VoiceControlStore = signalStore(
               data: result.params['command'] + '\r',
             } satisfies Terminal.TerminalDataDto);
           } else {
-            store.snackbar.error('No active terminal session');
+            store.showError('No active terminal session');
           }
           break;
         }
@@ -272,7 +272,7 @@ export const VoiceControlStore = signalStore(
           const filePath = resolvePath(activeFile?.path, root, result.params['path']);
           if (filePath) {
             store.fileExplorerStore.createFile(filePath);
-            store.snackbar.success(`Creating file at ${filePath}`);
+            store.showSuccess(`Creating file at ${filePath}`);
           }
           break;
         }
@@ -283,13 +283,13 @@ export const VoiceControlStore = signalStore(
           const dirPath = resolvePath(activeFile?.path, root, result.params['path']);
           if (dirPath) {
             store.fileExplorerStore.createDirectory(dirPath);
-            store.snackbar.success(`Creating directory at ${dirPath}`);
+            store.showSuccess(`Creating directory at ${dirPath}`);
           }
           break;
         }
 
         default:
-          store.snackbar.error(`Unknown command: "${result.rawTranscription}"`);
+          store.showError(`Unknown command: "${result.rawTranscription}"`);
           break;
       }
 

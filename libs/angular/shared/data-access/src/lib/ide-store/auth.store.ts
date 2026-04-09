@@ -10,9 +10,9 @@ import {
 import { type UserProfileDto, type WorkspaceStatusDto, Permission } from '@org/shared/contracts';
 import { AppRoutes } from '@org/shared/utils';
 import { partialStore, sockets } from '@org/angular-utils';
+import { uiStore } from '@org/angular/ui';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { map, of, pipe, switchMap, tap } from 'rxjs';
-import { SnackbarService } from '@org/angular/ui';
 import { AuthService } from '../auth.service';
 import { WorkspaceService } from '../workspace.service';
 
@@ -38,12 +38,12 @@ export const AuthStore = signalStore(
   partialStore.withLoading(),
   partialStore.withRouting(),
   partialStore.withBrowserStorage({ key: 'auth' }),
+  uiStore.withSnackbar(),
 
   withProps(() => ({
     authService: inject(AuthService),
     workspaceService: inject(WorkspaceService),
-    socketService: inject(sockets.SocketService),
-    snackbar: inject(SnackbarService),
+    ws: inject(sockets.WebSocketStore),
   })),
 
   withMethods((store) => ({
@@ -68,7 +68,7 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => {
           store.setLoading(true, '');
-          store.snackbar.info('Creating workspace...', 5000);
+          store.showInfo('Creating workspace...', 5000);
         }),
         switchMap(() => store.authService.guestLogin()),
         switchMap(({ success, data: profile }) => {
@@ -83,9 +83,9 @@ export const AuthStore = signalStore(
                 return;
               }
               store.saveToStorage({ profile, workspace });
-              store.socketService.reconnect();
+              store.ws.reconnect();
               store.setLoading(false);
-              store.snackbar.dismiss();
+              store.dismissSnackbar();
               store.navigate(AppRoutes.ide.root);
             }),
           );
@@ -97,7 +97,7 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => {
           store.setLoading(true, '');
-          store.snackbar.info('Creating workspace...', 5000);
+          store.showInfo('Creating workspace...', 5000);
         }),
         switchMap((repoUrl) => store.workspaceService.cloneRepo(repoUrl)),
         tap(({ success, data }) => {
@@ -106,9 +106,9 @@ export const AuthStore = signalStore(
             return;
           }
           store.saveToStorage({ workspace: data });
-          store.socketService.reconnect();
+          store.ws.reconnect();
           store.setLoading(false);
-          store.snackbar.dismiss();
+          store.dismissSnackbar();
           store.navigate(AppRoutes.ide.root);
         }),
       ),
@@ -117,14 +117,14 @@ export const AuthStore = signalStore(
     logout: rxMethod<void>(
       pipe(
         tap(() => {
-          store.socketService.disconnect();
-          store.snackbar.info('Cleaning up workspace...', 25000);
+          store.ws.disconnect();
+          store.showInfo('Cleaning up workspace...', 25000);
         }),
         switchMap(() => store.authService.logout()),
         tap(() => {
           store.clearAllStorage(['ide-theme']);
           store.navigate(AppRoutes.login);
-          store.snackbar.dismiss();
+          store.dismissSnackbar();
           window.location.reload();
         }),
       ),

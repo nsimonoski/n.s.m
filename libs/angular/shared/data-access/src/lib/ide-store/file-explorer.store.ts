@@ -9,12 +9,18 @@ import {
   withState,
 } from '@ngrx/signals';
 
-import { DirectoryResponseDto, FileResponseDto, RenameRequestDto } from '@org/shared/contracts';
+import {
+  DirectoryResponseDto,
+  FILE_CHANGE_EVENT,
+  FILE_WATCH_EVENT,
+  FileChangeEvent,
+  FileResponseDto,
+  RenameRequestDto,
+} from '@org/shared/contracts';
 import { AppRoutes, FileUtils } from '@org/shared/utils';
-import { partialStore } from '@org/angular-utils';
+import { partialStore, sockets } from '@org/angular-utils';
 import { EMPTY, firstValueFrom, pipe, switchMap, tap } from 'rxjs';
 import { FileExplorerService } from '../file-explorer.service';
-import { FileExplorerWsService } from '../file-explorer-ws.service';
 import { AuthStore } from './auth.store';
 
 interface FileExplorerComponentState {
@@ -38,7 +44,7 @@ export const FileExplorerStore = signalStore(
   withProps(() => ({
     authStore: inject(AuthStore),
     service: inject(FileExplorerService),
-    wsService: inject(FileExplorerWsService),
+    ws: inject(sockets.SocketService),
   })),
   withMethods((state) => {
     const refreshParentDirectory = rxMethod<string>(
@@ -174,7 +180,7 @@ export const FileExplorerStore = signalStore(
       ),
       listenToFileChanges: rxMethod<void>(
         pipe(
-          switchMap(() => state.wsService.fileChanges$),
+          switchMap(() => state.ws.on<FileChangeEvent>(FILE_CHANGE_EVENT)),
           tap((event) => refreshParentDirectory(event.path)),
         ),
       ),
@@ -185,7 +191,7 @@ export const FileExplorerStore = signalStore(
       const rootPath = state.authStore.workspace()?.rootPath ?? '';
       patchState(state, { rootPath });
       state.getDirectory(rootPath);
-      state.wsService.watchDirectoryForChanges(rootPath);
+      state.ws.watch(FILE_WATCH_EVENT, rootPath);
       state.listenToFileChanges();
     },
   }),

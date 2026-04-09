@@ -74,33 +74,34 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 204.168.150.34 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
       - name: Upload Angular
-        run: rsync -avz --delete dist/apps/angular-ide/browser/ deploy@204.168.150.34:${{ inputs.angular-upload-path }}
+        run: rsync -avz --delete dist/apps/angular-ide/browser/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.angular-upload-path }}
 
       - name: Upload React
-        run: rsync -avz --delete apps/react-ide/dist/ deploy@204.168.150.34:${{ inputs.react-upload-path }}
+        run: rsync -avz --delete apps/react-ide/dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.react-upload-path }}
 
       - name: Upload API + Docker files
         run: |
-          rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json deploy@204.168.150.34:${{ inputs.deploy-dir }}/
-          rsync -avz Dockerfile deploy@204.168.150.34:${{ inputs.deploy-dir }}/
-          rsync -avz ${{ inputs.compose-file }} deploy@204.168.150.34:${{ inputs.deploy-dir }}/docker-compose.yml
-          rsync -avz --delete docker/ deploy@204.168.150.34:${{ inputs.deploy-dir }}/docker/
+          rsync -avz apps/nestjs-api/dist/main.js apps/nestjs-api/dist/package.json ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.deploy-dir }}/
+          rsync -avz Dockerfile ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.deploy-dir }}/
+          rsync -avz ${{ inputs.compose-file }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.deploy-dir }}/docker-compose.yml
+          rsync -avz --delete docker/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ inputs.deploy-dir }}/docker/
 
       - name: Create env file on server
         run: |
-          ssh deploy@204.168.150.34 "cat > ${{ inputs.deploy-dir }}/${{ inputs.env-file }} << 'EOF'
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cat > ${{ inputs.deploy-dir }}/${{ inputs.env-file }} << 'EOF'
           OAUTH_CLIENT_ID=${{ secrets.OAUTH_CLIENT_ID }}
           OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }}
           DEMO_REPO_URL=${{ secrets.DEMO_REPO_URL }}
           GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
           SESSION_ENCRYPTION_KEY=${{ secrets.SESSION_ENCRYPTION_KEY }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           EOF"
 
       - name: Build workspace image
-        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose --profile build-only build workspace"
+        run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd ${{ inputs.deploy-dir }} && docker compose --env-file ${{ inputs.env-file }} --profile build-only build workspace"
 
       - name: Restart API
-        run: ssh deploy@204.168.150.34 "cd ${{ inputs.deploy-dir }} && docker compose up -d --build"
+        run: ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd ${{ inputs.deploy-dir }} && docker compose --env-file ${{ inputs.env-file }} up -d --build"

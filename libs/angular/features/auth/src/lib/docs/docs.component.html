@@ -112,10 +112,30 @@
       <div class="callout">
         <p class="callout-title">Security</p>
         <p class="callout-text">
-          Your GitHub token is encrypted with AES-256-GCM and stored in a Redis session - never on
-          disk. Sessions expire after 30 minutes of inactivity. The token is embedded in the clone
-          URL only at runtime and is never committed to the repo.
+          Your GitHub token is encrypted with <strong>AES-256-GCM</strong> before being stored in a
+          Redis session. Sessions expire after <strong>30 minutes of inactivity</strong> and the
+          token is wiped on logout. The token is used at runtime only and is never committed to
+          your repository.
         </p>
+        <ul class="callout-list">
+          <li>
+            <strong>Encryption key isolation:</strong> the AES key lives in a separate environment
+            variable, not in Redis - compromising the cache alone reveals only ciphertext.
+          </li>
+          <li>
+            <strong>In-memory cache:</strong> Redis runs with persistence disabled
+            (<code>--save "" --appendonly no</code>) so encrypted tokens never touch disk.
+          </li>
+          <li>
+            <strong>Network isolation:</strong> Redis is bound to an internal Docker network with
+            no host port exposure and is protected by a password
+            (<code>requirepass</code>).
+          </li>
+          <li>
+            <strong>Transport security:</strong> all browser traffic is served over HTTPS via the
+            reverse proxy.
+          </li>
+        </ul>
       </div>
     </section>
 

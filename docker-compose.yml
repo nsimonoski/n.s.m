@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       - CORS_ORIGINS=https://kod3.dev
       - ANGULAR_IDE_URL=https://kod3.dev/angular
       - REACT_IDE_URL=https://kod3.dev/react
@@ -34,8 +34,14 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    volumes:
-      - redis-data:/data
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+      - --requirepass
+      - ${REDIS_PASSWORD}
     networks:
       - internal
 
@@ -60,9 +66,6 @@ services:
     image: nsm-workspace:latest
     profiles:
       - build-only
-
-volumes:
-  redis-data:
 
 networks:
   internal:

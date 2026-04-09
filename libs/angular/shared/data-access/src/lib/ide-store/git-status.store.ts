@@ -9,10 +9,10 @@ import {
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
-import { GitBranchDto } from '@org/shared/contracts';
+import { GIT_CHANGE_EVENT, GIT_WATCH_EVENT, GitBranchDto, GitStatusTreeResponseDto } from '@org/shared/contracts';
+import { uiStore } from '@org/angular/ui';
+import { sockets } from '@org/angular-utils';
 import { GitService } from '../git.service';
-import { GitWsService } from '../git-ws.service';
-import { SnackbarService } from '@org/angular/ui';
 import { AuthStore } from './auth.store';
 
 export interface GitStatusState {
@@ -38,11 +38,11 @@ export const GitStatusStore = signalStore(
     ahead: 0,
     behind: 0,
   }),
+  uiStore.withSnackbar(),
   withProps(() => ({
     authStore: inject(AuthStore),
     gitService: inject(GitService),
-    wsService: inject(GitWsService),
-    snackbar: inject(SnackbarService),
+    ws: inject(sockets.WebSocketStore),
   })),
   withMethods((store) => ({
     updateGitStatus: (partial: Partial<GitStatusState>) => {
@@ -70,7 +70,7 @@ export const GitStatusStore = signalStore(
     ),
     listenToGitChanges: rxMethod<void>(
       pipe(
-        switchMap(() => store.wsService.gitChanges$),
+        switchMap(() => store.ws.on<GitStatusTreeResponseDto>(GIT_CHANGE_EVENT)),
         tap(({ branch, tracking, stagedCount, changesCount, ahead, behind }) => {
           patchState(store, { branch, tracking, stagedCount, changesCount, ahead, behind });
         }),
@@ -81,7 +81,7 @@ export const GitStatusStore = signalStore(
         switchMap((branch: string) => store.gitService.checkout(store.rootPath(), branch)),
         switchMap(({ success, error }) => {
           if (!success) {
-            store.snackbar.error(error);
+            store.showError(error);
             return [];
           }
           return store.gitService.listBranches(store.rootPath());
@@ -100,7 +100,7 @@ export const GitStatusStore = signalStore(
         ),
         switchMap((result) => {
           if (!result.success) {
-            store.snackbar.error(result.error);
+            store.showError(result.error);
             return [];
           }
           return store.gitService.listBranches(store.rootPath()).pipe(
@@ -111,7 +111,7 @@ export const GitStatusStore = signalStore(
                 branches: data,
                 ...(current ? { branch: current.name } : {}),
               });
-              store.snackbar.success(`Branch "${current?.name}" created`);
+              store.showSuccess(`Branch "${current?.name}" created`);
             }),
           );
         }),
@@ -122,7 +122,7 @@ export const GitStatusStore = signalStore(
     onInit(store) {
       const rootPath = store.authStore.workspace()?.rootPath ?? '';
       patchState(store, { rootPath });
-      store.wsService.watchRepositoryForChanges(rootPath);
+      store.ws.watch(GIT_WATCH_EVENT, rootPath);
       store.listBranches();
       store.loadGitStatus();
       store.listenToGitChanges();

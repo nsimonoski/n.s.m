@@ -1,8 +1,7 @@
-import { inject } from '@angular/core';
-import { signalStore, withHooks, withMethods, withProps, withState } from '@ngrx/signals';
+import { signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { partialStore } from '@org/angular-utils';
-import { SnackbarService } from '@org/angular/ui';
+import { uiStore } from '@org/angular/ui';
 import { from, interval, pipe, startWith, switchMap, tap } from 'rxjs';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
@@ -17,8 +16,7 @@ export const DeploymentVersionStore = signalStore(
   }),
 
   partialStore.withBrowserStorage({ key: 'deployment-version' }),
-
-  withProps(() => ({ snackbar: inject(SnackbarService) })),
+  uiStore.withSnackbar(),
 
   withMethods((state) => ({
     reloadIfNewVersion: rxMethod<void>(
@@ -40,7 +38,7 @@ export const DeploymentVersionStore = signalStore(
               state.saveToStorage({ eTag, lastModified });
 
               if (hasNewVersion) {
-                state.snackbar.info('New version available. Reloading...');
+                state.showInfo('New version available. Reloading...');
                 setTimeout(() => document.location.reload(), SNACKBAR_DELAY);
               }
             }),

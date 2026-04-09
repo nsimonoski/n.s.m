@@ -28,6 +28,9 @@ export const withBrowserStorage = (config: BrowserStorageConfig) => {
         patchState(store, data);
         storage.save(data);
       },
+      removeFromStorage(): void {
+        storage.remove();
+      },
       clearAllStorage(preserveKeys: string[] = []): void {
         storage.clearAll(preserveKeys);
       },
