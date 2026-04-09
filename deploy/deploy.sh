@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-SERVER="deploy@204.168.150.34"
-DOMAIN="kod3.dev"
+SERVER="${DEPLOY_USER:-deploy}@${DEPLOY_HOST:?DEPLOY_HOST is required}"
+DOMAIN="${DEPLOY_DOMAIN:-kod3.dev}"
 
 # Parse arguments
 UAT=false
