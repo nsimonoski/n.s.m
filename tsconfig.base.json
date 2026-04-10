@@ -30,7 +30,8 @@
       "@org/react-ide": ["libs/react/features/ide/src/index.ts"],
       "@org/shared/terminal": ["libs/shared/terminal/src/index.ts"],
       "@org/angular-terminal": ["libs/angular/features/terminal/src/index.ts"],
-      "@org/angular-voice-control": ["libs/angular/features/voice-control/src/index.ts"]
+      "@org/angular-voice-control": ["libs/angular/features/voice-control/src/index.ts"],
+      "@org/angular-testing": ["libs/angular/shared/testing/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

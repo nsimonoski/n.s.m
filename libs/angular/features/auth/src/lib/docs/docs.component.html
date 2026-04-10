@@ -114,8 +114,8 @@
         <p class="callout-text">
           Your GitHub token is encrypted with <strong>AES-256-GCM</strong> before being stored in a
           Redis session. Sessions expire after <strong>30 minutes of inactivity</strong> and the
-          token is wiped on logout. The token is used at runtime only and is never committed to
-          your repository.
+          token is wiped on logout. The token is used at runtime only and is never committed to your
+          repository.
         </p>
         <ul class="callout-list">
           <li>
@@ -123,17 +123,27 @@
             variable, not in Redis - compromising the cache alone reveals only ciphertext.
           </li>
           <li>
-            <strong>In-memory cache:</strong> Redis runs with persistence disabled
-            (<code>--save "" --appendonly no</code>) so encrypted tokens never touch disk.
+            <strong>In-memory cache:</strong> Redis runs with persistence disabled (<code
+              >--save "" --appendonly no</code
+            >) so encrypted tokens never touch disk.
           </li>
           <li>
-            <strong>Network isolation:</strong> Redis is bound to an internal Docker network with
-            no host port exposure and is protected by a password
-            (<code>requirepass</code>).
+            <strong>Network isolation:</strong> Redis is bound to an internal Docker network with no
+            host port exposure and is protected by a password (<code>requirepass</code>).
           </li>
           <li>
             <strong>Transport security:</strong> all browser traffic is served over HTTPS via the
             reverse proxy.
+          </li>
+          <li>
+            <strong>Rate limiting:</strong> all API endpoints are rate-limited via Redis-backed
+            sliding windows. Read endpoints allow <strong>60 req/min</strong>, write endpoints
+            <strong>30 req/min</strong>, authentication endpoints <strong>10 req/min</strong>, and
+            expensive operations (e.g. AI chat) <strong>10 req/min</strong>. Voice commands have a
+            separate daily quota of <strong>500 requests</strong> and
+            <strong>~5.5 hours of audio</strong> per day. Limits are keyed by session ID (or IP for
+            unauthenticated requests) and return standard <code>429</code> /
+            <code>Retry-After</code> headers when exceeded.
           </li>
         </ul>
       </div>
@@ -292,9 +302,9 @@
     <section class="docs-section">
       <h2 class="section-title">Voice Control</h2>
       <p class="docs-text">
-        Control the IDE hands-free using voice commands. Click the microphone button in the status bar
-        to start recording, speak your command, then confirm or cancel. Voice transcription is powered
-        by Whisper and intent parsing by Llama 3.3 via
+        Control the IDE hands-free using voice commands. Click the microphone button in the status
+        bar to start recording, speak your command, then confirm or cancel. Voice transcription is
+        powered by Whisper and intent parsing by Llama 3.3 via
         <a href="https://groq.com/" target="_blank" rel="noopener noreferrer">Groq</a>.
       </p>
 
@@ -431,8 +441,8 @@
       <div class="callout">
         <p class="callout-title">File &amp; directory creation</p>
         <p class="callout-text">
-          New files and directories are created relative to the currently active file's directory. If
-          no file is open, they are created at the workspace root.
+          New files and directories are created relative to the currently active file's directory.
+          If no file is open, they are created at the workspace root.
         </p>
       </div>
     </section>

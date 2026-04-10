@@ -1,0 +1,7 @@
+{
+  "name": "angular-testing",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/angular/shared/testing/src",
+  "projectType": "library",
+  "tags": ["scope:angular", "type:testing"]
+}
