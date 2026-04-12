@@ -42,7 +42,7 @@ describe('IdeLayoutStore', () => {
     const store = setup();
     store.toggleTerminal();
     expect(store.terminalOpen()).toBe(true);
-    const saved = JSON.parse(localStorage.getItem('ide-layout')!);
+    const saved = JSON.parse(localStorage.getItem('ide-layout') ?? '{}');
     expect(saved.terminalOpen).toBe(true);
   });
 
@@ -66,7 +66,7 @@ describe('IdeLayoutStore', () => {
   it('should save width to storage', () => {
     const store = setup();
     store.setWidth(400);
-    const saved = JSON.parse(localStorage.getItem('ide-layout')!);
+    const saved = JSON.parse(localStorage.getItem('ide-layout') ?? '{}');
     expect(saved.width).toBe(400);
   });
 });

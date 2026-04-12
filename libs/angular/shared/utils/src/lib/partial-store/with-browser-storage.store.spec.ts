@@ -45,14 +45,14 @@ describe('withBrowserStorage', () => {
       const store = setup();
       store.saveToStorage({ count: 99 });
       expect(store.count()).toBe(99);
-      expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ count: 99 });
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toEqual({ count: 99 });
     });
 
     it('should merge with existing saved data', () => {
       const store = setup();
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ count: 1 }));
       store.saveToStorage({ label: 'updated' });
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
       expect(saved).toEqual({ count: 1, label: 'updated' });
     });
   });

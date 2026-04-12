@@ -33,7 +33,7 @@ describe('CollapsibleSectionStore', () => {
   it('should persist toggle state to localStorage', () => {
     const store = setup();
     store.toggle('git');
-    const saved = JSON.parse(localStorage.getItem('collapsible-sections')!);
+    const saved = JSON.parse(localStorage.getItem('collapsible-sections') ?? '{}');
     expect(saved.sections.git).toBe(false);
   });
 

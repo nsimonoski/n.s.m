@@ -54,7 +54,7 @@ describe('FileExplorerStore', () => {
   it('should load directory on init', () => {
     const { store } = setup();
     expect(store.directory()).toBeTruthy();
-    expect(store.directory()!.path).toBe('/workspace/repo');
+    expect(store.directory()?.path).toBe('/workspace/repo');
   });
 
   it('should get file and set in state', () => {

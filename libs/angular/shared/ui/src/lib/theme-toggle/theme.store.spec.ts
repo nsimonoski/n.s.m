@@ -29,7 +29,7 @@ describe('ThemeStore', () => {
   it('should persist theme to localStorage', () => {
     const store = setup();
     store.toggleTheme();
-    const saved = JSON.parse(localStorage.getItem('ide-theme')!);
+    const saved = JSON.parse(localStorage.getItem('ide-theme') ?? '{}');
     expect(saved.theme).toBe('light');
   });
 
