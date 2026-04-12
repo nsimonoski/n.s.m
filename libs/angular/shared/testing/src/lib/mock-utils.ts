@@ -42,6 +42,6 @@ export function mockSocketService() {
     reconnect: vi.fn(),
     disconnect: vi.fn(),
     connected: false,
-    onConnect: vi.fn().mockReturnValue(() => {}),
+    onConnect: vi.fn().mockReturnValue(vi.fn()),
   };
 }
