@@ -1,5 +1,6 @@
 import { computed, inject } from '@angular/core';
 import {
+  patchState,
   signalStore,
   withComputed,
   withHooks,
@@ -12,7 +13,7 @@ import { AppRoutes } from '@org/shared/utils';
 import { partialStore, sockets } from '@org/angular-utils';
 import { uiStore } from '@org/angular/ui';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { map, of, pipe, switchMap, tap } from 'rxjs';
+import { filter, fromEvent, map, of, pipe, switchMap, tap } from 'rxjs';
 import { AuthService } from '../auth.service';
 import { WorkspaceService } from '../workspace.service';
 
@@ -130,6 +131,23 @@ export const AuthStore = signalStore(
       ),
     ),
 
+    syncAcrossTabs: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          fromEvent<StorageEvent>(window, 'storage').pipe(
+            filter((e) => e.key === 'auth' && e.newValue != null),
+            map((e) => JSON.parse(e.newValue!) as Partial<AuthState>),
+          ),
+        ),
+        tap((data) => {
+          patchState(store, data);
+          if (data.profile) {
+            store.navigate(AppRoutes.ide.root);
+          }
+        }),
+      ),
+    ),
+
     githubAuthUrl(): string {
       return store.authService.getGithubAuthUrl();
     },
@@ -138,6 +156,7 @@ export const AuthStore = signalStore(
   withHooks({
     onInit(store) {
       store.loadFromStorage();
+      store.syncAcrossTabs();
     },
   }),
 );
