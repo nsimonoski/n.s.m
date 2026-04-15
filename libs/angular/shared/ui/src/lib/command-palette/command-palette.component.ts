@@ -17,6 +17,7 @@ export class CommandPaletteComponent {
   loading = input(false);
 
   itemSelected = output<CommandPaletteItem>();
+  actionClicked = output<CommandPaletteItem>();
   searchChanged = output<string>();
   closed = output<void>();
 

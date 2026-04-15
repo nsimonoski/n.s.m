@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { VoiceControl } from '@org/shared/contracts';
 import { VoiceControlStore } from './voice-control.store';
 import { CommandPaletteComponent, CommandPaletteItem } from '@org/angular/ui';
@@ -21,7 +21,16 @@ export class VoiceControlComponent {
     if (!result) return null;
 
     const cmd = VoiceControlUtils.VOICE_COMMANDS.find((c) => c.intent === result.intent);
-    const label = cmd?.label ?? result.intent;
+    let label = cmd?.label ?? result.intent;
+
+    if (result.intent === VoiceControl.VoiceIntent.AiChain && result.steps?.length) {
+      const stepLabels = result.steps.map((s) => {
+        const stepCmd = VoiceControlUtils.VOICE_COMMANDS.find((c) => c.intent === s.intent);
+        return stepCmd?.label ?? s.intent;
+      });
+      label = `Chain: ${stepLabels.join(' → ')}`;
+    }
+
     const params = Object.entries(result.params).filter(([, v]) => v);
     const paramText = params.map(([k, v]) => `${k}: "${v}"`).join(', ');
 
@@ -32,10 +41,32 @@ export class VoiceControlComponent {
     () => this.store.commandResult()?.intent === VoiceControl.VoiceIntent.Unknown,
   );
 
+  readonly showOnboardingHint = signal(
+    typeof window !== 'undefined' &&
+      window.innerWidth < 768 &&
+      !localStorage.getItem('voice-onboarding-seen'),
+  );
+
+  dismissOnboarding(): void {
+    localStorage.setItem('voice-onboarding-seen', 'true');
+    this.showOnboardingHint.set(false);
+  }
+
   onCommandSelected(item: CommandPaletteItem): void {
     const cmd = VoiceControlUtils.VOICE_COMMANDS.find((c) => c.intent === item.id);
     if (cmd) {
       this.store.selectCommand(cmd);
+    }
+  }
+
+  onCommandSpeak(item: CommandPaletteItem): void {
+    const cmd = VoiceControlUtils.VOICE_COMMANDS.find((c) => c.intent === item.id);
+    if (cmd?.voiceExample) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cmd.voiceExample.replace(/"/g, ''));
+      utterance.rate = 0.9;
+      utterance.voice = getNaturalVoice();
+      speechSynthesis.speak(utterance);
     }
   }
 }
@@ -57,6 +88,7 @@ function buildCommandPaletteItems(): CommandPaletteItem[] {
     ai: 'AI',
     terminal: 'Terminal',
     file: 'File',
+    tool: 'Tools',
   };
 
   let isFirst = true;
@@ -69,14 +101,32 @@ function buildCommandPaletteItems(): CommandPaletteItem[] {
     isFirst = false;
 
     for (const cmd of cmds) {
-      const paramHint = cmd.requiredParams.length > 0 ? ' (voice input)' : '';
       items.push({
         id: cmd.intent,
         label: cmd.label,
-        description: `${categoryLabels[cmd.category]}${paramHint}`,
+        description: cmd.voiceExample,
+        actionIcon: 'speaker',
       });
     }
   }
 
   return items;
+}
+
+function getNaturalVoice(): SpeechSynthesisVoice | null {
+  const voices = speechSynthesis.getVoices();
+  const english = voices.filter((v) => v.lang.startsWith('en'));
+
+  const premium = english.find(
+    (v) =>
+      v.name.includes('Premium') ||
+      v.name.includes('Enhanced') ||
+      v.name.includes('Natural') ||
+      v.name.includes('Samantha') ||
+      v.name.includes('Karen') ||
+      v.name.includes('Daniel'),
+  );
+  if (premium) return premium;
+
+  return english.find((v) => v.localService) ?? english[0] ?? null;
 }

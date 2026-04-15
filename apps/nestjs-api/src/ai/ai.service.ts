@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Groq from 'groq-sdk';
 import { Observable } from 'rxjs';
 import { Ai } from '@org/shared/contracts';
+import type { Ai as AiTypes } from '@org/shared/contracts';
 import { EnvironmentVariables } from '../common';
 
 @Injectable()
@@ -46,7 +47,9 @@ export class AiService {
     }
 
     const modifiedContent =
-      request.command === Ai.CommandType.MODIFY ? this.extractCodeBlock(fullResponse) : undefined;
+      request.command === Ai.CommandType.MODIFY || request.command === Ai.CommandType.DOCUMENT
+        ? this.extractCodeBlock(fullResponse)
+        : undefined;
 
     subscriber.next({ delta: '', done: true, modifiedContent });
     subscriber.complete();
@@ -72,6 +75,24 @@ export class AiService {
     if (request.command === Ai.CommandType.MODIFY) {
       systemParts.push(
         'Apply the requested change to the code and return the COMPLETE modified file wrapped in a single code block. Do not explain, only return the full modified file.',
+      );
+    }
+
+    if (request.command === Ai.CommandType.PLAN) {
+      systemParts.push(
+        'Generate a structured implementation plan in markdown with these sections: ## Goals, ## Steps, ## Files to Create/Modify, ## Considerations. Be specific and actionable.',
+      );
+    }
+
+    if (request.command === Ai.CommandType.DOCUMENT) {
+      systemParts.push(
+        'Generate documentation for this code. Return the complete file with JSDoc added, wrapped in a single code block. Do not explain, only return the full documented file.',
+      );
+    }
+
+    if (request.command === Ai.CommandType.TICKET) {
+      systemParts.push(
+        'Generate a structured ticket in markdown with these sections: ## Title, ## Description, ## Acceptance Criteria (as checkboxes), ## Priority, ## Technical Notes.',
       );
     }
 

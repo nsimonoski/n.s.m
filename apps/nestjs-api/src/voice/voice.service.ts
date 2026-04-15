@@ -44,6 +44,15 @@ Examples:
 - "close other tabs" → { "intent": "editor:close-others", "params": {}, "confidence": 0.9 }
 - "toggle sidebar" → { "intent": "layout:toggle-sidebar", "params": {}, "confidence": 0.9 }
 - "clear chat" → { "intent": "ai:clear-chat", "params": {}, "confidence": 0.9 }
+- "plan the authentication feature" → { "intent": "ai:plan", "params": { "message": "plan the authentication feature" }, "confidence": 0.9 }
+- "document this file" → { "intent": "ai:document", "params": {}, "confidence": 0.9 }
+- "create a ticket for the login bug" → { "intent": "ai:ticket", "params": { "message": "create a ticket for the login bug" }, "confidence": 0.9 }
+- "review this code and suggest a commit message" → { "intent": "ai:chain", "params": { "message": "review this code and suggest a commit message" }, "confidence": 0.9, "steps": [{ "intent": "ai:review", "params": {} }, { "intent": "ai:chat", "params": { "message": "suggest a commit message based on your review" } }] }
+
+- "install claude" or "install claude code" → { "intent": "tool:install-claude", "params": {}, "confidence": 0.95 }
+- "use claude" or "open claude" or "run claude" → { "intent": "tool:run-claude", "params": {}, "confidence": 0.95 }
+
+For multi-step commands (e.g. "do X and then Y", "X and suggest Y"), use intent "ai:chain" with a "steps" array. Each step has "intent" and "params".
 
 If the intent is unclear, use "unknown" with confidence 0.
 Only return the JSON object, no explanation.`;
@@ -95,6 +104,7 @@ export class VoiceService {
         intent: parsed.intent ?? VoiceControl.VoiceIntent.Unknown,
         params: parsed.params ?? {},
         confidence: parsed.confidence ?? 0,
+        steps: parsed.steps,
       };
     } catch {
       this.logger.warn(`Failed to parse LLM response: ${content}`);
@@ -110,8 +120,8 @@ export class VoiceService {
     await this.rateLimitGuard.checkAudioQuota(estimatedSeconds);
 
     const rawTranscription = await this.transcribe(audioBuffer, mimeType);
-    const { intent, params, confidence } = await this.parseIntent(rawTranscription);
+    const { intent, params, confidence, steps } = await this.parseIntent(rawTranscription);
 
-    return { intent, params, rawTranscription, confidence };
+    return { intent, params, rawTranscription, confidence, steps };
   }
 }

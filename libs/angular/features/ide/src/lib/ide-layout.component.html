@@ -10,6 +10,9 @@
       class="panel-content"
       [class.mobile-open]="layoutStore.sidebarOpen()"
       [style.width.px]="layoutStore.width()"
+      uiSwipe
+      (swipeLeft)="onSwipeLeft()"
+      (swipeRight)="onSwipeRight()"
     >
       <router-outlet />
       <div class="resize-handle" (mousedown)="onResizeStart($event)"></div>

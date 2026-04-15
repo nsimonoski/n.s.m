@@ -2,6 +2,9 @@ export enum CommandType {
   CHAT = 'chat',
   EXPLAIN = 'explain',
   MODIFY = 'modify',
+  PLAN = 'plan',
+  DOCUMENT = 'document',
+  TICKET = 'ticket',
 }
 
 export enum Role {

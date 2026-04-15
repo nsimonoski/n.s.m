@@ -5,7 +5,7 @@ import { ResizeUtils } from '@org/shared/utils';
 import { FileSearchComponent } from './file-search/file-search.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
-import { SnackbarComponent } from '@org/angular/ui';
+import { SnackbarComponent, SwipeDirective } from '@org/angular/ui';
 import { IdeStore } from '@org/angular-data-access';
 import { VoiceControlComponent } from '@org/angular-voice-control';
 
@@ -19,6 +19,7 @@ import { VoiceControlComponent } from '@org/angular-voice-control';
     FileSearchComponent,
     SnackbarComponent,
     VoiceControlComponent,
+    SwipeDirective,
   ],
   templateUrl: './ide-layout.component.html',
   styleUrls: ['./ide-layout.component.scss'],
@@ -29,6 +30,20 @@ import { VoiceControlComponent } from '@org/angular-voice-control';
 export class IdeLayoutComponent {
   readonly layoutStore = inject(IdeStore.IdeLayoutStore);
   readonly showFileSearch = signal(false);
+
+  onSwipeLeft(): void {
+    const panels = ['explorer', 'git', 'ai'];
+    const idx = panels.indexOf(this.layoutStore.activePanel());
+    const next = panels[Math.min(idx + 1, panels.length - 1)];
+    this.layoutStore.setActivePanel(next);
+  }
+
+  onSwipeRight(): void {
+    const panels = ['explorer', 'git', 'ai'];
+    const idx = panels.indexOf(this.layoutStore.activePanel());
+    const prev = panels[Math.max(idx - 1, 0)];
+    this.layoutStore.setActivePanel(prev);
+  }
 
   onResizeStart(event: MouseEvent): void {
     this.resizing = true;

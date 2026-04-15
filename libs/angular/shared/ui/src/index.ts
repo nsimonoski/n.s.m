@@ -16,3 +16,4 @@ export * from './lib/collapsible-section/collapsible-section.component';
 export * from './lib/collapsible-section/collapsible-section.store';
 export * from './lib/theme-toggle/theme-toggle.component';
 export * from './lib/theme-toggle/theme.store';
+export * from './lib/directives/swipe.directive';

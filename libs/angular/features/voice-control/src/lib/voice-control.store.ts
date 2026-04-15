@@ -219,6 +219,28 @@ export const VoiceControlStore = signalStore(
           store.aiChatStore.clearMessages();
           break;
 
+        case VoiceControl.VoiceIntent.AiPlan:
+          store.layoutStore.setActivePanel('ai');
+          store.aiChatStore.planFeature(result.params['message'] ?? '');
+          break;
+
+        case VoiceControl.VoiceIntent.AiDocument:
+          store.layoutStore.setActivePanel('ai');
+          store.aiChatStore.documentCurrentFile();
+          break;
+
+        case VoiceControl.VoiceIntent.AiTicket:
+          store.layoutStore.setActivePanel('ai');
+          store.aiChatStore.generateTicket(result.params['message'] ?? '');
+          break;
+
+        case VoiceControl.VoiceIntent.AiChain:
+          store.layoutStore.setActivePanel('ai');
+          if (result.steps?.length) {
+            dispatchChain(store, result.steps);
+          }
+          break;
+
         // --- Terminal ---
         case VoiceControl.VoiceIntent.TerminalRun: {
           const sessionId = store.terminalSessionStore.activeSessionId();
@@ -288,6 +310,28 @@ export const VoiceControlStore = signalStore(
           break;
         }
 
+        // --- Tools ---
+        case VoiceControl.VoiceIntent.ToolInstallClaude:
+        case VoiceControl.VoiceIntent.ToolRunClaude: {
+          const toolSessionId = store.terminalSessionStore.activeSessionId();
+          if (!store.layoutStore.terminalOpen()) {
+            store.layoutStore.toggleTerminal();
+          }
+          if (toolSessionId) {
+            const cmd =
+              result.intent === VoiceControl.VoiceIntent.ToolInstallClaude
+                ? 'npm install -g @anthropic-ai/claude-code'
+                : 'claude';
+            store.terminalWs.emit(Terminal.TERMINAL_DATA_EVENT, {
+              sessionId: toolSessionId,
+              data: cmd + '\r',
+            } satisfies Terminal.TerminalDataDto);
+          } else {
+            store.showError('No active terminal session');
+          }
+          break;
+        }
+
         default:
           store.showError(`Unknown command: "${result.rawTranscription}"`);
           break;
@@ -315,6 +359,68 @@ export const VoiceControlStore = signalStore(
     },
   })),
 );
+
+function dispatchAiStep(
+  aiChatStore: {
+    sendMessage: (args: { userMessage: string; command?: Ai.CommandType }) => void;
+    explainCurrentFile: () => void;
+  },
+  step: VoiceControl.ChainStep,
+): void {
+  switch (step.intent) {
+    case VoiceControl.VoiceIntent.AiExplain:
+      aiChatStore.explainCurrentFile();
+      break;
+    case VoiceControl.VoiceIntent.AiReview:
+      aiChatStore.sendMessage({
+        userMessage: 'Review the current file for potential issues, bugs, and improvements.',
+        command: Ai.CommandType.CHAT,
+      });
+      break;
+    case VoiceControl.VoiceIntent.AiRefactor:
+      aiChatStore.sendMessage({
+        userMessage:
+          step.params['instruction'] ||
+          'Refactor the current file to improve code quality and readability.',
+        command: Ai.CommandType.MODIFY,
+      });
+      break;
+    case VoiceControl.VoiceIntent.AiChat:
+    default:
+      aiChatStore.sendMessage({ userMessage: step.params['message'] ?? '' });
+      break;
+  }
+}
+
+function dispatchChain(
+  store: {
+    aiChatStore: {
+      sendMessage: (args: { userMessage: string; command?: Ai.CommandType }) => void;
+      explainCurrentFile: () => void;
+      isStreaming: () => boolean;
+    };
+  },
+  steps: VoiceControl.ChainStep[],
+): void {
+  let index = 0;
+
+  const runNext = (): void => {
+    if (index >= steps.length) return;
+    dispatchAiStep(store.aiChatStore, steps[index]);
+    index++;
+
+    if (index < steps.length) {
+      const poll = setInterval(() => {
+        if (!store.aiChatStore.isStreaming()) {
+          clearInterval(poll);
+          runNext();
+        }
+      }, 200);
+    }
+  };
+
+  runNext();
+}
 
 function resolvePath(
   activeFilePath: string | undefined,
