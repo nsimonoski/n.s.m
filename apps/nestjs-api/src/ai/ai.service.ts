@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import Groq from 'groq-sdk';
 import { Observable } from 'rxjs';
 import { Ai } from '@org/shared/contracts';
-import type { Ai as AiTypes } from '@org/shared/contracts';
 import { EnvironmentVariables } from '../common';
 
 @Injectable()

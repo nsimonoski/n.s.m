@@ -1,6 +1,6 @@
 import { Body, Controller, Header, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import type { Ai } from '@org/shared/contracts';
+import { Ai } from '@org/shared/contracts';
 import { RateLimitExpensive } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import { AiService } from './ai.service';

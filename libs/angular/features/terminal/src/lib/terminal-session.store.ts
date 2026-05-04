@@ -85,12 +85,29 @@ export const TerminalSessionStore = signalStore(
     requestNew(): void {
       doCreateSession(store);
     },
+
+    async ensureSession(): Promise<string | null> {
+      if (!store.layoutStore.terminalOpen()) {
+        store.layoutStore.toggleTerminal();
+      }
+
+      const existing = store.activeSessionId();
+      if (existing) return existing;
+
+      const restored = await waitForSession(store, 2000);
+      if (restored) return restored;
+
+      await doCreateSession(store);
+      return (
+        store.activeSessionId() ?? (await waitForSession(store, 5000))
+      );
+    },
   })),
 );
 
-async function doCreateSession(store: StoreProps): Promise<void> {
+async function doCreateSession(store: StoreProps): Promise<boolean> {
   const cwd = store.authStore.workspace()?.rootPath;
-  if (!cwd || !store.manager || !store.hostElement) return;
+  if (!cwd || !store.manager || !store.hostElement) return false;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'terminal-container';
@@ -102,15 +119,76 @@ async function doCreateSession(store: StoreProps): Promise<void> {
   const sessionId = await store.manager.createSession(wrapper, store.terminalWs, cwd);
   if (sessionId) {
     wrapper.dataset['sessionId'] = sessionId;
+    return true;
   }
+
+  wrapper.remove();
+  return false;
 }
 
 async function restoreSessions(store: StoreProps): Promise<void> {
   if (!store.manager) return;
   const count = store.manager.getSavedTabCount();
+  if (count === 0) return;
+
+  const connected = await waitForConnection(store.terminalWs);
+  if (!connected) return;
+
   for (let i = 0; i < count; i++) {
-    await doCreateSession(store);
+    const ok = await createWithRetry(store);
+    if (!ok) break;
   }
+}
+
+async function createWithRetry(store: StoreProps, maxAttempts = 3): Promise<boolean> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (attempt > 0) {
+      await delay(1000 * attempt);
+    }
+    if (await doCreateSession(store)) return true;
+  }
+  return false;
+}
+
+function waitForConnection(socket: TerminalWsService): Promise<boolean> {
+  return new Promise((resolve) => {
+    let unsub: (() => void) | null = null;
+    let settled = false;
+
+    const finish = (connected: boolean) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      unsub?.();
+      resolve(connected);
+    };
+
+    const timeout = setTimeout(() => finish(false), 10_000);
+
+    unsub = socket.onConnect(() => finish(true));
+
+    if (settled) unsub();
+  });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function waitForSession(
+  store: { activeSessionId: () => string | null },
+  timeoutMs: number,
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tick = () => {
+      const id = store.activeSessionId();
+      if (id) return resolve(id);
+      if (Date.now() - start >= timeoutMs) return resolve(null);
+      setTimeout(tick, 50);
+    };
+    tick();
+  });
 }
 
 function hideAllContainers(host: HTMLElement): void {

@@ -14,7 +14,7 @@
         "tsConfig": "libs/shared/contracts/tsconfig.lib.json",
         "assets": ["libs/shared/contracts/*.md"],
         "generateExportsField": true,
-        "skipTypeCheck": true
+        "skipTypeCheck": false
       }
     }
   }

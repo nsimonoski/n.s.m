@@ -19,7 +19,8 @@ services:
       - DOCKER_HOST=tcp://docker-proxy:2375
       - WORKSPACE_NETWORK=workspace-net
     env_file:
-      - .env.production
+      - path: .env.production
+        required: false
     tmpfs:
       - /tmp/private-workspaces:size=512M
     volumes:
