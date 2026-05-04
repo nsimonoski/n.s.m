@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>kod3.dev by Nenad Simonoski — Code from Anywhere</title>
+    <meta name="description" content="kod3.dev by Nenad Simonoski — browser IDE with voice control, AI assistance, and mobile support. Built with Angular, NestJS &amp; Monaco Editor." />
+    <meta name="author" content="Nenad Simonoski" />
+    <link rel="canonical" href="https://kod3.dev/" />
+    <meta name="theme-color" content="#1e1e2e" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kod3.dev/" />
+    <meta property="og:title" content="kod3.dev by Nenad Simonoski — Code from Anywhere" />
+    <meta property="og:description" content="Browser IDE by Nenad Simonoski with voice control, AI assistance, and mobile support." />
+    <meta property="og:site_name" content="kod3.dev" />
+    <meta property="og:image" content="https://kod3.dev/angular/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="kod3.dev — Browser IDE by Nenad Simonoski" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="kod3.dev by Nenad Simonoski — Code from Anywhere" />
+    <meta name="twitter:description" content="Browser IDE by Nenad Simonoski with voice control, AI assistance, and mobile support." />
+    <meta name="twitter:image" content="https://kod3.dev/angular/assets/og-image.png" />
+
+    <!-- Alternate versions -->
+    <link rel="alternate" href="https://kod3.dev/angular/" title="Angular IDE" />
+    <link rel="alternate" href="https://kod3.dev/react/" title="React IDE" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "kod3.dev",
+      "url": "https://kod3.dev",
+      "description": "Browser IDE with voice control, AI assistance, and mobile support. Code from anywhere.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "screenshot": "https://kod3.dev/angular/assets/og-image.png",
+      "featureList": [
+        "Voice-controlled coding",
+        "AI chat assistance",
+        "Mobile-friendly IDE",
+        "GitHub integration",
+        "Monaco Editor",
+        "Angular and React versions"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Nenad Simonoski",
+        "url": "https://www.linkedin.com/in/nenad-simonoski-nsm/",
+        "sameAs": [
+          "https://github.com/nsimonoski",
+          "https://dev.to/nsimonoski",
+          "https://www.linkedin.com/in/nenad-simonoski-nsm/"
+        ]
+      },
+      "sourceOrganization": {
+        "@type": "Person",
+        "name": "Nenad Simonoski"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- JS redirect — browsers go straight to /angular/, crawlers ignore this -->
+    <script>window.location.replace('/angular/')</script>
+    <!-- noscript fallback -->
+    <meta http-equiv="refresh" content="0;url=/angular/" />
+
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        background: #1e1e2e;
+        color: #cdd6f4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .login-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 48px;
+        background: #262637;
+        border: 1px solid #45475a;
+        border-radius: 8px;
+        max-width: 420px;
+        width: 100%;
+      }
+
+      .title { font-size: 28px; font-weight: 600; }
+      .subtitle { font-size: 14px; color: #a6adc8; text-align: center; }
+
+      .actions { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px; }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        font-family: inherit;
+      }
+
+      .btn-primary { background: #0078d4; color: #fff; }
+      .btn-primary:hover { background: #1a8ae8; }
+      .btn-secondary { background: #45475a; color: #cdd6f4; }
+      .btn-secondary:hover { background: #585b70; }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #45475a;
+      }
+      .divider span { font-size: 12px; color: #a6adc8; }
+
+      .note { font-size: 12px; color: #a6adc8; text-align: center; line-height: 1.5; }
+
+      .version-switch { font-size: 12px; }
+      .version-switch a { color: #a6adc8; text-decoration: none; }
+      .version-switch a:hover { color: #89b4fa; text-decoration: underline; }
+
+      .developer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #a6adc8;
+        margin-top: 8px;
+      }
+      .developer a { color: #89b4fa; text-decoration: none; }
+      .developer a:hover { text-decoration: underline; }
+
+      @media (max-width: 480px) {
+        .developer { flex-wrap: wrap; }
+        .developer-break { width: 100%; height: 0; }
+        .developer-break::after { content: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-card">
+      <h1 class="title">kod3.dev</h1>
+      <p class="subtitle">A browser-based IDE built in an Nx monorepo with Angular, NestJS &amp; Monaco Editor</p>
+
+      <div class="actions">
+        <a href="/angular/" class="btn btn-primary">Sign in with GitHub</a>
+        <div class="divider"><span>or</span></div>
+        <a href="/angular/" class="btn btn-secondary">Continue as Guest</a>
+      </div>
+
+      <p class="note">
+        Guest mode opens the source code of this IDE in read-only mode. Sign in with GitHub to clone
+        your own repos with full read/write access.
+      </p>
+
+      <div class="version-switch">
+        <a href="/react/">Try the React version</a>
+      </div>
+
+      <div class="developer">
+        <span>Built by</span>
+        <a href="https://www.linkedin.com/in/nenad-simonoski-nsm/" target="_blank" rel="noopener noreferrer">Nenad Simonoski</a>
+        <span>|</span>
+        <a href="https://github.com/nsimonoski/n.s.m" target="_blank" rel="noopener noreferrer">Source Code</a>
+        <span class="developer-break">|</span>
+        <a href="/angular/docs">Docs</a>
+        <span>|</span>
+        <a href="/angular/cv">CV</a>
+        <span>|</span>
+        <a href="https://dev.to/nsimonoski/how-a-monorepo-keeps-multiple-projects-in-sync-from-shared-code-to-atomic-deployments-1i16" target="_blank" rel="noopener noreferrer">Blog</a>
+      </div>
+    </div>
+  </body>
+</html>

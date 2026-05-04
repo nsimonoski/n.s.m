@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /uat/
+Sitemap: https://kod3.dev/sitemap.xml

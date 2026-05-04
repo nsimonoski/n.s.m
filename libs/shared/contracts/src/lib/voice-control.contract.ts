@@ -26,7 +26,18 @@ export enum VoiceIntent {
   EditorCloseOthers = 'editor:close-others',
   LayoutToggleSidebar = 'layout:toggle-sidebar',
   AiClearChat = 'ai:clear-chat',
+  AiPlan = 'ai:plan',
+  AiDocument = 'ai:document',
+  AiTicket = 'ai:ticket',
+  AiChain = 'ai:chain',
+  ToolInstallClaude = 'tool:install-claude',
+  ToolRunClaude = 'tool:run-claude',
   Unknown = 'unknown',
+}
+
+export interface ChainStep {
+  intent: VoiceIntent;
+  params: Record<string, string>;
 }
 
 export interface VoiceCommandResult {
@@ -34,6 +45,7 @@ export interface VoiceCommandResult {
   params: Record<string, string>;
   rawTranscription: string;
   confidence: number;
+  steps?: ChainStep[];
 }
 
 export interface TranscribeResponseDto {
@@ -44,4 +56,5 @@ export interface ParseIntentResponseDto {
   intent: VoiceIntent;
   params: Record<string, string>;
   confidence: number;
+  steps?: ChainStep[];
 }

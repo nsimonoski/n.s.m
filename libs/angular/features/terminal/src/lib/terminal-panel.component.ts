@@ -10,8 +10,6 @@ import {
 import { IdeStore } from '@org/angular-data-access';
 import { TerminalSessionStore } from './terminal-session.store';
 import { ThemeStore } from '@org/angular/ui';
-import '@xterm/xterm/css/xterm.css';
-
 @Component({
   selector: 'ide-terminal-panel',
   standalone: true,

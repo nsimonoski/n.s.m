@@ -49,7 +49,6 @@ export class TerminalManager {
         settled = true;
         unsub();
         unsubError();
-        unsubConnect?.();
       };
 
       const timeout = setTimeout(() => {
@@ -103,17 +102,11 @@ export class TerminalManager {
         },
       );
 
-      let unsubConnect: (() => void) | null = null;
-      unsubConnect = socket.onConnect(() => {
-        unsubConnect?.();
-        unsubConnect = null;
-        if (this.disposed) return;
-        socket.emit(TerminalContracts.TERMINAL_CREATE_EVENT, {
-          cols: 80,
-          rows: 24,
-          cwd,
-        } satisfies TerminalContracts.TerminalCreateRequestDto);
-      });
+      socket.emit(TerminalContracts.TERMINAL_CREATE_EVENT, {
+        cols: 80,
+        rows: 24,
+        cwd,
+      } satisfies TerminalContracts.TerminalCreateRequestDto);
     });
   }
 

@@ -21,7 +21,8 @@ services:
       - DOCKER_HOST=tcp://uat-docker-proxy:2375
       - WORKSPACE_NETWORK=workspace-net-uat
     env_file:
-      - .env.uat.production
+      - path: .env.uat.production
+        required: false
     tmpfs:
       - /tmp/private-workspaces:size=512M
     volumes:

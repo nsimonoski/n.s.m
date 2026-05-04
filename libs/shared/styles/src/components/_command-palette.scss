@@ -80,6 +80,24 @@
   min-width: 0;
 }
 
+.item-action {
+  flex-shrink: 0;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+}
+
 .status-message {
   padding: 10px 14px;
   font-size: 13px;

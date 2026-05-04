@@ -18,7 +18,9 @@
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 
   &:hover {
     background: var(--surface-color-hover, #313244);
@@ -42,7 +44,9 @@
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transition: background 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 
   &:hover {
     transform: scale(1.05);
@@ -161,5 +165,78 @@
 
   &.error {
     color: #f38ba8;
+  }
+}
+
+.voice-onboarding-hint {
+  position: fixed;
+  bottom: 160px;
+  right: 16px;
+  background: var(--accent-color, #7c3aed);
+  color: white;
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-color, #7c3aed);
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .voice-fab {
+    width: 56px;
+    height: 56px;
+    bottom: 90px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .voice-list-btn {
+    bottom: 152px;
+  }
+
+  .voice-confirm-overlay {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    bottom: 155px;
+  }
+
+  .voice-status {
+    right: 8px;
+    left: 8px;
+    text-align: center;
+    bottom: 150px;
+  }
+
+  .voice-onboarding-hint {
+    bottom: 155px;
+    right: 8px;
   }
 }

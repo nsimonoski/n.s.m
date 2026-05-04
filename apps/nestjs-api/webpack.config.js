@@ -2,6 +2,9 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
 module.exports = {
+  ignoreWarnings: [
+    { message: /was not found in '@org\/shared\/contracts'/ },
+  ],
   output: {
     path: join(__dirname, 'dist'),
     clean: true,

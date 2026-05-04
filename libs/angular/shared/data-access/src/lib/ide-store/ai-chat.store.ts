@@ -140,6 +140,18 @@ export const AiChatStore = signalStore(
       store.sendMessage({ userMessage: '', command: Ai.CommandType.EXPLAIN });
     },
 
+    planFeature(description: string): void {
+      store.sendMessage({ userMessage: description, command: Ai.CommandType.PLAN });
+    },
+
+    documentCurrentFile(): void {
+      store.sendMessage({ userMessage: '', command: Ai.CommandType.DOCUMENT });
+    },
+
+    generateTicket(description: string): void {
+      store.sendMessage({ userMessage: description, command: Ai.CommandType.TICKET });
+    },
+
     clearMessages(): void {
       store.saveToStorage({ messages: [] });
     },

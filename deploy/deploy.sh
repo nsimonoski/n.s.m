@@ -40,6 +40,9 @@ npx nx build react-ide
 echo "=== Building NestJS API ==="
 npx nx build nestjs-api
 
+echo "=== Uploading Landing page ==="
+rsync -avz --no-owner --no-group --delete deploy/landing/ "$SERVER:/var/www/$DOMAIN/landing/"
+
 echo "=== Uploading Angular to server ==="
 rsync -avz --no-owner --no-group --delete dist/apps/angular-ide/browser/ "$SERVER:$ANGULAR_PATH"
 
@@ -59,6 +62,14 @@ ssh "$SERVER" "mkdir -p $DEPLOY_DIR/workspaces $DEPLOY_DIR/docker/workspace"
 
 echo "=== Building workspace image ==="
 ssh "$SERVER" "cd $DEPLOY_DIR && docker build -t nsm-workspace:latest -f docker/workspace/Dockerfile ."
+
+echo "=== Flushing stale sessions ==="
+if [ "$UAT" = true ]; then
+  REDIS_NAME="kode-uat-uat-redis-1"
+else
+  REDIS_NAME="kode-redis-1"
+fi
+ssh "$SERVER" "docker exec $REDIS_NAME redis-cli FLUSHALL" || true
 
 echo "=== Building and starting API on server ==="
 ssh "$SERVER" "cd $DEPLOY_DIR && docker compose up -d --build"

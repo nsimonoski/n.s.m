@@ -73,9 +73,19 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    # Root redirect to Angular
+    # Landing page
     location = / {
-        return 302 /angular/;
+        root /var/www/kod3.dev/landing;
+        try_files /index.html =404;
+    }
+
+    # SEO files
+    location = /robots.txt {
+        root /var/www/kod3.dev/landing;
+    }
+
+    location = /sitemap.xml {
+        root /var/www/kod3.dev/landing;
     }
 
     listen 443 ssl; # managed by Certbot

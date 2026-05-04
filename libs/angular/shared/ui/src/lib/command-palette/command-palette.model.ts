@@ -4,4 +4,5 @@ export interface CommandPaletteItem {
   description?: string;
   disabled?: boolean;
   divider?: boolean;
+  actionIcon?: 'speaker';
 }
