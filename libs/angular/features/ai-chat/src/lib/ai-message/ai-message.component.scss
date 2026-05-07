@@ -31,6 +31,40 @@
     margin: 4px 0;
   }
 
+  ::ng-deep .ai-code-block-wrapper {
+    position: relative;
+
+    &:hover .ai-code-actions {
+      opacity: 1;
+    }
+  }
+
+  ::ng-deep .ai-code-actions {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  ::ng-deep .ai-code-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: inherit;
+    background: var(--bg-input);
+    color: var(--text-muted);
+    border: 1px solid var(--border-input);
+    border-radius: 2px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+  }
+
   pre {
     background: var(--bg-primary);
     border: 1px solid var(--border-input);

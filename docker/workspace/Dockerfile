@@ -7,7 +7,7 @@ RUN printf 'bind "set enable-bracketed-paste off"\nPS1="\\h:\\w\\$ "\n' > /home/
     && chown workspace:workspace /home/workspace/.bashrc
 COPY docker/workspace/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-ENV TERM=xterm-256color HOME=/home/workspace npm_config_cache=/tmp/.npm
+ENV TERM=xterm-256color HOME=/home/workspace npm_config_cache=/tmp/.npm npm_config_prefix=/home/workspace/.npm-global PATH="/home/workspace/.npm-global/bin:$PATH"
 USER workspace
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sleep", "infinity"]

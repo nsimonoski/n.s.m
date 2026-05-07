@@ -25,6 +25,7 @@ services:
       - /tmp/private-workspaces:size=512M
     volumes:
       - /opt/kode/workspaces:/data/workspaces
+      - /opt/kode/logs:/app/logs
     networks:
       - default
       - internal

@@ -33,7 +33,10 @@ export class VoiceController {
 
   @Post('command')
   @UseInterceptors(FileInterceptor('audio'))
-  async command(@UploadedFile() file: UploadedFileDto): Promise<VoiceControl.VoiceCommandResult> {
-    return this.voiceService.processCommand(file.buffer, file.mimetype);
+  async command(
+    @UploadedFile() file: UploadedFileDto,
+    @Body('lastIntent') lastIntent?: string,
+  ): Promise<VoiceControl.VoiceCommandResult> {
+    return this.voiceService.processCommand(file.buffer, file.mimetype, lastIntent);
   }
 }

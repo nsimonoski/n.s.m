@@ -7,14 +7,18 @@ import { Environment } from '@org/shared/utils';
 export class VoiceService {
   private readonly API_BASE = `${Environment.API_BASE_URL}/voice`;
 
-  processCommand(audioBlob: Blob): Observable<VoiceControl.VoiceCommandResult> {
+  processCommand(
+    audioBlob: Blob,
+    lastIntent?: string,
+  ): Observable<VoiceControl.VoiceCommandResult> {
     return new Observable((subscriber) => {
-      this.sendAudio(audioBlob, subscriber).catch((err) => subscriber.error(err));
+      this.sendAudio(audioBlob, lastIntent, subscriber).catch((err) => subscriber.error(err));
     });
   }
 
   private async sendAudio(
     audioBlob: Blob,
+    lastIntent: string | undefined,
     subscriber: {
       next: (v: VoiceControl.VoiceCommandResult) => void;
       complete: () => void;
@@ -23,6 +27,7 @@ export class VoiceService {
   ): Promise<void> {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.webm');
+    if (lastIntent) formData.append('lastIntent', lastIntent);
 
     const response = await fetch(`${this.API_BASE}/command`, {
       method: 'POST',

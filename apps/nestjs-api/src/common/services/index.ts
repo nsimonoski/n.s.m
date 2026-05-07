@@ -1,3 +1,4 @@
+export { AppLogger } from './app-logger.service';
 export { CryptoService } from './crypto.service';
 export { FileSystemService } from './file-system.service';
 export { FileWatcherService } from './file-watcher.service';

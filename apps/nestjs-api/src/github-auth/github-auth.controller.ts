@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import type { UserProfileDto } from '@org/shared/contracts';
 import { GUEST_PERMISSIONS } from '@org/shared/contracts';
-import { EnvironmentVariables, RateLimitAuth } from '../common';
+import { EnvironmentVariables, RateLimitAuth, AppLogger } from '../common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserSession } from '../auth/session.service';
 import { GithubAuthService } from './github-auth.service';
@@ -14,6 +14,7 @@ export class GithubAuthController {
   constructor(
     private readonly authService: GithubAuthService,
     private readonly config: ConfigService,
+    private readonly appLogger: AppLogger,
   ) {}
 
   @Get('github')
@@ -25,19 +26,32 @@ export class GithubAuthController {
   async handleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
     const session = await this.authService.authenticateWithCode(code);
     this.setSessionCookie(res, session.id);
+    this.appLogger.logActivity({
+      action: 'login',
+      username: session.githubUsername,
+      ip: req.ip || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+    });
 
     const frontendUrl = this.resolveFrontendUrl(state);
     res.redirect(`${frontendUrl}/ide/clone-repo`);
   }
 
   @Get('guest')
-  async guestLogin(@Res() res: Response) {
+  async guestLogin(@Req() req: Request, @Res() res: Response) {
     const session = await this.authService.createGuestSession();
     this.setSessionCookie(res, session.id);
+    this.appLogger.logActivity({
+      action: 'guest-login',
+      username: 'guest',
+      ip: req.ip || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+    });
     res.json({
       username: session.githubUsername,
       avatarUrl: session.avatarUrl,
