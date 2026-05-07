@@ -12,6 +12,7 @@ import { CollapsibleSectionStore } from './collapsible-section.store';
 export class CollapsibleSectionComponent implements OnInit, OnDestroy {
   readonly id = input.required<string>();
   readonly title = input.required<string>();
+  readonly expanded = input(false);
   readonly contentTemplate = contentChild(TemplateRef);
 
   private readonly store = inject(CollapsibleSectionStore);
@@ -19,7 +20,7 @@ export class CollapsibleSectionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.store.loadFromStorage();
-    this.store.register(this.id());
+    this.store.register(this.id(), this.expanded());
   }
 
   ngOnDestroy(): void {
