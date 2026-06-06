@@ -3,6 +3,7 @@
 # compiled output
 dist
 tmp
+logs
 out-tsc
 
 # dependencies
@@ -58,3 +59,5 @@ vitest.config.*.timestamp*
 .claude/ 
 
 skills-lock.json
+.nx/polygraph
+.nx/self-healing

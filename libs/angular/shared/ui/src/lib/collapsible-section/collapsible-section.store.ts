@@ -14,25 +14,30 @@ export const CollapsibleSectionStore = signalStore(
   withSnackbar(),
   withProps(() => ({
     registeredIds: new Set<string>(),
+    defaults: {} as Record<string, boolean>,
   })),
   withMethods((state) => ({
-    register(id: string): void {
+    register(id: string, expanded = false): void {
       if (isDevMode() && state.registeredIds.has(id)) {
         state.showError(`CollapsibleSection: duplicate id "${id}"`);
       }
       state.registeredIds.add(id);
+      if (expanded) {
+        state.defaults[id] = false;
+      }
     },
 
     unregister(id: string): void {
       state.registeredIds.delete(id);
+      delete state.defaults[id];
     },
 
     isCollapsed(id: string): boolean {
-      return state.sections()[id] ?? true;
+      return state.sections()[id] ?? state.defaults[id] ?? true;
     },
 
     toggle(id: string): void {
-      const current = state.sections()[id] ?? true;
+      const current = this.isCollapsed(id);
       state.saveToStorage({ sections: { ...state.sections(), [id]: !current } });
     },
   })),

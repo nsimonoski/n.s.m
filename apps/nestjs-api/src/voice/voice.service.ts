@@ -85,11 +85,16 @@ export class VoiceService {
     return result.text;
   }
 
-  async parseIntent(text: string): Promise<VoiceControl.ParseIntentResponseDto> {
+  async parseIntent(text: string, lastIntent?: string): Promise<VoiceControl.ParseIntentResponseDto> {
+    let systemPrompt = SYSTEM_PROMPT;
+    if (lastIntent) {
+      systemPrompt += `\n\nThe user's previous command was "${lastIntent}". If the transcription is ambiguous or seems like a follow-up (e.g. a question or continuation without an explicit command keyword), default to the same intent category. If the transcription clearly matches a different intent, use that instead.`;
+    }
+
     const response = await this.client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: text },
       ],
       response_format: { type: 'json_object' },
@@ -115,12 +120,13 @@ export class VoiceService {
   async processCommand(
     audioBuffer: Buffer,
     mimeType: string,
+    lastIntent?: string,
   ): Promise<VoiceControl.VoiceCommandResult> {
     const estimatedSeconds = audioBuffer.length / 16000;
     await this.rateLimitGuard.checkAudioQuota(estimatedSeconds);
 
     const rawTranscription = await this.transcribe(audioBuffer, mimeType);
-    const { intent, params, confidence, steps } = await this.parseIntent(rawTranscription);
+    const { intent, params, confidence, steps } = await this.parseIntent(rawTranscription, lastIntent);
 
     return { intent, params, rawTranscription, confidence, steps };
   }

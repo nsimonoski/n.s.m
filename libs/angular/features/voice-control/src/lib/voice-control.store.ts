@@ -20,6 +20,7 @@ interface VoiceControlState {
   commandResult: VoiceControl.VoiceCommandResult | null;
   error: string;
   showCommandList: boolean;
+  lastExecutedIntent: VoiceControl.VoiceIntent | null;
 }
 
 export const VoiceControlStore = signalStore(
@@ -30,6 +31,7 @@ export const VoiceControlStore = signalStore(
     commandResult: null,
     error: '',
     showCommandList: false,
+    lastExecutedIntent: null,
   }),
   withGitActions(),
   withProps(() => ({
@@ -74,7 +76,7 @@ export const VoiceControlStore = signalStore(
           patchState(store, { phase: 'processing' });
           return from(store.recorder.stop());
         }),
-        switchMap((blob: Blob) => store.voiceService.processCommand(blob)),
+        switchMap((blob: Blob) => store.voiceService.processCommand(blob, store.lastExecutedIntent() ?? undefined)),
         tap((result) => {
           patchState(store, {
             phase: 'confirming',
@@ -327,7 +329,7 @@ export const VoiceControlStore = signalStore(
           break;
       }
 
-      patchState(store, { phase: 'idle', transcription: '', commandResult: null });
+      patchState(store, { phase: 'idle', transcription: '', commandResult: null, lastExecutedIntent: result.intent });
     },
   })),
   withMethods((store) => ({

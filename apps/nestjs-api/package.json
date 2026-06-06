@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "tags": ["type:app"],
+    "tags": [
+      "type:app"
+    ],
     "targets": {
       "typecheck": {
         "executor": "nx:run-commands",
@@ -95,6 +97,7 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "geoip-lite": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"

@@ -6,3 +6,5 @@
 .angular
 *.swcrc
 /docs
+
+.nx/self-healing

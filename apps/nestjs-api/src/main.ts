@@ -3,11 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
-import { getCorsOrigins, EnvironmentVariables } from './common';
+import { getCorsOrigins, EnvironmentVariables, AppLogger } from './common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const appLogger = new AppLogger();
+  const app = await NestFactory.create(AppModule, { logger: appLogger });
   const config = app.get(ConfigService);
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', true);
   app.use(cookieParser());
   app.enableCors({
     origin: getCorsOrigins(),
