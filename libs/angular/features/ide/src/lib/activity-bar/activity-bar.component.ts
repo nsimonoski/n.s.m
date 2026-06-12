@@ -19,9 +19,13 @@ export class ActivityBarComponent {
   readonly panels = ActivityBarConfig;
 
   onPanelClick(panelId: string): void {
-    this.layoutStore.setActivePanel(panelId);
-    if (!this.layoutStore.sidebarOpen()) {
-      this.layoutStore.toggleSidebar();
+    if (this.layoutStore.activePanel() === panelId && this.layoutStore.sidebarOpen()) {
+      this.layoutStore.closeSidebar();
+    } else {
+      this.layoutStore.setActivePanel(panelId);
+      if (!this.layoutStore.sidebarOpen()) {
+        this.layoutStore.toggleSidebar();
+      }
     }
   }
 }

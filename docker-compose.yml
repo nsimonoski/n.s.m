@@ -9,7 +9,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - CORS_ORIGINS=https://kod3.dev
       - ANGULAR_IDE_URL=https://kod3.dev/angular
       - REACT_IDE_URL=https://kod3.dev/react

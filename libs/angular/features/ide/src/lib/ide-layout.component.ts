@@ -5,7 +5,7 @@ import { ResizeUtils } from '@org/shared/utils';
 import { FileSearchComponent } from './file-search/file-search.component';
 import { ActivityBarComponent } from './activity-bar/activity-bar.component';
 import { FooterComponent } from './footer/footer.component';
-import { SnackbarComponent, SwipeDirective } from '@org/angular/ui';
+import { InstallBannerComponent, SnackbarComponent, SwipeDirective } from '@org/angular/ui';
 import { IdeStore } from '@org/angular-data-access';
 import { VoiceControlComponent } from '@org/angular-voice-control';
 
@@ -20,6 +20,7 @@ import { VoiceControlComponent } from '@org/angular-voice-control';
     SnackbarComponent,
     VoiceControlComponent,
     SwipeDirective,
+    InstallBannerComponent,
   ],
   templateUrl: './ide-layout.component.html',
   styleUrls: ['./ide-layout.component.scss'],
