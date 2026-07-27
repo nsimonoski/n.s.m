@@ -64,7 +64,7 @@
       left: 0;
       width: 85vw;
       max-width: 320px;
-      height: calc(100% - 68px); // 44px activity-bar + 24px footer
+      height: calc(100% - 68px - env(safe-area-inset-bottom, 0px)); // 44px activity-bar + 24px footer + safe area
       z-index: 100;
       box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
     }

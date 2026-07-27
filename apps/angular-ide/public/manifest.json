@@ -1,0 +1,21 @@
+{
+  "name": "kod3.dev",
+  "short_name": "kod3",
+  "start_url": "/angular/",
+  "scope": "/angular/",
+  "display": "standalone",
+  "background_color": "#1e1e1e",
+  "theme_color": "#1e1e2e",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
